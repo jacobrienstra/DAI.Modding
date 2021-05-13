@@ -1,0 +1,34 @@
+﻿<Window x:Class="DAI.ModMaker.ConversationPreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Conversation Preview" Height="500" Width="650" Background="#FFF0F0F0" WindowStyle="ToolWindow" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="91*" />
+            <ColumnDefinition Width="123*" />
+        </Grid.ColumnDefinitions>
+        <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
+        <TreeView Name="ConversationNodes" Margin="10,10,3,35" Grid.Column="0" FontFamily="Consolas" SelectedItemChanged="ConversationNodes_SelectedItemChanged" />
+        <Button Name="CloseButton" Content="Close" Margin="10,0,0,10" VerticalAlignment="Bottom" Grid.Column="0" HorizontalAlignment="Left" Width="75" Click="CloseButton_Click" />
+        <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="5,10,10,0" Grid.Column="1" Height="104" VerticalAlignment="Top">
+            <ScrollViewer Margin="0,0,0,0" Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                <TextBlock Name="ConversationLineTextBlock" Height="102" Margin="0" VerticalAlignment="Top" Background="#FF000000" Padding="5" TextWrapping="Wrap" />
+            </ScrollViewer>
+        </Border>
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="5,173,0,0" TextWrapping="Wrap" Text="HoverTextReference:" VerticalAlignment="Top" />
+        <TextBox Name="SpeakerText" Grid.Column="1" Height="23" Margin="5,245,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" />
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="5,224,0,0" TextWrapping="Wrap" Text="Speaker:" VerticalAlignment="Top" />
+        <TextBox Name="ParaphraseText" Grid.Column="1" Height="23" Margin="5,143,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" />
+        <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="5,122,0,0" TextWrapping="Wrap" Text="Paraphrase:" VerticalAlignment="Top" />
+        <TextBox Name="HoverText" Grid.Column="1" Height="23" Margin="5,194,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" IsReadOnly="True" />
+        <TabControl Margin="5,273,10,35" Grid.Column="1">
+            <TabItem Header="Conditions">
+                <Grid>
+                    <ListBox Name="ConditionsListBox" Margin="5" FontFamily="Consolas" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Actions">
+                <Grid>
+                    <ListBox Name="ActionsListBox" Margin="5" FontFamily="Consolas" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

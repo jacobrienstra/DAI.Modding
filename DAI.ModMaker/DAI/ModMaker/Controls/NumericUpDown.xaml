@@ -1,0 +1,71 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" xmlns:ctl="clr-namespace:DAI.ModMaker.Controls">
+    <SolidColorBrush x:Key="BorderBrushHover" Color="#CCCCCC" />
+    <SolidColorBrush x:Key="BorderBrushClick" Color="#999999" />
+    <Style x:Key="UpButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Name="ButtonBorder" CornerRadius="0" BorderBrush="#FFD3D3D3" BorderThickness="1">
+                        <Path Name="UpArrow" Stroke="#666" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Center" Data="M1,5 L4.5,1.5 L8,5" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="UIElement.IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="Border.Background" Value="{StaticResource BorderBrushHover}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="Border.Background" Value="{StaticResource BorderBrushClick}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="DownButton" TargetType="{x:Type RepeatButton}">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Name="ButtonBorder" CornerRadius="0" BorderBrush="#FFD3D3D3" BorderThickness="1">
+                        <Path Name="DownArrow" Stroke="#666" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Center" Data="M1,1.5 L4.5,5 L8,1.5" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="UIElement.IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="Border.Background" Value="{StaticResource BorderBrushHover}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="Border.Background" Value="{StaticResource BorderBrushClick}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="{x:Type ctl:NumericUpDown}" TargetType="{x:Type ctl:NumericUpDown}">
+        <Setter Property="MinWidth" Value="100" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ctl:NumericUpDown}">
+                    <Border BorderThickness="1" BorderBrush="#FF808080" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                        <Grid Margin="0,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="13" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.RowSpan="2" Text="{TemplateBinding ValueString}" HorizontalAlignment="Right" TextAlignment="Right" VerticalAlignment="Center" Padding="5" />
+                            <RepeatButton Command="ctl:NumericUpDown.IncreaseCommand" Grid.Column="1" Grid.Row="0" Width="13" Height="10" Style="{StaticResource UpButton}" />
+                            <RepeatButton Command="ctl:NumericUpDown.DecreaseCommand" Grid.Column="1" Grid.Row="1" Width="13" Height="10" Style="{StaticResource DownButton}" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

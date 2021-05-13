@@ -1,0 +1,117 @@
+﻿<Window x:Class="DAI.ModMaker.LootTablePreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Loot Table Editor" Height="515" Width="600" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker">
+    <Grid>
+        <Grid Height="245" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="217" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
+            <StackPanel Grid.Column="0" Margin="10,10,3,10">
+                <TextBlock Text="Name:" Margin="5" Height="23" />
+                <TextBlock Text="Chance of no items:" Margin="5" Height="23" />
+                <TextBlock Text="Item probability:" Margin="5" Height="23" />
+                <TextBlock Text="Gold probability:" Margin="5" Height="23" />
+                <TextBlock Text="Gold Quantity:" Margin="5" Height="23" />
+                <TextBlock Text="Total weight from items:" Margin="5" Height="23" />
+                <TextBlock Text="Total weight from referenced tables:" Margin="5" Height="23" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="0,10,10,10">
+                <TextBlock Name="LootTableNameText" Text="Testing" Margin="5" Height="23" />
+                <Slider Name="LootTableChanceSlider" Margin="5" SmallChange="1" Maximum="100" Minimum="0" TickPlacement="BottomRight" Height="23" />
+                <ComboBox Name="LootTableItemProbComboBox" Margin="5" Height="23">
+                    <ComboBoxItem Content="None" />
+                    <ComboBoxItem Content="Very Low" />
+                    <ComboBoxItem Content="Low" />
+                    <ComboBoxItem Content="Medium" />
+                    <ComboBoxItem Content="High" />
+                    <ComboBoxItem Content="Very High" />
+                    <ComboBoxItem Content="Always" />
+                    <ComboBoxItem Content="Default" IsSelected="True" />
+                </ComboBox>
+                <ComboBox Name="LootTableGoldProbComboBox" Margin="5" Height="23">
+                    <ComboBoxItem Content="None" />
+                    <ComboBoxItem Content="Very Low" />
+                    <ComboBoxItem Content="Low" />
+                    <ComboBoxItem Content="Medium" />
+                    <ComboBoxItem Content="High" />
+                    <ComboBoxItem Content="Very High" />
+                    <ComboBoxItem Content="Always" />
+                    <ComboBoxItem Content="Default" IsSelected="True" />
+                </ComboBox>
+                <TextBox Name="LootTableGoldQuantityTextBox" Height="23" Margin="5" VerticalContentAlignment="Center" />
+                <TextBlock Name="LootTableTotalWeightItemsText" Text="Testing" Margin="5" Height="23" />
+                <TextBlock Name="LootTableTotalWeightReferencesText" Text="Testing" Margin="5" Height="23" />
+            </StackPanel>
+        </Grid>
+        <Grid Margin="0,250,0,35">
+            <TabControl Margin="10,0" Background="#FFF0F0F0">
+                <TabItem Name="LootObjectsTabItem" Header="Loot Objects">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="84*" />
+                            <ColumnDefinition Width="199*" />
+                        </Grid.ColumnDefinitions>
+                        <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" Margin="0,0,0,0.04" />
+                        <ListBox Name="LootObjectsListBox" Grid.Column="0" Margin="10,10,3,28.04" SelectionChanged="LootObjectsListBox_SelectionChanged" />
+                        <Button Name="AddLootObjectButton" Content="Add" HorizontalAlignment="Right" Margin="0,0,3,3.04" VerticalAlignment="Bottom" Width="75" Height="20" Click="AddLootObjectButton_Click" />
+                        <Button Name="RemoveLootObjectButton" Content="Remove" HorizontalAlignment="Left" Margin="10,0,0,3.04" Width="75" Height="20" VerticalAlignment="Bottom" Click="RemoveLootObjectButton_Click" />
+                        <Grid Column="1" Margin="0,0,0,0.04">
+                            <Grid Margin="0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="127.833" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Margin="2,4,2,2" Text="Loot Table:" Height="24" />
+                                    <TextBlock Margin="2" Text="Min Quantity:" Height="24" />
+                                    <TextBlock Margin="2" Text="Max Quantity:" Height="24" />
+                                    <TextBlock Margin="2" Text="Max per Area:" Height="24" />
+                                    <TextBlock Margin="2" Text="Weight:" Height="24" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <Controls:AssetPicker x:Name="LootObjectAssetPicker" Margin="2" />
+                                    <TextBox Name="LootObjectMinQuantityText" Height="24" Margin="2" />
+                                    <TextBox Name="LootObjectMaxQuantityText" Height="24" Margin="2" />
+                                    <TextBox Name="LootObjectMaxPerAreaText" Height="24" Margin="2" />
+                                    <TextBox Name="LootObjectWeightText" Height="24" Margin="2" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Name="ReferencedTablesTabItem" Header="Referenced Tables">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="84*" />
+                            <ColumnDefinition Width="199*" />
+                        </Grid.ColumnDefinitions>
+                        <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
+                        <ListBox Name="ReferencedTablesListBox" Grid.Column="0" Margin="10,10,3,28" SelectionChanged="ReferencedTablesListBox_SelectionChanged" />
+                        <Button Name="AddReferenceTableButton" Content="Add" HorizontalAlignment="Right" Margin="0,0,3,3" VerticalAlignment="Bottom" Width="75" Click="AddReferenceTableButton_Click" />
+                        <Button Name="RemoveReferenceTableButton" Content="Remove" HorizontalAlignment="Left" Margin="10,0,0,3" Width="75" Height="20" VerticalAlignment="Bottom" Click="RemoveReferenceTableButton_Click" />
+                        <Grid Column="1">
+                            <Grid Margin="0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="127.833" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Margin="2,4,2,2" Text="Loot Table:" Height="24" />
+                                    <TextBlock Margin="2" Text="Weight:" Height="24" />
+                                    <TextBlock Margin="2" Text="Weight Mult:" Height="24" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <Controls:AssetPicker x:Name="ReferencedTableAssetPicker" Margin="2" />
+                                    <TextBox Name="ReferencedTableWeightText" Margin="2" Height="24" VerticalContentAlignment="Center" />
+                                    <TextBox Name="ReferencedTableWeightMultText" Margin="2" Height="24" VerticalContentAlignment="Center" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <Button Name="SaveButton" Content="Save" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="SaveButton_Click" />
+        <Button Content="Find References" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="93" Click="Button_Click" />
+    </Grid>
+</Window>

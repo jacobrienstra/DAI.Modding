@@ -1,0 +1,6 @@
+﻿<Window x:Class="DAI.ModMaker.PatchLogWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="PatchLog" Height="500" Width="420" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+    <Grid>
+        <TextBox Name="PatchLogTextBox" Margin="10,10,10,35" TextWrapping="NoWrap" FontFamily="Consolas" Text="" VerticalScrollBarVisibility="Auto" />
+        <Button Name="OkButton" Content="Ok" Margin="169,0,169,10" Height="20" VerticalAlignment="Bottom" Click="OkButton_Click" />
+    </Grid>
+</Window>

@@ -1,0 +1,41 @@
+namespace DAI.FrostbiteAssets.Enums
+{
+	public enum MouseCursor
+	{
+		MouseCursor_NoCursor,
+		MouseCursor_Standard,
+		MouseCursor_Standard_Disabled,
+		MouseCursor_Standard_Pressed,
+		MouseCursor_Use,
+		MouseCursor_Use_Disabled,
+		MouseCursor_Use_Pressed,
+		MouseCursor_Dialog,
+		MouseCursor_Dialog_Disabled,
+		MouseCursor_Dialog_Pressed,
+		MouseCursor_Transition,
+		MouseCursor_Transition_Disabled,
+		MouseCursor_Transition_Pressed,
+		MouseCursor_Attack,
+		MouseCursor_Attack_Disabled,
+		MouseCursor_Attack_Pressed,
+		MouseCursor_Target,
+		MouseCursor_Target_Disabled,
+		MouseCursor_Target_Pressed,
+		MouseCursor_Unlock,
+		MouseCursor_Unlock_Disabled,
+		MouseCursor_Unlock_Pressed,
+		MouseCursor_Energize,
+		MouseCursor_Energize_Disabled,
+		MouseCursor_Energize_Pressed,
+		MouseCursor_Bash,
+		MouseCursor_Bash_Disabled,
+		MouseCursor_Bash_Pressed,
+		MouseCursor_IBeam,
+		MouseCursor_IBeam_Pressed,
+		MouseCursor_Standard_Targeting,
+		MouseCursor_Standard_Targeting_Disabled,
+		MouseCursor_Standard_Targeting_Pressed,
+		MouseCursor_Dragging,
+		MouseCursorCount
+	}
+}

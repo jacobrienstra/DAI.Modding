@@ -1,0 +1,31 @@
+namespace DAI.FrostbiteAssets.Enums
+{
+	public enum InputDeviceAxes
+	{
+		IDA_Axis0X,
+		IDA_Axis0Y,
+		IDA_Axis0XPos,
+		IDA_Axis0YPos,
+		IDA_Axis0XNeg,
+		IDA_Axis0YNeg,
+		IDA_Axis1X,
+		IDA_Axis1Y,
+		IDA_Axis1XPos,
+		IDA_Axis1YPos,
+		IDA_Axis1XNeg,
+		IDA_Axis1YNeg,
+		IDA_Axis2X,
+		IDA_Axis2Y,
+		IDA_Axis3X,
+		IDA_Axis3Y,
+		IDA_Axis4X,
+		IDA_Axis4Y,
+		IDA_Axis5X,
+		IDA_Axis5Y,
+		IDA_Axis6X,
+		IDA_Axis6Y,
+		IDA_Axis7X,
+		IDA_Axis7Y,
+		IDA_Undefined
+	}
+}

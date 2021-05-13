@@ -65,4 +65,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DAI\ModMaker\DAIMod\" />
+    <Folder Include="DAI\ModMaker\DAIModules\" />
+    <Folder Include="DAI\ModMaker\DAIRender\" />
+  </ItemGroup>
+
 </Project>

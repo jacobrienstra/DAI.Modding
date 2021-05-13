@@ -1,0 +1,27 @@
+namespace DAI.FrostbiteAssets.Enums
+{
+	public enum RigidBodyCollisionLayer
+	{
+		RigidBodyCollisionLayer_Invalid,
+		RigidBodyCollisionLayer_StaticLayer,
+		RigidBodyCollisionLayer_DynamicLayer,
+		RigidBodyCollisionLayer_KeyframeLayer,
+		RigidBodyCollisionLayer_DebrisLayer,
+		RigidBodyCollisionLayer_FastDebrisLayer,
+		RigidBodyCollisionLayer_OnlyStaticCollisionLayer,
+		RigidBodyCollisionLayer_RagdollLayer,
+		RigidBodyCollisionLayer_NoCollisionLayer,
+		RigidBodyCollisionLayer_WaterLayer,
+		RigidBodyCollisionLayer_TerrainLayer,
+		RigidBodyCollisionLayer_OnlyTerrainCollionLayer,
+		RigidBodyCollisionLayer_CharacterCollisionGeometryLayer,
+		RigidBodyCollisionLayer_AiCollisionBodyLayer,
+		RigidBodyCollisionLayer_KeyframedCollisionBodyLayer,
+		RigidBodyCollisionLayer_CameraCollisionLayer,
+		RigidBodyCollisionLayer_VehicleLayer,
+		RigidBodyCollisionLayer_VehicleAndCharacterCollisionLayer,
+		RigidBodyCollisionLayer_DynamicCombatCollisionLayer,
+		RigidBodyCollisionLayer_StaticCombatCollisionLayer,
+		RigidBodyCollisionLayer_Size
+	}
+}

@@ -1,0 +1,38 @@
+namespace DAI.FrostbiteAssets.Enums
+{
+	public enum ScoringBucket
+	{
+		ScoringBucket_General,
+		ScoringBucket_Teamwork,
+		ScoringBucket_Bonus,
+		ScoringBucket_Squad,
+		ScoringBucket_Objective,
+		ScoringBucket_Award,
+		ScoringBucket_VehicleMBT,
+		ScoringBucket_VehicleIFV,
+		ScoringBucket_VehicleAA,
+		ScoringBucket_VehicleAttackHeli,
+		ScoringBucket_VehicleScoutHeli,
+		ScoringBucket_VehicleJet,
+		ScoringBucket_KitAssault,
+		ScoringBucket_KitEngineer,
+		ScoringBucket_KitRecon,
+		ScoringBucket_KitSupport,
+		ScoringBucket_SinglePlayer,
+		ScoringBucket_Cooperation,
+		ScoringBucket_CoopIndivid,
+		ScoringBucket_Unlock,
+		ScoringBucket_AssaultRifles,
+		ScoringBucket_Carbines,
+		ScoringBucket_SniperRifles,
+		ScoringBucket_LMGs,
+		ScoringBucket_Shotguns,
+		ScoringBucket_PDWs,
+		ScoringBucket_DMRs,
+		ScoringBucket_Handguns,
+		ScoringBucket_RocketLaunchers,
+		ScoringBucket_HandGranades,
+		ScoringBucket_UnderslungLaunchers,
+		ScoringBucket_LastScoringBucketItem
+	}
+}

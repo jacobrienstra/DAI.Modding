@@ -1,0 +1,12 @@
+namespace DAI.FrostbiteAssets.Enums
+{
+	public enum ModelAssetType
+	{
+		MODEL_ASSET_APPEARANCE,
+		MODEL_ASSET_MORPH,
+		MODEL_ASSET_HAIR,
+		MODEL_ASSET_BEARD,
+		MODEL_ASSET_HORNS,
+		MODEL_ASSET_INVALID
+	}
+}

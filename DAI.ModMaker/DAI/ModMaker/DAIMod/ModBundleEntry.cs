@@ -1,16 +1,16 @@
 namespace DAI.ModMaker.DAIMod
 {
-	public class ModBundleEntry
-	{
-		public int ResourceId;
+    public class ModBundleEntry
+    {
+        public int ResourceId;
 
-		public ModBundleEntry(int InResourceId)
-		{
-			ResourceId = InResourceId;
-		}
+        public ModBundleEntry(int InResourceId)
+        {
+            ResourceId = InResourceId;
+        }
 
-		public ModBundleEntry()
-		{
-		}
-	}
+        public ModBundleEntry()
+        {
+        }
+    }
 }

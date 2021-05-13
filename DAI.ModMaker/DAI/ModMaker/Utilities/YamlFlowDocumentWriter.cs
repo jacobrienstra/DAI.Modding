@@ -1,11 +1,12 @@
-using DAI.AssetLibrary.Assets.Bases;
-using DAI.AssetLibrary.Utilities;
-using DAI.ModMaker.Controls;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+
+using DAI.AssetLibrary.Assets.Bases;
+using DAI.AssetLibrary.Utilities;
+using DAI.ModMaker.Controls;
 
 namespace DAI.ModMaker.Utilities
 {

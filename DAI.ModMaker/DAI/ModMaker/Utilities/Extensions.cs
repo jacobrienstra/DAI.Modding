@@ -1,7 +1,8 @@
+using System;
+
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using System;
 
 namespace DAI.ModMaker.Utilities
 {

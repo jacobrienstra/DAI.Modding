@@ -7,32 +7,32 @@ using DAI.ModMaker.Utilities;
 
 namespace DAI.ModMaker.Controls
 {
-	public partial class AssetPicker : UserControl, IComponentConnector
-	{
-		private EbxRef IntAssignedAsset;
+    public partial class AssetPicker : UserControl, IComponentConnector
+    {
+        private EbxRef IntAssignedAsset;
 
-		public EbxRef AssignedAsset
-		{
-			get
-			{
-				return IntAssignedAsset;
-			}
-			set
-			{
-				IntAssignedAsset = value;
-				AssetNameText.Text = ((value != null) ? value.GetDisplayFullName() : "No Selection");
-			}
-		}
+        public EbxRef AssignedAsset
+        {
+            get
+            {
+                return IntAssignedAsset;
+            }
+            set
+            {
+                IntAssignedAsset = value;
+                AssetNameText.Text = ((value != null) ? value.GetDisplayFullName() : "No Selection");
+            }
+        }
 
-		public AssetPicker()
-		{
-			InitializeComponent();
-		}
+        public AssetPicker()
+        {
+            InitializeComponent();
+        }
 
-		private void AssignButton_Click(object sender, RoutedEventArgs e)
-		{
-			IntAssignedAsset = Globals.SelectedAsset;
-			AssetNameText.Text = IntAssignedAsset.GetDisplayFullName();
-		}
-	}
+        private void AssignButton_Click(object sender, RoutedEventArgs e)
+        {
+            IntAssignedAsset = Globals.SelectedAsset;
+            AssetNameText.Text = IntAssignedAsset.GetDisplayFullName();
+        }
+    }
 }

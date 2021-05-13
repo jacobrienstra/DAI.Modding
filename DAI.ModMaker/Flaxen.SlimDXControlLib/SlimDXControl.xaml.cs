@@ -5,8 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-using SlimDX.Direct3D11;
 using DAI.ModMaker.DAIRender;
+
+using SlimDX.Direct3D11;
 
 namespace Flaxen.SlimDXControlLib
 {

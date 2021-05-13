@@ -3,10 +3,10 @@ using DAI.FrostbiteAssets;
 
 namespace DAI.ModMaker.DAIModules
 {
-	public interface DAIBasePreviewer
-	{
-		string[] GetAssetTypes();
+    public interface DAIBasePreviewer
+    {
+        string[] GetAssetTypes();
 
-		void Run(AssetContainer InContainer, EbxRef InAsset);
-	}
+        void Run(AssetContainer InContainer, EbxRef InAsset);
+    }
 }

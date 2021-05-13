@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 
 using DAI.ModMaker.DAIMod;
+using AssetLibUtilUtil = DAI.AssetLibrary.Utilities.Utilities;
 
 using Microsoft.Win32;
 
@@ -65,7 +66,7 @@ namespace DAI.ModMaker
                 byte[] numArray = new byte[fileStream.Length];
                 fileStream.Read(numArray, 0, (int)fileStream.Length);
                 fileStream.Close();
-                CurrentMod.Data.Add(DAI.AssetLibrary.Utilities.Utilities.CompressData(numArray));
+                CurrentMod.Data.Add(AssetLibUtilUtil.CompressData(numArray));
                 int count = CurrentMod.Data.Count - 1;
                 ResourceDataListBox.Items.Add("Unbound_Data_" + count);
                 ResourceDataListBox.SelectedIndex = CurrentMod.Data.Count - 1;
@@ -119,7 +120,7 @@ namespace DAI.ModMaker
             {
                 ResourceBindingTextBox.Text = "[" + num + "] " + modResourceEntry.Name;
             }
-            byte[] numArray = DAI.AssetLibrary.Utilities.Utilities.DecompressData(CurrentMod.Data[ResourceDataListBox.SelectedIndex], -1L);
+            byte[] numArray = AssetLibUtilUtil.DecompressData(CurrentMod.Data[ResourceDataListBox.SelectedIndex], -1L);
             ResourceDataHexControl.SetByteData(numArray);
         }
 

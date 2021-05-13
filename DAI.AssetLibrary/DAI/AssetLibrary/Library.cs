@@ -79,7 +79,7 @@ namespace DAI.AssetLibrary
 			AllEbx = new Dictionary<string, EbxRef>();
 			AllSubBundles = new Dictionary<string, SubBundleRef>();
 			LoadPlotFlags();
-			LoadEventNames();
+			LoadFieldNames();
 			LoadEbxNameTypes();
 			CasEntries = GameAssetFolders.SelectMany((GameAssetFolder folder) => CatalogParser.ParseAll(Path.Combine(BasePath, folder.Path))).ToDictionary((KeyValuePair<string, CatalogEntry> pair) => pair.Key, (KeyValuePair<string, CatalogEntry> pair) => pair.Value);
 		}
@@ -385,13 +385,13 @@ namespace DAI.AssetLibrary
 			}
 		}
 
-		private static void LoadEventNames()
+		private static void LoadFieldNames()
 		{
 			Assembly a = Assembly.GetExecutingAssembly();
 			string name = a.GetName().Name;
 			try
 			{
-				using (Stream s = a.GetManifestResourceStream(name + ".Resources.EventNames.txt"))
+				using (Stream s = a.GetManifestResourceStream(name + ".Resources.FieldNames.txt"))
 				{
 					using (StreamReader sReader = new StreamReader(s))
 					{

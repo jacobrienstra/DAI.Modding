@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+using DAI.ModMaker;
+
 namespace DAI.ModMaker.DAIModules
 {
     public static class DAIModuleManager

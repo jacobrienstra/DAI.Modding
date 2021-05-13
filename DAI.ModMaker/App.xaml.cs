@@ -1,11 +1,26 @@
-﻿using System.Windows;
+﻿using System;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Threading;
+
+using DAI.ModMaker;
 
 namespace DAI.ModMaker
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
+	public partial class App : Application
+	{
+
+		private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+		{
+			FrmException ex = new FrmException(e.Exception);
+			e.Handled = true;
+			ex.ShowDialog();
+			Application.Current.Shutdown();
+		}
+
+		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+		}
+	}
 }

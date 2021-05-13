@@ -58,7 +58,7 @@ namespace DAI.ModMaker
             }
             ConversationLine conversationLine = (ConversationLine)userData;
             ConversationLineTextBlock.Inlines.Clear();
-            ConversationLineTextBlock.Inlines.AddRange(DAI.ModMaker.Utilities.Utilities.ConvertStringToInlines(Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.TextReference.String.StringId)));
+            ConversationLineTextBlock.Inlines.AddRange(Utilities.Utilities.ConvertStringToInlines(Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.TextReference.String.StringId)));
             ParaphraseText.Text = Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.ParaphraseReference.StringId);
             HoverText.Text = Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.HoverTextReference.StringId);
             EbxRef ebx = ((conversationLine.TextReference.Speaker == null) ? null : Library.GetEbxByGuid(conversationLine.TextReference.Speaker.Id.FileGuid));

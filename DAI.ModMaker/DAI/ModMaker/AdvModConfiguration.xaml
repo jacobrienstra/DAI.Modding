@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.AdvModConfiguration" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Advanced Mod Configuration" Height="500" Width="600" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker">
+﻿<Window x:Class="DAI.ModMaker.AdvModConfiguration" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Advanced Mod Configuration" Height="500" Width="600" Background="#FFF0F0F0">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="23" />

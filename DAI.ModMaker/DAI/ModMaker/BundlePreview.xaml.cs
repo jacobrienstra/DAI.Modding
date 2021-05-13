@@ -1,8 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +11,7 @@ using DAI.AssetLibrary.Assets.References;
 
 namespace DAI.ModMaker
 {
-	public partial class BundlePreview : Window, IComponentConnector
+    public partial class BundlePreview : Window, IComponentConnector
 	{
 
 		public BundlePreview()

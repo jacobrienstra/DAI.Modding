@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.SearchWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Search" Height="398" Width="571" WindowStyle="ToolWindow" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+﻿<Window x:Class="DAI.ModMaker.Utilities.SearchWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Search" Height="398" Width="571" WindowStyle="ToolWindow" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
     <Grid>
         <TextBox Name="SearchTextBox" Height="23" Margin="94,10,94,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" TextChanged="SearchTextBox_TextChanged" />
         <TextBlock HorizontalAlignment="Left" Margin="10,14,0,0" TextWrapping="Wrap" Text="Text:" VerticalAlignment="Top" Height="19" Width="50" />

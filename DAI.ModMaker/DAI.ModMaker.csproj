@@ -9,10 +9,12 @@
     <Version>1.0.0.20</Version>
     <Company />
     <Copyright>Copyright © 2021</Copyright>
+    <StartupObject>DAI.ModMaker.App</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DocumentationFile></DocumentationFile>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

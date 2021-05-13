@@ -1,14 +1,12 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 
 using DAI.AssetLibrary.Assets.References;
+using AssetLibUtilUtil = DAI.AssetLibrary.Utilities.Utilities;
 using DAI.AssetLibrary.Utilities;
 using DAI.ModMaker.Controls;
 
@@ -89,7 +87,7 @@ namespace DAI.ModMaker
 				chunkAsset.H32 = selectedItem.H32;
 				chunkAsset.Meta = new byte[1];
 				ImportCompressData importCompressDatum = new ImportCompressData();
-				DAI.AssetLibrary.Utilities.Utilities.CompressData(numArray, ref importCompressDatum);
+				AssetLibUtilUtil.CompressData(numArray, ref importCompressDatum);
 				chunkAsset.RangeStart = 0;
 				chunkAsset.RangeEnd = importCompressDatum.RangeEnd;
 				chunkAsset.LogicalOffset = numArray.Length & -16777216;

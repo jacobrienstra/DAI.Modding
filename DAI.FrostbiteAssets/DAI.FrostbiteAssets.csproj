@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj" />
   </ItemGroup>
 
 </Project>

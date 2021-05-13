@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.LootTablePreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Loot Table Editor" Height="515" Width="600" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker">
+﻿<Window x:Class="DAI.ModMaker.LootTablePreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Loot Table Editor" Height="515" Width="600" Background="#FFF0F0F0">
     <Grid>
         <Grid Height="245" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>

@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using DAI.ModMaker.windows;
 
 namespace DAI.ModMaker.DAIModules
 {
-	public static class DAIModuleManager
+    public static class DAIModuleManager
 	{
 		public static Dictionary<string, DAIBaseImporter> Importers;
 
@@ -124,7 +123,7 @@ namespace DAI.ModMaker.DAIModules
 			}
 			catch (Exception ex)
 			{
-				new frmException(ex, false);
+				new FrmException(ex, false);
 			}
 		}
 	}

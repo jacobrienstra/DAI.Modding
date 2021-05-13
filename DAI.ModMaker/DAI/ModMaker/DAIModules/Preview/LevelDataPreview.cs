@@ -1,6 +1,6 @@
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Windows.Tools;
+using DAI.ModMaker.Preview;
 
 namespace DAI.ModMaker.DAIModules.Preview
 {

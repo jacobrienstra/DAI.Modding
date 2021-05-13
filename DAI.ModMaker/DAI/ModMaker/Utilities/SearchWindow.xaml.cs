@@ -14,9 +14,8 @@ using System.Windows.Threading;
 using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
-using DAI.ModMaker.Utilities;
 
-namespace DAI.ModMaker
+namespace DAI.ModMaker.Utilities
 {
 	public partial class SearchWindow : Window, IComponentConnector
 	{

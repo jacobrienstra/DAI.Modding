@@ -25,4 +25,13 @@
     <Folder Include="Resources\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\DAI.ModMaker\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="zlib.net">
+      <HintPath>..\DAI.ModMaker\zlib.net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

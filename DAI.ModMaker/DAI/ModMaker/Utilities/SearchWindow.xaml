@@ -1,12 +1,20 @@
-﻿<Window x:Class="DAI.ModMaker.DAI.ModMaker.Utilities.SearchWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DAI.ModMaker.DAI.ModMaker.Utilities"
-        mc:Ignorable="d"
-        Title="SearchWindow" Height="450" Width="800">
+﻿<Window x:Class="DAI.ModMaker.SearchWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Search" Height="398" Width="571" WindowStyle="ToolWindow" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
     <Grid>
-        
+        <TextBox Name="SearchTextBox" Height="23" Margin="94,10,94,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" TextChanged="SearchTextBox_TextChanged" />
+        <TextBlock HorizontalAlignment="Left" Margin="10,14,0,0" TextWrapping="Wrap" Text="Text:" VerticalAlignment="Top" Height="19" Width="50" />
+        <Button Name="SearchButton" Content="Search" Margin="0,10,10,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Right" Width="79" Click="SearchButton_Click" />
+        <ListBox Name="SearchResultsListBox" Margin="10,68,10,38" MouseDoubleClick="SearchResultsListBox_MouseDoubleClick">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="displayTextBox" Text="{Binding DisplayName}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ListBox>
+        <TextBox Name="EbxPathTextBox" Height="23" Margin="94,38,10,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+        <TextBlock HorizontalAlignment="Left" Height="23" Margin="10,40,0,0" TextWrapping="Wrap" Text="Path to Search:" VerticalAlignment="Top" />
+        <Button Name="CloseButton" Content="Close" Margin="0,0,10,10" VerticalAlignment="Bottom" Height="23" HorizontalAlignment="Right" Width="79" Click="CloseButton_Click" />
+        <TextBlock Name="SearchStatusText" Margin="10,0,94,5" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Height="23" TextAlignment="Left" />
     </Grid>
 </Window>

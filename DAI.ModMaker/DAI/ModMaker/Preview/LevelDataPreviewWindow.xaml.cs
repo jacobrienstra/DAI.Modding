@@ -21,7 +21,7 @@ using Flaxen.SlimDXControlLib;
 
 using SlimDX;
 
-namespace DAI.ModMaker.Windows.Tools
+namespace DAI.ModMaker.Preview
 {
 	public partial class LevelDataPreviewWindow : Window, IComponentConnector
 	{

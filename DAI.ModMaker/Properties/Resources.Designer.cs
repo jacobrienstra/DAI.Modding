@@ -61,6 +61,28 @@ namespace DAI.ModMaker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to namespace DAI.ModMaker.DAIMod
+        ///{
+        ///    class BlankTemplateScript : ModScript
+        ///    {
+        ///        public void ConstructUI(ModConfigElementsList ConfigElementsList)
+        ///        {
+        ///        }
+        ///
+        ///        public void RunScript()
+        ///        {
+        ///        }
+        ///    }
+        ///}
+        ///.
+        /// </summary>
+        internal static string BlankTemplate {
+            get {
+                return ResourceManager.GetString("BlankTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] ealayer3 {
@@ -81,40 +103,11 @@ namespace DAI.ModMaker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to using System;
-        ///using System.Collections.Generic;
-        ///using System.Linq;
-        ///using System.Text;
-        ///using System.Threading;
-        ///using System.IO;
-        ///
-        ///namespace DAI.ModMaker.DAIMod
-        ///{
-        ///    class BlankTemplateScript : ModScript
-        ///    {
-        ///        public void ConstructUI(ModConfigElementsList ConfigElementsList)
-        ///        {
-        ///        }
-        ///
-        ///        public void RunScript()
-        ///        {
-        ///        }
-        ///    }
-        ///}
-        ///.
-        /// </summary>
-        internal static string Resources_BlankTemplate {
-            get {
-                return ResourceManager.GetString("Resources_BlankTemplate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Resources_Shaders_Grid {
+        internal static byte[] Shaders_Grid {
             get {
-                object obj = ResourceManager.GetObject("Resources_Shaders_Grid", resourceCulture);
+                object obj = ResourceManager.GetObject("Shaders_Grid", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -122,9 +115,9 @@ namespace DAI.ModMaker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Resources_Shaders_MiniTri {
+        internal static byte[] Shaders_MiniTri {
             get {
-                object obj = ResourceManager.GetObject("Resources_Shaders_MiniTri", resourceCulture);
+                object obj = ResourceManager.GetObject("Shaders_MiniTri", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -132,9 +125,9 @@ namespace DAI.ModMaker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Resources_Shaders_Texture {
+        internal static byte[] Shaders_Texture {
             get {
-                object obj = ResourceManager.GetObject("Resources_Shaders_Texture", resourceCulture);
+                object obj = ResourceManager.GetObject("Shaders_Texture", resourceCulture);
                 return ((byte[])(obj));
             }
         }

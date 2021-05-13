@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net5.0-windows10.0.18362.0</TargetFramework>
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -16,6 +16,31 @@
     <DocumentationFile></DocumentationFile>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Resources\BlankTemplate.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\ealayer3.exe" />
+    <None Remove="Resources\libmpg123.dll" />
+    <None Remove="Resources\Shaders.Grid.fx" />
+    <None Remove="Resources\Shaders.MiniTri.fx" />
+    <None Remove="Resources\Shaders.Texture.fx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BlankTemplate.cs" />
+    <EmbeddedResource Include="Resources\ealayer3.exe" />
+    <EmbeddedResource Include="Resources\libmpg123.dll" />
+    <EmbeddedResource Include="Resources\Shaders.Grid.fx" />
+    <EmbeddedResource Include="Resources\Shaders.MiniTri.fx" />
+    <EmbeddedResource Include="Resources\Shaders.Texture.fx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj" />

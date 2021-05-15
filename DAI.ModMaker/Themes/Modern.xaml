@@ -48,6 +48,13 @@
     <Thickness x:Key="MenuSeparatorPadding">0,4,0,4</Thickness>
     <Thickness x:Key="MenuItemPadding">16,0,16,2</Thickness>
 
+    <Style x:Key="DefaultGridSplitterStyle" TargetType="GridSplitter">
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <Style TargetType="GridSplitter" BasedOn="{StaticResource DefaultGridSplitterStyle}" />
+
     <Style x:Key="DefaultMenuItemSeparatorStyle" TargetType="Separator">
         <Setter Property="Margin" Value="{DynamicResource MenuSeparatorPadding}" />
         <Setter Property="SnapsToDevicePixels" Value="true" />
@@ -101,6 +108,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="IsTabStop" Value="True" />
+                <Setter Property="Padding" Value="{DynamicResource MenuItemPadding}" />
             </Trigger>
             <Trigger Property="Role" Value="SubmenuHeader">
                 <Setter Property="Background" Value="{DynamicResource Transparent}" />
@@ -115,7 +123,7 @@
     <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}" />
 
 
-    <Thickness x:Key="ButtonPadding">8,5,8,6</Thickness>
+    <Thickness x:Key="ButtonPadding">16,5,16,6</Thickness>
     
     <Style x:Key="DefaultButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource BaseLowBrush}" />

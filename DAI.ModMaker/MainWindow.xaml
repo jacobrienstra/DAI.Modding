@@ -26,84 +26,93 @@ p://schemas.microsoft.com/expression/blend/2008"
         <KeyBinding Key="S" Modifiers="Control" Command="Save" />
         <KeyBinding Key="F" Modifiers="Control" Command="Search" />
     </Window.InputBindings>
-    <StackPanel>
-        <DockPanel Height="Auto" LastChildFill="False">
-            <Menu DockPanel.Dock="Left" Height="auto" HorizontalContentAlignment="Left" VerticalAlignment="Stretch">
-                <MenuItem Header="_File" IsSubmenuOpen="True">
-                    <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New" ToolTip="Creates a new mod" />
-                    <Separator />
-                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open" ToolTip="Opens an existing distributable or DAI mod" />
-                    <Separator />
-                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save" ToolTip="Saves the current mod" />
-                    <MenuItem Header="Save _As" ToolTip="Saves the current mod to a different file" Click="File_SaveAsCommandBinding_Executed" />
-                    <Separator />
-                    <MenuItem Header="_Import" ToolTip="Imports another mod and merges the content into the current mod" Click="File_ImportCommandBinding_Executed" />
-                    <Separator />
-                    <MenuItem Header="_Exit" Click="File_ExitCommandBinding_Executed" />
-                </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="Editors">
-                        <MenuItem Header="Talktable Editor" Click="Edit_TalktableEditorBinding_Executed" />
+    <DockPanel>
+        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource BaseLowBrush}" BorderThickness="0,0,0,1">
+            <DockPanel Height="Auto" LastChildFill="False">
+                <Menu DockPanel.Dock="Left">
+                    <MenuItem Header="_File" IsSubmenuOpen="True">
+                        <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New" ToolTip="Creates a new mod" />
+                        <Separator />
+                        <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open" ToolTip="Opens an existing distributable or DAI mod" />
+                        <Separator />
+                        <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save" ToolTip="Saves the current mod" />
+                        <MenuItem Header="Save _As" ToolTip="Saves the current mod to a different file" Click="File_SaveAsCommandBinding_Executed" />
+                        <Separator />
+                        <MenuItem Header="_Import" ToolTip="Imports another mod and merges the content into the current mod" Click="File_ImportCommandBinding_Executed" />
+                        <Separator />
+                        <MenuItem Header="_Exit" Click="File_ExitCommandBinding_Executed" />
                     </MenuItem>
-                    <MenuItem Header="Search" InputGestureText="Ctrl+F" Command="Search" ToolTip="Search assets for a particular string" />
-                    <Separator />
-                    <MenuItem Header="Adv. Mod Configuration" ToolTip="Allows you to configure scripts and such for the currently loaded mod" Click="Edit_ModConfigCommandBinding_Executed" />
-                </MenuItem>
-                <MenuItem Header="_Tools">
-                    <MenuItem Header="Export all EBX" Click="Tools_ExportAllEbxCommandBinding_Executed" />
-                    <Separator />
-                    <MenuItem Header="Hash Tools" Click="Tools_HashToolsCommandBinding_Executed" />
-                    <Separator />
-                    <MenuItem Header="Bundle Preview" Click="Tools_BundlePreviewCommandBinding_Executed" />
-                    <MenuItem Header="Resource Preview" Click="Tools_ResourcePreview_CommandBinding_Executed" />
-                    <Separator />
-                    <MenuItem Header="Delete cache" Click="Tools_DeleteCache_Click" />
-                    <MenuItem Header="Reset configs" Click="Tools_ResetConfigs_Click" />
-                </MenuItem>
-                <MenuItem Header="_Support" Visibility="Hidden">
-                    <MenuItem Header="Report a bug" Click="Support_ReportABug_Click" />
-                    <MenuItem Header="Request a feature" Click="Support_RequestAFeature_Click" />
-                </MenuItem>
-            </Menu>
-            <Menu DockPanel.Dock="Right">
-                <MenuItem Header="_Help" />
-            </Menu>
-        </DockPanel>
+                    <MenuItem Header="_Edit">
+                        <MenuItem Header="Editors">
+                            <MenuItem Header="Talktable Editor" Click="Edit_TalktableEditorBinding_Executed" />
+                        </MenuItem>
+                        <MenuItem Header="Search" InputGestureText="Ctrl+F" Command="Search" ToolTip="Search assets for a particular string" />
+                        <Separator />
+                        <MenuItem Header="Adv. Mod Configuration" ToolTip="Allows you to configure scripts and such for the currently loaded mod" Click="Edit_ModConfigCommandBinding_Executed" />
+                    </MenuItem>
+                    <MenuItem Header="_Tools">
+                        <MenuItem Header="Export all EBX" Click="Tools_ExportAllEbxCommandBinding_Executed" />
+                        <Separator />
+                        <MenuItem Header="Hash Tools" Click="Tools_HashToolsCommandBinding_Executed" />
+                        <Separator />
+                        <MenuItem Header="Bundle Preview" Click="Tools_BundlePreviewCommandBinding_Executed" />
+                        <MenuItem Header="Resource Preview" Click="Tools_ResourcePreview_CommandBinding_Executed" />
+                        <Separator />
+                        <MenuItem Header="Delete cache" Click="Tools_DeleteCache_Click" />
+                        <MenuItem Header="Reset configs" Click="Tools_ResetConfigs_Click" />
+                    </MenuItem>
+                    <MenuItem Header="_Support" Visibility="Hidden">
+                        <MenuItem Header="Report a bug" Click="Support_ReportABug_Click" />
+                        <MenuItem Header="Request a feature" Click="Support_RequestAFeature_Click" />
+                    </MenuItem>
+                </Menu>
+                <Menu DockPanel.Dock="Right">
+                    <MenuItem Header="_Help" />
+                </Menu>
+            </DockPanel>
+        </Border>
+        <StatusBar Height="30" DockPanel.Dock="Bottom" BorderBrush="{DynamicResource BaseMediumBrush}" BorderThickness="0,1,0,0">
+            <StatusBarItem  Margin="10,0,0,0" >
+                <TextBlock x:Name="StatusBarText" Text="Ready" VerticalAlignment="Stretch" FontSize="14"/>
+            </StatusBarItem>
+            <StatusBarItem x:Name="ProgressBarItem" Visibility="Visible">
+                <ProgressBar x:Name="SearchAssetsProgressBar" Height="17" Width="150" Margin="10,0,0,0" />
+            </StatusBarItem>
+        </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="250*" />
+                <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="417*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" />
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="5" Height="Auto" VerticalAlignment="Stretch" />
             <Grid Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="7*"/>
-                    <ColumnDefinition Width="113*"/>
-                </Grid.ColumnDefinitions>
-                <TreeView x:Name="AssetFolderTreeView" Margin="0,0,3,0" Grid.Row="0" BorderThickness="0,1,1,1" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" Grid.ColumnSpan="2" />
+                <TreeView x:Name="AssetFolderTreeView" BorderThickness="0,0,0,0" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" />
             </Grid>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="246*" />
+                    <RowDefinition Height="5" />
                     <RowDefinition Height="53*" />
                 </Grid.RowDefinitions>
-                <TabControl Grid.Row="0" BorderThickness="0,1,1,1" Margin="0,3,3,0">
+                <GridSplitter ResizeDirection="Rows" Height="5" HorizontalAlignment="Stretch" Grid.Row="1" />
+                <TabControl Grid.Row="0" Margin="0,10,0,0" BorderThickness="0,0,0,0">
                     <TabItem Header="Assets">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="25*"/>
-                                <ColumnDefinition Width="373*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Search:" Width="50" VerticalAlignment="Top" HorizontalAlignment="Center" />
-                            <TextBox x:Name="AssetFilterTextBox" TextWrapping="Wrap" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="26,0,75,0" KeyDown="AssetFilterTextBox_KeyDown" Grid.Column="1" />
-                            <Button x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" Width="65" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Grid.Column="1" />
-                            <Label Content="Type: " Height="25" Width="50" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,35,0,0" />
-                            <ComboBox x:Name="cboAssetType" Width="200" Margin="26,35,0,0" SelectionChanged="cboAssetType_SelectionChanged" Grid.Column="1" />
-                            <Label Content="Order by: " Width="60" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="231,42,0,0" Grid.Column="1" />
-                            <ComboBox x:Name="cboAssetSort" Width="98" Margin="298,35,0,0" SelectionChanged="cboAssetSort_SelectionChanged" Grid.Column="1" />
-                            <CheckBox x:Name="chkShowChildren" Content="Include children (might be slow)" Width="262" VerticalAlignment="Top" Margin="409,37,0,0" IsChecked="False" Checked="chkShowChildren_Checked" Unchecked="chkShowChildren_Unchecked" Grid.Column="1" />
-                            <Label x:Name="lblNbResults" Content="0 results" Width="65" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="681,40,0,0" Grid.Column="1" />
-                            <ListView x:Name="AssetListBox" Margin="0,55,3,0" FontFamily="Courier New" BorderBrush="{x:Null}" MouseDoubleClick="AssetListBox_MouseDoubleClick" SelectionChanged="AssetListBox_SelectionChanged" Grid.ColumnSpan="2">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,5">
+                                <Label Content="Search:" Width="50" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>
+                                <Button DockPanel.Dock="Right" x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Margin="5,0"/>
+                                <TextBox x:Name="AssetFilterTextBox" TextWrapping="Wrap" Text="" VerticalContentAlignment="Center" KeyDown="AssetFilterTextBox_KeyDown" />
+                            </DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,5" LastChildFill="False">
+                                <Label Content="Type:" Width="50" VerticalContentAlignment="Center" />
+                                <ComboBox x:Name="cboAssetType" Width="250" SelectionChanged="cboAssetType_SelectionChanged" />
+                                <Label Content="Order by:" Width="60" />
+                                <ComboBox x:Name="cboAssetSort" Width="150" SelectionChanged="cboAssetSort_SelectionChanged" />
+                                <CheckBox x:Name="chkShowChildren" Content="Include children (might be slow)" IsChecked="False" Checked="chkShowChildren_Checked" Unchecked="chkShowChildren_Unchecked" VerticalAlignment="Center" Margin="10,0"/>
+                                <Label x:Name="lblNbResults" Content="0 results" DockPanel.Dock="Right" Margin="5,0" />
+                            </DockPanel>
+                            <ListView Margin="0,5" x:Name="AssetListBox" FontFamily="Courier New" BorderBrush="{x:Null}" MouseDoubleClick="AssetListBox_MouseDoubleClick" SelectionChanged="AssetListBox_SelectionChanged">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -124,22 +133,11 @@ p://schemas.microsoft.com/expression/blend/2008"
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
-                        </Grid>
+                        </DockPanel>
                     </TabItem>
                 </TabControl>
-                <GridSplitter ResizeDirection="Rows" Height="3" HorizontalAlignment="Stretch"  Margin="0,0,3,0" Grid.Row="1" VerticalAlignment="Top" />
-                <TextBox x:Name="LogTextBox" Margin="0,5,0,0" Grid.Row="1" Text="" IsReadOnly="True" BorderThickness="1,1,0,1" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" />
+                <TextBox x:Name="LogTextBox" Grid.Row="2" Text="" IsReadOnly="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" BorderThickness="0,0,0,0" TextWrapping="NoWrap" />
             </Grid>
         </Grid>
-        <StatusBar Height="20"  Grid.Row="2" Grid.ColumnSpan="2">
-            <StatusBarItem>
-                <TextBlock x:Name="StatusBarText" Text="Ready" VerticalAlignment="Center" FontSize="11" />
-            </StatusBarItem>
-            <StatusBarItem x:Name="ProgressBarItem" Visibility="Hidden">
-                <Grid>
-                    <ProgressBar x:Name="SearchAssetsProgressBar" Height="14" Width="100" Margin="10,0,0,0" />
-                </Grid>
-            </StatusBarItem>
-        </StatusBar>
-    </StackPanel>
+    </DockPanel>
 </Window>

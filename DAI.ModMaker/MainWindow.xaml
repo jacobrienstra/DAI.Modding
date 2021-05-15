@@ -30,7 +30,7 @@ p://schemas.microsoft.com/expression/blend/2008"
         <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource BaseLowBrush}" BorderThickness="0,0,0,1">
             <DockPanel Height="Auto" LastChildFill="False">
                 <Menu DockPanel.Dock="Left">
-                    <MenuItem Header="_File" IsSubmenuOpen="True">
+                    <MenuItem Header="_File" IsSubmenuOpen="False">
                         <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New" ToolTip="Creates a new mod" />
                         <Separator />
                         <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open" ToolTip="Opens an existing distributable or DAI mod" />
@@ -94,12 +94,12 @@ p://schemas.microsoft.com/expression/blend/2008"
                     <RowDefinition Height="113*" />
                 </Grid.RowDefinitions>
                 <GridSplitter ResizeDirection="Rows" Height="5" HorizontalAlignment="Stretch" Grid.Row="1" />
-                <TabControl Grid.Row="0" Margin="0,5,0,0" BorderThickness="0,0,0,0">
-                    <TabItem Header="Assets" Margin="0,0,0,0" Padding="16,6,16,6">
+                <TabControl Grid.Row="0" Margin="0,5,0,0" BorderThickness="0,2,0,0">
+                    <TabItem Header="Assets">
                         <DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,5">
                                 <Label Content="Search:" Width="50" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>
-                                <Button DockPanel.Dock="Right" x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Margin="5,0"/>
+                                <Button DockPanel.Dock="Right" x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Margin="5,0" Padding="20,3,20,6"/>
                                 <TextBox x:Name="AssetFilterTextBox" TextWrapping="Wrap" Text="" VerticalContentAlignment="Center" KeyDown="AssetFilterTextBox_KeyDown" />
                             </DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,5" LastChildFill="False">

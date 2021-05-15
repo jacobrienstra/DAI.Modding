@@ -46,11 +46,12 @@
     <SolidColorBrush x:Key="Transparent" Color="Transparent" />
 
     <Thickness x:Key="MenuSeparatorPadding">0,4,0,4</Thickness>
-    <Thickness x:Key="MenuItemPadding">16,0,16,2</Thickness>
+    <Thickness x:Key="MenuItemPadding">16,4,16,7</Thickness>
+    <Thickness x:Key="SubmenuItemPadding">0,6,0,9</Thickness>
+
 
     <Style x:Key="DefaultGridSplitterStyle" TargetType="GridSplitter">
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
     </Style>
 
     <Style TargetType="GridSplitter" BasedOn="{StaticResource DefaultGridSplitterStyle}" />
@@ -87,7 +88,6 @@
 
 
     <Style x:Key="DefaultMenuItemStyle" TargetType="MenuItem">
-        <!--<Setter Property="Height" Value="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}" />-->
         <Setter Property="Background" Value="{DynamicResource Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -95,27 +95,21 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{DynamicResource {x:Static SystemParameters.FocusVisualStyleKey}}" />
         <Style.Triggers>
             <Trigger Property="Role" Value="TopLevelHeader">
-                <Setter Property="Background" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="IsTabStop" Value="True" />
                 <Setter Property="Padding" Value="{DynamicResource MenuItemPadding}" />
             </Trigger>
             <Trigger Property="Role" Value="TopLevelItem">
-                <Setter Property="Background" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="IsTabStop" Value="True" />
                 <Setter Property="Padding" Value="{DynamicResource MenuItemPadding}" />
             </Trigger>
+            <Trigger Property="Role" Value="SubmenuItem">
+                <Setter Property="Padding" Value="{DynamicResource SubmenuItemPadding}" />
+            </Trigger>
             <Trigger Property="Role" Value="SubmenuHeader">
-                <Setter Property="Background" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="12,0,12,2" />
-                <Setter Property="Foreground" Value="{DynamicResource BaseHighBrush}" />
+                <Setter Property="Padding" Value="{DynamicResource SubmenuItemPadding}" />
             </Trigger>
         </Style.Triggers>
     </Style>

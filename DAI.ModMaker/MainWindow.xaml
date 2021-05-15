@@ -44,7 +44,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                     </MenuItem>
                     <MenuItem Header="_Edit">
                         <MenuItem Header="Editors">
-                            <MenuItem Header="Talktable Editor" Click="Edit_TalktableEditorBinding_Executed" />
+                            <MenuItem Header="Talktable Editor" Click="Edit_TalktableEditorBinding_Executed"  />
                         </MenuItem>
                         <MenuItem Header="Search" InputGestureText="Ctrl+F" Command="Search" ToolTip="Search assets for a particular string" />
                         <Separator />
@@ -81,23 +81,23 @@ p://schemas.microsoft.com/expression/blend/2008"
         </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250*" />
-                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="249*" />
+                <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="417*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="5" Height="Auto" VerticalAlignment="Stretch" />
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="5" VerticalAlignment="Stretch" />
             <Grid Grid.Column="0">
                 <TreeView x:Name="AssetFolderTreeView" BorderThickness="0,0,0,0" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" />
             </Grid>
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="246*" />
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="53*" />
+                    <RowDefinition Height="526*" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="113*" />
                 </Grid.RowDefinitions>
                 <GridSplitter ResizeDirection="Rows" Height="5" HorizontalAlignment="Stretch" Grid.Row="1" />
-                <TabControl Grid.Row="0" Margin="0,10,0,0" BorderThickness="0,0,0,0">
-                    <TabItem Header="Assets">
+                <TabControl Grid.Row="0" Margin="0,5,0,0" BorderThickness="0,0,0,0">
+                    <TabItem Header="Assets" Margin="0,0,0,0" Padding="16,6,16,6">
                         <DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,5">
                                 <Label Content="Search:" Width="50" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>

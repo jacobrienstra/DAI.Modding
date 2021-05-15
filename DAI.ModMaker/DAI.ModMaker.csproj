@@ -39,10 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ModernWpfUI" Version="0.9.4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj" />
     <ProjectReference Include="..\DAI.FrostbiteAssets\DAI.FrostbiteAssets.csproj" />
   </ItemGroup>

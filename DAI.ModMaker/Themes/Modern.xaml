@@ -49,6 +49,8 @@
     <Thickness x:Key="MenuItemPadding">16,4,16,7</Thickness>
     <Thickness x:Key="SubmenuItemPadding">0,6,0,9</Thickness>
 
+    <Thickness x:Key="ButtonPadding">20,5,20,6</Thickness>
+
 
     <Style x:Key="DefaultGridSplitterStyle" TargetType="GridSplitter">
         <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
@@ -117,7 +119,6 @@
     <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}" />
 
 
-    <Thickness x:Key="ButtonPadding">16,5,16,6</Thickness>
     
     <Style x:Key="DefaultButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource BaseLowBrush}" />

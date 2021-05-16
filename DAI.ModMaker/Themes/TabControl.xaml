@@ -8,98 +8,82 @@
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Thickness x:Key="TabViewItemHeaderPadding">4,8,4,8</Thickness>
-
-    <sys:Double x:Key="TabViewItemMaxWidth">240</sys:Double>
-    <sys:Double x:Key="TabViewItemMinWidth">140</sys:Double>
+    <Thickness x:Key="TabViewItemHeaderPadding">20,8,20,8</Thickness>
 
     <sys:Double x:Key="TabViewItemHeaderFontSize">14</sys:Double>
 
     <Style x:Key="DefaultTabItemStyle" TargetType="TabItem">
-        <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
         <Setter Property="BorderBrush" Value="{DynamicResource BaseLowBrush}" />
-        <Setter Property="BorderThickness" Value="4,4,4,0" />
-        <Setter Property="MinWidth" Value="{DynamicResource TabViewItemMinWidth}" />
-        <Setter Property="MaxWidth" Value="{DynamicResource TabViewItemMaxWidth}" />
-        <Setter Property="Padding" Value="4,0,4,0" />
+        <Setter Property="BorderThickness" Value="4" />
+
+        <Setter Property="Padding" Value="4" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <Border
-                            x:Name="LayoutRoot"
-                            Padding="{TemplateBinding Padding}"
-                            Margin="0,0,0,0"
-                            SnapsToDevicePixels="True">
+                        x:Name="LayoutRoot"
+                        Padding="{TemplateBinding Padding}"
+                        Margin="0"
+                        SnapsToDevicePixels="True">
                         <Grid>
                             <Border
-                                    x:Name="TabContainer"
-                                    Grid.Column="1"
-                                    Background="{DynamicResource Transparent}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{DynamicResource TabViewItemHeaderPadding}">
-                                <Grid>
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <ContentPresenter
-                                            x:Name="ContentPresenter"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                            ContentSource="Header"
-                                            TextElement.Foreground="{DynamicResource BaseHighBrush}"
-                                            TextElement.FontSize="{DynamicResource TabViewItemHeaderFontSize}"
-                                            Focusable="False"
-                                            RecognizesAccessKey="True"
-                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                </Grid>
+                                x:Name="TabContainer"
+                                Grid.Column="1"
+                                Cursor="Hand"
+                                Background="{DynamicResource Transparent}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{DynamicResource TabViewItemHeaderPadding}">
+                                <ContentPresenter
+                                        x:Name="ContentPresenter"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        ContentSource="Header"
+                                        TextElement.Foreground="{DynamicResource BaseHighBrush}"
+                                        TextElement.FontSize="{DynamicResource TabViewItemHeaderFontSize}"
+                                        Focusable="False"
+                                        RecognizesAccessKey="True"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                             </Border>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <!-- PointerOver -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource AltMediumLowBrush}" />
+                        <Trigger Property="IsMouseOver" SourceName="TabContainer" Value="True">
+                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource ListLowBrush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
                         </Trigger>
                         <!-- Selected -->
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource AltHighBrush}" />
+                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource Accent3Brush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
                             <Setter Property="Panel.ZIndex" Value="1" />
                         </Trigger>
-                        <!-- PointerOverSelected -->
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsSelected" Value="True" />
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource AltHighBrush}" />
-                            <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
-                            <Setter Property="Panel.ZIndex" Value="1" />
-                        </MultiTrigger>
                         <!-- Disabled -->
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseMediumLowBrush}" />
                         </Trigger>
-                        <!-- NoIcon -->
                         <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Top">
+                            <Setter Property="Padding" Value="4,0,4,0" />
                             <Setter TargetName="TabContainer" Property="CornerRadius" Value="2,2,0,0" />
+                            <Setter Property="BorderThickness" Value="4,4,4,0" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Bottom">
+                            <Setter Property="Padding" Value="4,0,4,0" />
+                            <Setter Property="BorderThickness" Value="4,0,4,4" />
                             <Setter TargetName="TabContainer" Property="CornerRadius" Value="0,0,2,2" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Left">
+                            <Setter Property="Padding" Value="0,4,0,4" />
+                            <Setter Property="BorderThickness" Value="4,4,0,4" />
                             <Setter TargetName="TabContainer" Property="CornerRadius" Value="2,0,0,2" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}" Value="Right">
+                            <Setter Property="Padding" Value="0,4,0,4" />
+                            <Setter Property="BorderThickness" Value="0,4,4,4" />
                             <Setter TargetName="TabContainer" Property="CornerRadius" Value="0,2,2,0" />
                         </DataTrigger>
                     </ControlTemplate.Triggers>

@@ -52,6 +52,7 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{DynamicResource {x:Static SystemParameters.FocusVisualStyleKey}}" />
         <Style.Triggers>
             <Trigger Property="Role" Value="TopLevelHeader">

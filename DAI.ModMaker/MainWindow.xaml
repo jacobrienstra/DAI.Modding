@@ -76,7 +76,7 @@ p://schemas.microsoft.com/expression/blend/2008"
             <StatusBarItem  Margin="10,0,0,0" >
                 <TextBlock x:Name="StatusBarText" Text="Ready" VerticalAlignment="Stretch" FontSize="14"/>
             </StatusBarItem>
-            <StatusBarItem x:Name="ProgressBarItem" Visibility="Visible">
+            <StatusBarItem x:Name="ProgressBarItem" Visibility="Hidden">
                 <ProgressBar x:Name="SearchAssetsProgressBar" Height="17" Width="150" Margin="10,0,0,0" />
             </StatusBarItem>
         </StatusBar>

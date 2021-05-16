@@ -86,7 +86,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="417*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="5" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="3" Padding="3,0" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
             <TreeView Grid.Column="0" x:Name="AssetFolderTreeView" BorderBrush="{x:Null}" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" Style="{StaticResource DefaultTreeViewStyle}" ItemContainerStyle="{StaticResource FolderTreeViewItemStyle}" />
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
@@ -94,7 +94,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="113*" />
                 </Grid.RowDefinitions>
-                <GridSplitter ResizeDirection="Rows" Height="5" HorizontalAlignment="Stretch" Grid.Row="1" />
+                <GridSplitter ResizeDirection="Rows" Height="3" Padding="0,3" HorizontalAlignment="Stretch" Grid.Row="1" />
                 <TabControl Grid.Row="0" Margin="0,5,0,0" BorderThickness="0,2,0,0">
                     <TabItem Header="Assets">
                         <DockPanel>

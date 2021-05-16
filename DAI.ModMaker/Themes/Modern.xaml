@@ -9,7 +9,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="DefaultGridSplitterStyle" TargetType="GridSplitter">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource AccentDark3Brush}" />
     </Style>
 
     <Style TargetType="GridSplitter" BasedOn="{StaticResource DefaultGridSplitterStyle}" />

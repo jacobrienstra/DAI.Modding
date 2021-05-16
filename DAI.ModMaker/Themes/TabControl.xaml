@@ -15,9 +15,8 @@
     <Style x:Key="DefaultTabItemStyle" TargetType="TabItem">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="BorderBrush" Value="{DynamicResource BaseLowBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BaseMediumLowBrush}" />
         <Setter Property="BorderThickness" Value="4" />
-
         <Setter Property="Padding" Value="4" />
         <Setter Property="Template">
             <Setter.Value>
@@ -53,12 +52,14 @@
                     <ControlTemplate.Triggers>
                         <!-- PointerOver -->
                         <Trigger Property="IsMouseOver" SourceName="TabContainer" Value="True">
-                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource ListLowBrush}" />
+                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource BaseLowBrush}" />
+                            <Setter TargetName="TabContainer" Property="BorderBrush" Value="{DynamicResource BaseMediumLowBrush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
                         </Trigger>
                         <!-- Selected -->
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource Accent3Brush}" />
+                            <Setter TargetName="TabContainer" Property="Background" Value="{DynamicResource Transparent}" />
+                            <Setter TargetName="TabContainer" Property="BorderBrush" Value="{DynamicResource AccentDark1Brush}" />
                             <Setter TargetName="ContentPresenter" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
                             <Setter Property="Panel.ZIndex" Value="1" />
                         </Trigger>

@@ -7,8 +7,8 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    
-    <Thickness x:Key="ButtonPadding">24,6,24,9</Thickness>
+
+    <Thickness x:Key="ButtonPadding">18,5,18,8</Thickness>
 
 
     <Style x:Key="DefaultButtonStyle" TargetType="Button">
@@ -16,6 +16,7 @@
         <Setter Property="Foreground" Value="{DynamicResource BaseHighBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Transparent}" />
         <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinWidth" Value="100" />
         <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />

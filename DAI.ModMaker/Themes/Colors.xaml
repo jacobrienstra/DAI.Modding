@@ -3,10 +3,9 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-
-    <Color x:Key="AccentDark1">#FF0087AB</Color>
-    <Color x:Key="AccentDark2">#FF00769A</Color>
     <Color x:Key="AccentDark3">#FF00648A</Color>
+    <Color x:Key="AccentDark2">#FF00769A</Color>
+    <Color x:Key="AccentDark1">#FF0087AB</Color>
     <Color x:Key="Accent">#FF0099BC</Color>
     <Color x:Key="AccentLight1">#FF1CA6C6</Color>
     <Color x:Key="AccentLight2">#FF38B4D0</Color>

@@ -8,9 +8,9 @@
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Thickness x:Key="TabViewItemHeaderPadding">20,8,20,8</Thickness>
+    <Thickness x:Key="TabViewItemHeaderPadding">14,8,14,8</Thickness>
 
-    <sys:Double x:Key="TabViewItemHeaderFontSize">14</sys:Double>
+    <sys:Double x:Key="TabViewItemHeaderFontSize">12</sys:Double>
 
     <Style x:Key="DefaultTabItemStyle" TargetType="TabItem">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />

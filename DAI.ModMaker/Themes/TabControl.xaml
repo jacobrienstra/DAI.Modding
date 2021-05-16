@@ -19,7 +19,7 @@
         <Setter Property="BorderThickness" Value="4" />
         <Setter Property="Padding" Value="4" />
         <Setter Property="Template">
-            <Setter.Value>
+            <Setter.Value> 
                 <ControlTemplate TargetType="TabItem">
                     <Border
                         x:Name="LayoutRoot"

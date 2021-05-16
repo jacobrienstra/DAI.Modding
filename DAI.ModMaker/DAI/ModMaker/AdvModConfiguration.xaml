@@ -5,11 +5,13 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0" HorizontalAlignment="Right">
-            <MenuItem Header="Help" />
-        </Menu>
+        <Border BorderBrush="{DynamicResource BaseLowBrush}" BorderThickness="0,0,0,1">
+            <Menu Grid.Row="0" HorizontalAlignment="Right">
+                <MenuItem Header="Help" />
+            </Menu>
+        </Border>
         <TabControl Name="AdvModTabControl" TabStripPlacement="Left" Grid.Row="1" Padding="10" Margin="10,0,0,0" BorderBrush="{x:Null}">
-            <TabItem Name="Header" Header="General">
+            <TabItem Header="General">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -37,39 +39,68 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="307*" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="156*" />
                     </Grid.RowDefinitions>
-                    <GridSplitter ResizeDirection="Rows" Height="3" HorizontalAlignment="Stretch" Background="#FFF0F0F0" Margin="0,0,3,0" Grid.Row="1" VerticalAlignment="Top" />
-                    <ComboBox Name="TemplateComboBox" Height="23" VerticalContentAlignment="Center" Margin="10,10,90,0" VerticalAlignment="Top">
-                        <ComboBoxItem Content="Choose Template..." IsSelected="True" />
-                    </ComboBox>
-                    <Button Name="TemplateChooseButton" Content="Choose" Height="23" Width="75" Grid.Row="0" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Click="TemplateChooseButton_Clicked" />
-                    <TextBox Name="ScriptTextBox" Grid.Row="0" Margin="10,38,10,33" TextWrapping="NoWrap" FontFamily="Consolas" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
-                    <Button Name="CompileButton" Content="Compile" Height="23" Width="75" Grid.Row="0" Margin="0,0,10,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="CompileButton_Clicked" />
-                    <Button Name="TestButton" Content="Test" Height="23" Width="75" Grid.Row="0" Margin="0,0,90,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsEnabled="False" Click="TestButton_Clicked" />
-                    <TextBox Name="ScriptLogTextBox" Grid.Row="1" Margin="10,3,10,10" TextWrapping="NoWrap" FontFamily="Consolas" IsReadOnly="True" VerticalScrollBarVisibility="Auto" />
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="3" HorizontalAlignment="Stretch" Padding="0,3"/>
+                    <Grid Grid.Row="0" Margin="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <DockPanel HorizontalAlignment="Stretch" Grid.Row="0">
+                            <Button Name="TemplateChooseButton" Margin="6,0,0,0" DockPanel.Dock="Right" Content="Choose" Click="TemplateChooseButton_Clicked" />
+                            <ComboBox Name="TemplateComboBox" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" >
+                                <ComboBoxItem Content="Choose Template..." IsSelected="True" />
+                            </ComboBox>
+                        </DockPanel>
+                        <TextBox Name="ScriptTextBox" Margin="0,12" Grid.Row="1" TextWrapping="NoWrap" FontFamily="Consolas" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
+                        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,0,0,6">
+                            <Button Name="CompileButton" Margin="0" DockPanel.Dock="Right" Content="Compile" Click="CompileButton_Clicked" />
+                            <Button Name="TestButton" Margin="6,0" DockPanel.Dock="Right" Content="Test" IsEnabled="False" Click="TestButton_Clicked" />
+                        </DockPanel>
+                    </Grid>
+                    <TextBox Margin="6, 12, 6, 6" Name="ScriptLogTextBox" Grid.Row="2" TextWrapping="NoWrap" FontFamily="Consolas" IsReadOnly="True" VerticalScrollBarVisibility="Auto" />
                 </Grid>
             </TabItem>
             <TabItem Header="Data">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
-                    <ListBox Name="ResourceDataListBox" Grid.Column="0" Margin="10,10,3,44" SelectionChanged="ResourceDataListBox_SelectionChanged" />
-                    <Button Name="AddDataButton" Content="Add" Grid.Column="0" Width="75" Height="23" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="AddDataButton_Click" />
-                    <Button Name="RemoveDataButton" Content="Remove" Grid.Column="0" Width="75" Height="23" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" IsEnabled="False" Click="RemoveDataButton_Click" />
-                    <TextBlock Text="Resource Binding:" Grid.Column="1" Margin="0,10,0,0" HorizontalAlignment="Left" Width="183" Height="18" VerticalAlignment="Top" />
-                    <TextBox Name="ResourceBindingTextBox" Grid.Column="1" Height="23" Margin="0,28,12,0" VerticalAlignment="Top" IsReadOnly="True" TextWrapping="NoWrap" VerticalContentAlignment="Center" FontFamily="Consolas" />
-                    <TextBlock Text="Resource Data:" Grid.Column="1" Margin="0,73,0,0" Height="18" VerticalAlignment="Top" HorizontalAlignment="Left" Width="90" />
-                    <Controls:HexEditor x:Name="ResourceDataHexControl" Grid.Column="1" Margin="0,91,10,10" />
+                    <GridSplitter Grid.Column="1" Margin="10,0" ResizeDirection="Columns" Width="2" Padding="3,0" Height="Auto" VerticalAlignment="Stretch" />
+                    <DockPanel Grid.Column="0" Margin="0">
+                        <DockPanel DockPanel.Dock="Bottom" >
+                            <Button Name="AddDataButton" DockPanel.Dock="Left" MinWidth="80" Content="Add" Click="AddDataButton_Click" />
+                            <Button Name="RemoveDataButton" DockPanel.Dock="Right" HorizontalAlignment="Right" MinWidth="80" Content="Remove" IsEnabled="False" Click="RemoveDataButton_Click" />
+                        </DockPanel>
+                        <ListBox Name="ResourceDataListBox" Margin="0,0,0,10" SelectionChanged="ResourceDataListBox_SelectionChanged" />
+                    </DockPanel>
+                    <DockPanel Grid.Column="2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Resource Binding:" Grid.Row="0" HorizontalAlignment="Left" />
+                            <TextBox Name="ResourceBindingTextBox" Padding="4" Margin="0,6" Grid.Row="1" IsReadOnly="True" TextWrapping="NoWrap" VerticalContentAlignment="Center" FontFamily="Consolas" />
+                            <TextBlock Text="Resource Data:" Grid.Row="2" Margin="0,12,0,6" HorizontalAlignment="Left" />
+                            <Controls:HexEditor x:Name="ResourceDataHexControl" Grid.Row="3" />
+                        </Grid>
+                    </DockPanel>
                 </Grid>
             </TabItem>
         </TabControl>
-        <DockPanel Grid.Row="2" Margin="10">
-            <Button Name="SaveButton" DockPanel.Dock="Right" Content="Save" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="1" Click="SaveButton_Click" />
-            <Button Name="CancelButton" DockPanel.Dock="Left" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Row="1" Click="CancelButton_Click" />
-        </DockPanel>
+        <Border Grid.Row="2" BorderBrush="{DynamicResource BaseLowBrush}" BorderThickness="0,1,0,0">
+            <DockPanel Margin="10">
+                <Button Name="SaveButton" DockPanel.Dock="Right" Style="{StaticResource AccentButtonStyle}" Content="Save" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="1" Click="SaveButton_Click" />
+                <Button Name="CancelButton" DockPanel.Dock="Left" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Row="1" Click="CancelButton_Click" />
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>

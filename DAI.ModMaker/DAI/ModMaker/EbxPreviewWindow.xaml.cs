@@ -183,6 +183,8 @@ namespace DAI.ModMaker
         {
             EbxRef ebx = Library.GetEbxByGuid(Ebx.FileGuid);
             LibraryManager.ModifyEbx(ebx, Ebx.WriteToStream().ToArray(), false);
+            EditButton.Visibility = Visibility.Visible;
+            SaveButton.Visibility = Visibility.Collapsed;
             MessageBox.Show("Successfully updated " + ebx.Name);
         }
 
@@ -249,6 +251,7 @@ namespace DAI.ModMaker
         {
             InEditMode = true;
             EditButton.Visibility = Visibility.Collapsed;
+            SaveButton.Visibility = Visibility.Visible;
             BuildEbxDocument();
         }
     }

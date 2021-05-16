@@ -100,7 +100,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                         <DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,5">
                                 <Label Content="Search:" Width="50" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>
-                                <Button DockPanel.Dock="Right" x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Margin="5,0" Padding="20,2,20,4"/>
+                                <Button DockPanel.Dock="Right" x:Name="btnClear" Style="{StaticResource AccentButtonStyle}" Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnClear_Click" Margin="5,0"/>
                                 <TextBox x:Name="AssetFilterTextBox" TextWrapping="Wrap" Text="" VerticalContentAlignment="Center" KeyDown="AssetFilterTextBox_KeyDown" />
                             </DockPanel>
                             <DockPanel DockPanel.Dock="Top" Margin="0,5" LastChildFill="False">

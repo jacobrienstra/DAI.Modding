@@ -7,6 +7,7 @@ using DAI.ModMaker.DAIMod;
 using DAI.ModMaker.DAIModules;
 using DAI.ModMaker.Properties;
 using DAI.ModMaker.Utilities;
+using DAI.ModMaker.Themes;
 using DAI.ModMaker;
 
 using System;
@@ -340,7 +341,11 @@ namespace DAI.ModMaker
             originalSource.Items.Clear();
             if (userData.Children.Count > 0)
             {
-                TreeViewItem treeViewItem = new TreeViewItem();
+                Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
+                TreeViewItem treeViewItem = new()
+                {
+                    Style = style
+                };
                 originalSource.Items.Add(treeViewItem);
             }
         }
@@ -350,16 +355,22 @@ namespace DAI.ModMaker
             DAITreeViewItem originalSource = e.OriginalSource as DAITreeViewItem;
             AssetFolder userData = (AssetFolder)originalSource.UserData;
             originalSource.Items.Clear();
+            Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
+
             for (int i = 0; i < userData.Children.Count; i++)
             {
                 AssetFolder item = _AssetFolders[userData.Children[i]];
                 DAITreeViewItem dAITreeViewItem = new DAITreeViewItem(item)
                 {
-                    Header = item.Name
+                    Header = item.Name,
+                    Style = style
                 };
                 if (item.Children.Count > 0)
                 {
-                    TreeViewItem treeViewItem = new TreeViewItem();
+                    TreeViewItem treeViewItem = new()
+                    {
+                        Style = style
+                    };
                     dAITreeViewItem.Items.Add(treeViewItem);
                 }
                 originalSource.Items.Add(dAITreeViewItem);
@@ -765,6 +776,7 @@ namespace DAI.ModMaker
                 _AssetFolders[str.GetHashCode()].Assets.Add(ebxAsset.FileGuid);
                 AssetFolderTreeView.Dispatcher.Invoke(DispatcherPriority.Normal, (DispatcherOperationCallback)delegate
                 {
+                    Style style = this.FindResource("DefaultTreeViewItemStyle") as Style;
                     if (AssetFolderTreeView.Items.Count == 0)
                     {
                         AssetFolder assetFolder = _AssetFolders["Data/".GetHashCode()];
@@ -772,11 +784,15 @@ namespace DAI.ModMaker
                         {
                             DAITreeViewItem dAITreeViewItem = new DAITreeViewItem(assetFolder)
                             {
-                                Header = assetFolder.Name
+                                Header = assetFolder.Name,
+                                Style = style
                             };
                             if (assetFolder.Children.Count > 0)
                             {
-                                TreeViewItem newItem = new TreeViewItem();
+                                TreeViewItem newItem = new()
+                                {
+                                    Style = style
+                                };
                                 dAITreeViewItem.Items.Add(newItem);
                             }
                             AssetFolderTreeView.Items.Add(dAITreeViewItem);

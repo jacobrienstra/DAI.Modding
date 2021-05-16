@@ -6,6 +6,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Colors.xaml" />
+                <ResourceDictionary Source="Themes/Icons.xaml"/>
+                <ResourceDictionary Source="Themes/Button.xaml" />
+                <ResourceDictionary Source="Themes/Menu.xaml" />
+                <ResourceDictionary Source="Themes/TabControl.xaml" />
+                <ResourceDictionary Source="Themes/TreeView.xaml" />
                 <ResourceDictionary Source="Themes/Modern.xaml" />
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>

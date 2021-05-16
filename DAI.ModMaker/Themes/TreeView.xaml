@@ -11,9 +11,8 @@
         <ResourceDictionary Source="Icons.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <sys:Double x:Key="TreeViewItemMinHeight">32</sys:Double>
+    <sys:Double x:Key="TreeViewItemMinHeight">24</sys:Double>
     <sys:Double x:Key="ListViewItemMinWidth">88</sys:Double>
-    <sys:Double x:Key="ListViewItemMinHeight">40</sys:Double>
 
     <Style x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -44,6 +43,7 @@
         <Setter Property="MinHeight" Value="{DynamicResource TreeViewItemMinHeight}" />
         <Setter Property="FocusVisualStyle" Value="{DynamicResource {x:Static SystemParameters.FocusVisualStyleKey}}" />
         <Setter Property="th:TreeViewItemHelper.IsEnabled" Value="True" />
+        <Setter Property="th:TreeViewItemHelper.GlyphSize" Value="30" />
         <Setter Property="th:TreeViewItemHelper.GlyphBrush" Value="{DynamicResource BaseHighBrush}" />
         <Setter Property="th:TreeViewItemHelper.CollapsedPath" Value="{DynamicResource RightChevron}" />
         <Setter Property="th:TreeViewItemHelper.ExpandedPath" Value="{DynamicResource DownChevron}" />
@@ -71,7 +71,8 @@
                                 <ToggleButton
                                     x:Name="ExpandCollapseChevron"
                                     Grid.Column="0"
-                                    Padding="12,0,12,0"
+                                    Padding="12,0,6,0"
+                                    Cursor="Hand"
                                     Width="Auto"
                                     Background="Transparent"
                                     IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
@@ -139,11 +140,11 @@
                             <Setter TargetName="PART_Header" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
                             <Setter TargetName="ContentPresenterGrid" Property="BorderBrush" Value="{DynamicResource Transparent}" />
                         </Trigger>
-                        <!--<Trigger SourceName="ContentPresenterGrid" Property="primitives:PressHelper.IsPressed" Value="True">
-                            <Setter TargetName="ContentPresenterGrid" Property="Background" Value="{DynamicResource TreeViewItemBackgroundPressed}" />
-                            <Setter TargetName="PART_Header" Property="TextElement.Foreground" Value="{DynamicResource TreeViewItemForegroundPressed}" />
-                            <Setter TargetName="ContentPresenterGrid" Property="BorderBrush" Value="{DynamicResource TreeViewItemBorderBrushPressed}" />
-                        </Trigger>-->
+                        <Trigger SourceName="ContentPresenterGrid" Property="th:PressHelper.IsPressed" Value="True">
+                            <Setter TargetName="ContentPresenterGrid" Property="Background" Value="{DynamicResource ListMediumBrush}" />
+                            <Setter TargetName="PART_Header" Property="TextElement.Foreground" Value="{DynamicResource BaseHighBrush}" />
+                            <Setter TargetName="ContentPresenterGrid" Property="BorderBrush" Value="{DynamicResource Transparent}" />
+                        </Trigger>
                         <!-- Selected -->
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ContentPresenterGrid" Property="Background" Value="{DynamicResource Accent3Brush}" />
@@ -168,7 +169,7 @@
                         <!-- PressedSelected -->
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <!--<Condition SourceName="ContentPresenterGrid" Property="primitives:PressHelper.IsPressed" Value="True" />-->
+                                <Condition SourceName="ContentPresenterGrid" Property="th:PressHelper.IsPressed" Value="True" />
                                 <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
                             <Setter TargetName="ContentPresenterGrid" Property="Background" Value="{DynamicResource ListMediumBrush}" />

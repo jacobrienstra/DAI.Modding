@@ -352,11 +352,10 @@ namespace DAI.ModMaker
 
         private void AssetFolderTreeView_ItemExpanded(object sender, RoutedEventArgs e)
         {
+            Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
             DAITreeViewItem originalSource = e.OriginalSource as DAITreeViewItem;
             AssetFolder userData = (AssetFolder)originalSource.UserData;
             originalSource.Items.Clear();
-            Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
-
             for (int i = 0; i < userData.Children.Count; i++)
             {
                 AssetFolder item = _AssetFolders[userData.Children[i]];
@@ -776,7 +775,7 @@ namespace DAI.ModMaker
                 _AssetFolders[str.GetHashCode()].Assets.Add(ebxAsset.FileGuid);
                 AssetFolderTreeView.Dispatcher.Invoke(DispatcherPriority.Normal, (DispatcherOperationCallback)delegate
                 {
-                    Style style = this.FindResource("DefaultTreeViewItemStyle") as Style;
+                    Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
                     if (AssetFolderTreeView.Items.Count == 0)
                     {
                         AssetFolder assetFolder = _AssetFolders["Data/".GetHashCode()];

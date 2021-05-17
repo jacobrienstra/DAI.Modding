@@ -5,9 +5,12 @@
             <ColumnDefinition Width="95*" />
             <ColumnDefinition Width="247*" />
         </Grid.ColumnDefinitions>
-        <TextBox Name="FNVSourceTextBox" Height="23" Margin="10,10,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-        <Button Name="FNVHashButton" Content="Hash" Grid.Column="1" Margin="10,10,10,0" VerticalAlignment="Top" Height="23" Click="FNVHashButton_Click" />
-        <TextBox Name="FNVDestTextBox" Grid.Column="2" Height="23" Margin="10,10,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" />
-        <CheckBox Name="FNVCaseSensitiveCB" Content="Case Sensitive?" HorizontalAlignment="Left" Margin="10,38,0,0" VerticalAlignment="Top" />
+        <StackPanel Grid.Column="0">
+            <TextBox Name="FNVSourceTextBox" Margin="10,10,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+            <CheckBox Name="FNVCaseSensitiveCB" Content="Case Sensitive?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" />
+        </StackPanel>
+        <Button Name="FNVHashButton" Content="Hash" Grid.Column="1" Margin="10,10,10,0" VerticalAlignment="Top" Click="FNVHashButton_Click" MinWidth="50"/>
+        <TextBox Name="FNVDestTextBox" Grid.Column="2" Margin="10,10,10,0" Text="" VerticalAlignment="Top" VerticalContentAlignment="Center" />
+        
     </Grid>
 </Window>

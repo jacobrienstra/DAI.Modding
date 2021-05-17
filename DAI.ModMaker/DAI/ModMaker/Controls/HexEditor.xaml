@@ -4,13 +4,13 @@
             <RowDefinition Height="23" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid Name="MenuBarGrid" Row="0">
-            <Menu Height="23">
-                <MenuItem Header="Find" Height="23">
+        <Grid Name="MenuBarGrid" Grid.Row="0">
+            <Menu>
+                <MenuItem Header="Find">
                     <MenuItem Name="FindChunksMenuItem" Header="Find all Chunks" Click="FindChunksMenuItem_Click" />
                 </MenuItem>
             </Menu>
         </Grid>
-        <Grid Name="HexContainer" Row="1" />
+        <Grid Name="HexContainer" Grid.Row="1" />
     </Grid>
 </UserControl>

@@ -1,6 +1,6 @@
-﻿<UserControl x:Class="DAI.ModMaker.Controls.AssetPicker" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" Height="23">
-    <Grid>
-        <TextBox Name="AssetNameText" Text="No Selection" Margin="0,0,75,0" VerticalContentAlignment="Center" IsReadOnly="True" Background="#FFF0F0F0" />
-        <Button Name="AssignButton" Width="75" Height="23" Content="Assign" HorizontalAlignment="Right" Click="AssignButton_Click" />
-    </Grid>
+﻿<UserControl x:Class="DAI.ModMaker.Controls.AssetPicker" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008">
+    <DockPanel>
+        <Button Name="AssignButton" DockPanel.Dock="Right" Content="Assign" Click="AssignButton_Click" Style="{StaticResource AccentButtonStyle}" />
+        <TextBox Name="AssetNameText" Text="No Selection" VerticalContentAlignment="Center" IsReadOnly="True" Background="#FFF0F0F0" />
+    </DockPanel>
 </UserControl>

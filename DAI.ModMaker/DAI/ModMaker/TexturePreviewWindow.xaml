@@ -4,12 +4,14 @@
             <RowDefinition Height="23" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Button Name="RedButton" Background="#FFFF0000" Foreground="#FFFF0000" BorderBrush="#FF000000" Width="23" Height="23" Content="R" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Click="ColorButton_Click" />
-        <Button Name="GreenButton" Background="#FF008000" Foreground="#FF008000" BorderBrush="#FF000000" Width="23" Height="23" Content="G" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="23,0,0,0" Grid.Row="0" Click="ColorButton_Click" />
-        <Button Name="BlueButton" Background="#FF0000FF" Foreground="#FF0000FF" BorderBrush="#FF000000" Width="23" Height="23" Content="B" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="46,0,0,0" Grid.Row="0" Click="ColorButton_Click" />
-        <Button Name="AlphaButton" BorderBrush="#FF000000" Width="23" Height="23" Content="" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="69,0,0,0" Grid.Row="0" Background="{x:Null}" Foreground="{x:Null}" Click="ColorButton_Click" />
-        <TextBlock Name="DimensionsTextBlock" Width="73" Text="1024x1024" Grid.Row="0" HorizontalAlignment="Right" TextAlignment="Right" Margin="0,3,5,0" />
-        <TextBlock Name="FormatTextBlock" Width="297" Text="DXT1" Grid.Row="0" HorizontalAlignment="Right" TextAlignment="Right" Margin="0,3,83,0" />
+        <DockPanel>
+            <Button Name="RedButton" Background="#FFFF0000" Foreground="#FFFF0000" BorderBrush="#FF000000" MinWidth="0" Padding="0" Width="23" Height="23" Content="R" DockPanel.Dock="Left" Click="ColorButton_Click" />
+            <Button Name="GreenButton" Background="#FF008000" Foreground="#FF008000" BorderBrush="#FF000000" MinWidth="0" Padding="0" Width="23" Height="23" Content="G" DockPanel.Dock="Left" Click="ColorButton_Click" />
+            <Button Name="BlueButton" Background="#FF0000FF" Foreground="#FF0000FF" BorderBrush="#FF000000" MinWidth="0" Padding="0" Width="23" Height="23" Content="B" DockPanel.Dock="Left" Click="ColorButton_Click" />
+            <Button Name="AlphaButton" BorderBrush="#FF000000" MinWidth="0" Padding="0" Width="23" Height="23" Content="" DockPanel.Dock="Left" Background="{x:Null}" Foreground="{x:Null}" Click="ColorButton_Click" BorderThickness="1,1,1,1"/>
+            <TextBlock Name="DimensionsTextBlock" Text="1024x1024" DockPanel.Dock="Right" Margin="6,0" VerticalAlignment="Center"/>
+            <TextBlock Name="FormatTextBlock" Text="DXT1" DockPanel.Dock="Right" Margin="6,0" VerticalAlignment="Center" TextAlignment="Right"/>
+        </DockPanel>
         <flaxon:SlimDXControl x:Name="TextureRenderControl" Grid.Row="1" />
     </Grid>
 </Window>

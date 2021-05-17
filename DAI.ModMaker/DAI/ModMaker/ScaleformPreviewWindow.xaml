@@ -1,6 +1,6 @@
 ﻿<Window x:Class="DAI.ModMaker.ScaleformPreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:Controls="clr-namespace:DAI.ModMaker.Controls" Title="Scaleform Preview" Height="600" Width="500" WindowStyle="ToolWindow" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker">
-    <Grid>
-        <Controls:HexEditor x:Name="ResourceHexControl" Margin="0,0,0,38" />
-        <Button Name="ExtractButton" Content="Extract" Width="75" Height="23" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="ExtractButton_Click" />
-    </Grid>
+    <DockPanel Margin="10">
+        <Button Name="ExtractButton" Content="Extract" DockPanel.Dock="Bottom" Click="ExtractButton_Click" HorizontalAlignment="Center"/>
+        <Controls:HexEditor x:Name="ResourceHexControl" Margin="0,0,0,10" />
+    </DockPanel>
 </Window>

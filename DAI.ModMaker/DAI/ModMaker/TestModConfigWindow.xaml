@@ -10,7 +10,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="25*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="2" Height="Auto" VerticalAlignment="Stretch" Grid.RowSpan="2" Padding="3,0"/>
+            <GridSplitter ResizeDirection="Columns" Grid.Column="1" Grid.RowSpan="2" />
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="10" Grid.Column="0" Background="#FFE9E9E9">
                 <StackPanel Name="LabelsStackPanel" Margin="10" />
             </Border>

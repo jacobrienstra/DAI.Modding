@@ -5,7 +5,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="400*" />
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Padding="3,0" Margin="6,0,0,0"/>
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
         <DockPanel>
             <Label Content="Use WASD to move and the Right Mouve Button to rotate the camera." DockPanel.Dock="Top"/>
             <Border BorderBrush="#FFABADB3" BorderThickness="1,1,1,1">
@@ -26,11 +26,11 @@
             </Grid.RowDefinitions>
             <Button Name="EbxXmlButton" Grid.Row="0" Content="Show XML" IsEnabled="False" Click="EbxXmlButton_Click" Margin="6" />
             <ListBox Name="LevelLayersListBox" Grid.Row="1" Margin="6" FontFamily="Consolas" ItemsSource="{Binding}" MouseDoubleClick="LevelLayersListBox_MouseDoubleClick" SelectionChanged="LevelLayersListBox_SelectionChanged" />
-            <GridSplitter Grid.Row="2" ResizeDirection="Rows" Height="2" Width="Auto" HorizontalAlignment="Stretch" Padding="0,3" VerticalAlignment="Bottom" />
+            <GridSplitter Grid.Row="2" ResizeDirection="Rows" />
             <ListBox Name="LevelSubLayersListBox" Grid.Row="3" Margin="6" FontFamily="Consolas" ItemsSource="{Binding}" MouseDoubleClick="LevelSubLayersListBox_MouseDoubleClick" SelectionChanged="LevelSubLayersListBox_SelectionChanged" />
-            <GridSplitter Grid.Row="4" ResizeDirection="Rows" Height="2" Width="Auto" HorizontalAlignment="Stretch" Padding="0,3" />
+            <GridSplitter Grid.Row="4" ResizeDirection="Rows"/>
             <ListBox Name="LevelObjectsListBox" FontFamily="Consolas" Grid.Row="5" ItemsSource="{Binding}" Margin="6" MouseDoubleClick="LevelObjectsListBox_MouseDoubleClick" SelectionChanged="LevelObjectsListBox_SelectionChanged" />
-            <GridSplitter Grid.Row="6" ResizeDirection="Rows" Height="2" Width="Auto" HorizontalAlignment="Stretch" Padding="0,3" />
+            <GridSplitter Grid.Row="6" ResizeDirection="Rows" />
             <StackPanel Grid.Row="7" Margin="6">
                 <TextBox Name="SearchTextBox" TextWrapping="Wrap" VerticalContentAlignment="Center" Padding="4" Margin="0,0,0,6"/>
                 <Button Name="SearchButton" Content="Search" Click="SearchButton_Click" />

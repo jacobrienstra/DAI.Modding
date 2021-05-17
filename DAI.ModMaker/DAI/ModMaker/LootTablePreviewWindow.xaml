@@ -30,7 +30,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <GridSplitter Grid.Column="1" Grid.RowSpan="7" ResizeDirection="Columns" Width="1" Padding="3,0" Height="Auto" VerticalAlignment="Stretch" Margin="3,0"/>
+            <GridSplitter Grid.Column="1" Grid.RowSpan="7" ResizeDirection="Columns" />
             <TextBlock Text="Name:" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right"/>
             <TextBlock Text="Chance of no items:" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" />
             <TextBlock Text="Item probability:" Grid.Row="2"  Grid.Column="0" HorizontalAlignment="Right" />
@@ -75,7 +75,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="199*" />
                         </Grid.ColumnDefinitions>
-                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="1" Padding="3,0" Margin="3,0" Height="Auto" VerticalAlignment="Stretch" />
+                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
                         <DockPanel Grid.Column="0" Margin="6">
                             <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
                                 <Button Name="RemoveLootObjectButton" Content="Remove" Click="RemoveLootObjectButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" DockPanel.Dock="Right" Margin="6,0,0,0"/>
@@ -127,7 +127,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="199*" />
                         </Grid.ColumnDefinitions>
-                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="1" Padding="3,0" Margin="3,0" Height="Auto" VerticalAlignment="Stretch" />
+                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
                         <DockPanel Grid.Column="0" Margin="6">
                             <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
                                 <Button Name="RemoveReferenceTableButton" Content="Remove" Click="RemoveReferenceTableButton_Click" DockPanel.Dock="Right" Style="{StaticResource DefaultButtonCompactStyle}" Margin="6,0,0,0"/>

@@ -342,7 +342,7 @@ namespace DAI.ModMaker
             if (userData.Children.Count > 0)
             {
                 Style style = this.FindResource("FolderTreeViewItemStyle") as Style;
-                TreeViewItem treeViewItem = new()
+                TreeViewItem treeViewItem = new TreeViewItem()
                 {
                     Style = style
                 };
@@ -366,7 +366,7 @@ namespace DAI.ModMaker
                 };
                 if (item.Children.Count > 0)
                 {
-                    TreeViewItem treeViewItem = new()
+                    TreeViewItem treeViewItem = new TreeViewItem()
                     {
                         Style = style
                     };
@@ -788,7 +788,7 @@ namespace DAI.ModMaker
                             };
                             if (assetFolder.Children.Count > 0)
                             {
-                                TreeViewItem newItem = new()
+                                TreeViewItem newItem = new TreeViewItem()
                                 {
                                     Style = style
                                 };

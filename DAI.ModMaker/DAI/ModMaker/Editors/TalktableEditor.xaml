@@ -15,7 +15,7 @@
                 <ColumnDefinition Width="221*" />
                 <ColumnDefinition Width="371*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
+            <GridSplitter ResizeDirection="Columns"/>
             <ListBox Name="TalkTableListBox" Margin="10,55,3,10" Grid.Column="0" SelectionChanged="TalkTableListBox_SelectionChanged">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

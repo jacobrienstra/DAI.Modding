@@ -1,43 +1,140 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <Copyright>Copyright © 2021</Copyright>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{41C653CA-5795-4144-B7A4-8C8D3C732470}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DAI.AssetLibrary</RootNamespace>
+    <AssemblyName>DAI.AssetLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <None Remove="Resources\FieldNames.txt" />
-    <None Remove="Resources\PlotFlags.txt" />
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.4.369, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\ICSharpCode.SharpZipLib.dll.0.85.4.369\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="zlib.net, Version=1.0.3.0, Culture=neutral, PublicKeyToken=47d7877cb3620160">
+      <HintPath>..\packages\zlib.net.1.0.4.0\lib\zlib.net.dll</HintPath>
+    </Reference>
   </ItemGroup>
-
   <ItemGroup>
-    <EmbeddedResource Include="Resources\FieldNames.txt" />
-    <EmbeddedResource Include="Resources\PlotFlags.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\ArrayRepeater.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\ComplexObject.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\ComplexObjectDescriptor.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\ComplexObjectType.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\EbxBase.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\EbxBaseHeader.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\EbxField.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\ExternalGuid.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\FaceElement.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\FieldDescriptor.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\FieldType.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\hkObject.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\hkpStaticCompoundShape.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\HkxBase.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\InstanceRepeater.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\LODLevel.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\LODSubObject.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Mesh.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\MeshBuffer.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Mft.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\PSKFile.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Talktable.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Texture.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\TextureFormat.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\TextureType.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Vector2.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Vector3.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Vector4.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\Vertex.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\Bases\VertexEntry.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\AssetEntryRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\BundleRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\CatalogEntry.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ChunkIdComparer.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ChunkMetaRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ChunkRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\DbxRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\EbxNameComparer.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\EbxRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\EntryRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\EntryState.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ResNameComparer.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ResRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\ResResRidComparer.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\SubBundleRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Assets\References\TableOfContentRef.cs" />
+    <Compile Include="DAI\AssetLibrary\Library.cs" />
+    <Compile Include="DAI\AssetLibrary\Parsers\CatalogParser.cs" />
+    <Compile Include="DAI\AssetLibrary\Parsers\EntriesParser.cs" />
+    <Compile Include="DAI\AssetLibrary\Parsers\SBParser.cs" />
+    <Compile Include="DAI\AssetLibrary\Parsers\TocParser.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\Extensions\BinaryReaderExt.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\Extensions\BinaryWriterExt.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\Extensions\GuidExt.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\Extensions\StringExt.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\FieldTypes.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\FolderType.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\GameAssetFolder.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\HalfUtils.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\HashedList.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\ImportCompressData.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\IStructuredWriter.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\LibraryEventManager.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\LibraryEventManagerArgs.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\LibraryManager.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\LibrarySerializer.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\PayloadProvider.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\ResType.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\Utilities.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\XMLStructuredWriter.cs" />
+    <Compile Include="DAI\AssetLibrary\Utilities\YAMLStructuredWriter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
+    <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\FieldNames.txt" />
+    <EmbeddedResource Include="Resources\PlotFlags.txt" />
   </ItemGroup>
-
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\DAI.ModMaker\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="zlib.net">
-      <HintPath>..\DAI.ModMaker\zlib.net.dll</HintPath>
-    </Reference>
+    <None Include="packages.config" />
   </ItemGroup>
-
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

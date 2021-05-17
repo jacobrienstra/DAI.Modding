@@ -24,7 +24,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <GridSplitter Grid.Column="1" Grid.RowSpan="4" ResizeDirection="Columns" Width="1" Padding="3,0" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Margin="10,0" />
+                    <GridSplitter Grid.Column="1" Grid.RowSpan="4" ResizeDirection="Columns" Margin="10,0" />
                     <TextBlock Text="Title:" Grid.Column="0" Grid.Row="0" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     <TextBlock Text="Author:" Grid.Column="0" Grid.Row="1" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     <TextBlock Text="Version:" Grid.Column="0" Grid.Row="2" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center" />
@@ -42,7 +42,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="156*" />
                     </Grid.RowDefinitions>
-                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="3" HorizontalAlignment="Stretch" Padding="0,3"/>
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
                     <Grid Grid.Row="0" Margin="6">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -71,7 +71,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <GridSplitter Grid.Column="1" Margin="10,0" ResizeDirection="Columns" Width="2" Padding="3,0" Height="Auto" VerticalAlignment="Stretch" />
+                    <GridSplitter Grid.Column="1" Margin="10,0" ResizeDirection="Columns" />
                     <DockPanel Grid.Column="0" Margin="0">
                         <DockPanel DockPanel.Dock="Bottom" >
                             <Button Name="AddDataButton" DockPanel.Dock="Left" MinWidth="80" Content="Add" Click="AddDataButton_Click" />

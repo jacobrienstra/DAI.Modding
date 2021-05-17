@@ -16,7 +16,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <GridSplitter Grid.Column="1" Grid.RowSpan="4" ResizeDirection="Columns" Width="1" Padding="3,0" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Margin="10,0" />
+            <GridSplitter Grid.Column="1" Grid.RowSpan="4" ResizeDirection="Columns" Margin="10,0" />
             <TextBlock Text="Title:" Grid.Column="0" Grid.Row="0" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
             <TextBlock Text="Author:" Grid.Column="0" Grid.Row="1" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center"/>
             <TextBlock Text="Version:" Grid.Column="0" Grid.Row="2" Padding="0,6" HorizontalAlignment="Right" VerticalAlignment="Center" />

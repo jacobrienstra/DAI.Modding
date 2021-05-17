@@ -10,6 +10,9 @@
     <Color x:Key="AccentLight1">#FF1CA6C6</Color>
     <Color x:Key="AccentLight2">#FF38B4D0</Color>
     <Color x:Key="AccentLight3">#FF55C1D9</Color>
+    <Color x:Key="AccentLight4">#FF71CFE3</Color>
+    <Color x:Key="AccentLight5">#FF8DDCED</Color>
+
 
     <SolidColorBrush x:Key="AccentDark1Brush" Color="{StaticResource AccentDark1}" />
     <SolidColorBrush x:Key="AccentDark2Brush" Color="{StaticResource AccentDark2}" />
@@ -18,9 +21,22 @@
     <SolidColorBrush x:Key="AccentLight1Brush" Color="{StaticResource AccentLight1}" />
     <SolidColorBrush x:Key="AccentLight2Brush" Color="{StaticResource AccentLight2}" />
     <SolidColorBrush x:Key="AccentLight3Brush" Color="{StaticResource AccentLight3}" />
+    <SolidColorBrush x:Key="AccentLight4Brush" Color="{StaticResource AccentLight4}" />
+    <SolidColorBrush x:Key="AccentLight5Brush" Color="{StaticResource AccentLight5}" />
     <SolidColorBrush x:Key="Accent3Brush" Color="{DynamicResource Accent}" Opacity="0.6" />
     <SolidColorBrush x:Key="Accent2Brush" Color="{DynamicResource Accent}" Opacity="0.8" />
 
+    <LinearGradientBrush x:Key="RightWardsAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="{StaticResource AccentLight5}" Offset="0.0" />
+        <GradientStop Color="{StaticResource AccentLight4}" Offset="0.6" />
+        <GradientStop Color="{StaticResource AccentDark1}" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="DownWardsAccentGradient" StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Color="{StaticResource AccentLight5}" Offset="0.0" />
+        <GradientStop Color="{StaticResource AccentLight4}" Offset="0.6" />
+        <GradientStop Color="{StaticResource AccentDark1}" Offset="1.0"/>
+    </LinearGradientBrush>
 
 
     <Color x:Key="BaseHigh">#FF000000</Color>

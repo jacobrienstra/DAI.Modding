@@ -5,7 +5,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="365*" />
         </Grid.ColumnDefinitions>
-        <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="3" Height="Auto" VerticalAlignment="Stretch" Padding="3,0" />
+        <GridSplitter ResizeDirection="Columns" Grid.Column="1" />
         <ListBox Name="ChunksListBox" Grid.Column="0" Margin="10" FontFamily="Consolas" SelectionChanged="ChunksListBox_SelectionChanged">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

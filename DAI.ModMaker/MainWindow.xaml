@@ -73,8 +73,8 @@ p://schemas.microsoft.com/expression/blend/2008"
             </DockPanel>
         </Border>
         <StatusBar Height="30" DockPanel.Dock="Bottom" BorderBrush="{DynamicResource BaseMediumBrush}" BorderThickness="0,1,0,0">
-            <StatusBarItem  Margin="10,0,0,0" >
-                <TextBlock x:Name="StatusBarText" Text="Ready" VerticalAlignment="Stretch" FontSize="14"/>
+            <StatusBarItem  Margin="10,0,0,0" VerticalAlignment="Center">
+                <TextBlock x:Name="StatusBarText" Text="Ready" VerticalAlignment="Center" FontSize="12"/>
             </StatusBarItem>
             <StatusBarItem x:Name="ProgressBarItem" Visibility="Hidden">
                 <ProgressBar x:Name="SearchAssetsProgressBar" Height="17" Width="150" Margin="10,0,0,0" />
@@ -86,7 +86,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="417*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="3" Padding="3,0" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Margin="0"/>
             <TreeView Grid.Column="0" x:Name="AssetFolderTreeView" BorderBrush="{x:Null}" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" Style="{StaticResource DefaultTreeViewStyle}" ItemContainerStyle="{StaticResource FolderTreeViewItemStyle}" />
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
@@ -94,7 +94,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="113*" />
                 </Grid.RowDefinitions>
-                <GridSplitter ResizeDirection="Rows" Height="3" Padding="0,3" HorizontalAlignment="Stretch" Grid.Row="1" />
+                <GridSplitter ResizeDirection="Rows" Grid.Row="1" Margin="0" />
                 <TabControl Grid.Row="0" Margin="0,5,0,0" BorderThickness="0,2,0,0">
                     <TabItem Header="Assets">
                         <DockPanel>
@@ -111,7 +111,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                                 <CheckBox x:Name="chkShowChildren" Content="Include children (might be slow)" IsChecked="False" Checked="chkShowChildren_Checked" Unchecked="chkShowChildren_Unchecked" VerticalAlignment="Center" Margin="10,0"/>
                                 <Label x:Name="lblNbResults" Content="0 results" DockPanel.Dock="Right" Margin="5,0" />
                             </DockPanel>
-                            <ListView Margin="0,5" x:Name="AssetListBox" FontFamily="Courier New" BorderBrush="{x:Null}" MouseDoubleClick="AssetListBox_MouseDoubleClick" SelectionChanged="AssetListBox_SelectionChanged">
+                            <ListView Margin="0,5" Padding="6,0" x:Name="AssetListBox" FontFamily="Courier New" BorderBrush="{x:Null}" MouseDoubleClick="AssetListBox_MouseDoubleClick" SelectionChanged="AssetListBox_SelectionChanged">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -135,7 +135,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                         </DockPanel>
                     </TabItem>
                 </TabControl>
-                <TextBox x:Name="LogTextBox" Grid.Row="2" Text="" IsReadOnly="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" BorderThickness="0,0,0,0" TextWrapping="NoWrap" />
+                <TextBox x:Name="LogTextBox" Grid.Row="2" Text="" IsReadOnly="True" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" BorderThickness="0,0,0,0" TextWrapping="NoWrap" Padding="6,0"/>
             </Grid>
         </Grid>
     </DockPanel>

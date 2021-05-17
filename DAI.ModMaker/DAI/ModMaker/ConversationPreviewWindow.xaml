@@ -5,7 +5,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="123*" />
         </Grid.ColumnDefinitions>
-        <GridSplitter ResizeDirection="Columns" Width="2" Height="Auto" VerticalAlignment="Stretch" Grid.Column="1" Padding="3,0" />
+        <GridSplitter ResizeDirection="Columns" Grid.Column="1" />
         <DockPanel Grid.Column="0" Margin="10">
             <Button Name="CloseButton" Content="Close" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Click="CloseButton_Click" HorizontalAlignment="Left"/>
             <TreeView Name="ConversationNodes" FontFamily="Consolas" SelectedItemChanged="ConversationNodes_SelectedItemChanged" Margin="0,0,0,10"/>

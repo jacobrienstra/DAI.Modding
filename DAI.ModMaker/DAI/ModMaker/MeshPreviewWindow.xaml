@@ -6,7 +6,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="200*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Width="2" Height="Auto" VerticalAlignment="Stretch" Grid.Column="1" />
+            <GridSplitter ResizeDirection="Columns" Grid.Column="1" />
             <flaxon:SlimDXControl x:Name="meshRenderControl" MouseUp="meshRenderControl_MouseUp" MouseDown="meshRenderControl_MouseDown" MouseMove="meshRenderControl_MouseMove" MouseWheel="meshRenderControl_MouseWheel" Grid.Column="0" Margin="0,0,3,0" />
             <Grid Column="2">
                 <Grid Margin="6,0">

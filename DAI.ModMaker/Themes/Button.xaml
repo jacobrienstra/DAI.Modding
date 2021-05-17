@@ -9,7 +9,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Thickness x:Key="ButtonPadding">18,5,18,7</Thickness>
-
+    <Thickness x:Key="ButtonPaddingCompact">6,2,6,4</Thickness>
 
     <Style x:Key="DefaultButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource BaseLowBrush}" />
@@ -65,6 +65,11 @@
     </Style>
 
     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}" />
+
+    <Style x:Key="DefaultButtonCompactStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+        <Setter Property="MinWidth" Value="50"/>
+        <Setter Property="Padding" Value="{StaticResource ButtonPaddingCompact}" />
+    </Style>
 
     <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
         <Setter Property="Foreground" Value="White" />

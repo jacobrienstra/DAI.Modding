@@ -76,10 +76,10 @@
                             <ColumnDefinition Width="199*" />
                         </Grid.ColumnDefinitions>
                         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="1" Padding="3,0" Margin="3,0" Height="Auto" VerticalAlignment="Stretch" />
-                        <DockPanel Grid.Column="0" Margin="6"> 
+                        <DockPanel Grid.Column="0" Margin="6">
                             <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
-                                <Button Name="AddLootObjectButton" Content="Add"  Click="AddLootObjectButton_Click" MinWidth="90" DockPanel.Dock="Left" />
-                                <Button Name="RemoveLootObjectButton" Content="Remove" Click="RemoveLootObjectButton_Click" MinWidth="90" DockPanel.Dock="Right"/>
+                                <Button Name="RemoveLootObjectButton" Content="Remove" Click="RemoveLootObjectButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" DockPanel.Dock="Right" Margin="6,0,0,0"/>
+                                <Button Name="AddLootObjectButton" Content="Add"  Click="AddLootObjectButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" DockPanel.Dock="Right" />
                             </DockPanel>
                             <ListBox Name="LootObjectsListBox" Margin="0,0,0,6" SelectionChanged="LootObjectsListBox_SelectionChanged" />
                         </DockPanel>
@@ -130,8 +130,8 @@
                         <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="1" Padding="3,0" Margin="3,0" Height="Auto" VerticalAlignment="Stretch" />
                         <DockPanel Grid.Column="0" Margin="6">
                             <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
-                                <Button Name="AddReferenceTableButton" Content="Add" MinWidth="90" VerticalAlignment="Bottom" Click="AddReferenceTableButton_Click" DockPanel.Dock="Left"/>
-                                <Button Name="RemoveReferenceTableButton" Content="Remove" MinWidth="90" Click="RemoveReferenceTableButton_Click" DockPanel.Dock="Right"/>
+                                <Button Name="RemoveReferenceTableButton" Content="Remove" Click="RemoveReferenceTableButton_Click" DockPanel.Dock="Right" Style="{StaticResource DefaultButtonCompactStyle}" Margin="6,0,0,0"/>
+                                <Button Name="AddReferenceTableButton" Content="Add" VerticalAlignment="Bottom" Click="AddReferenceTableButton_Click" DockPanel.Dock="Right" Style="{StaticResource DefaultButtonCompactStyle}" />
                             </DockPanel>
                             <ListBox Name="ReferencedTablesListBox" Margin="0,0,0,6" SelectionChanged="ReferencedTablesListBox_SelectionChanged" />
                         </DockPanel>

@@ -2,21 +2,22 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="227*" />
-            <RowDefinition Height="42" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="16*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="25*" />
             </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" />
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="10,10,3,0" Grid.Column="0" Background="#FFE9E9E9">
-                <StackPanel Name="LabelsStackPanel" Margin="10,10,0,0" />
+            <GridSplitter ResizeDirection="Columns" Grid.Column="1" Width="2" Height="Auto" VerticalAlignment="Stretch" Grid.RowSpan="2" Padding="3,0"/>
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="10" Grid.Column="0" Background="#FFE9E9E9">
+                <StackPanel Name="LabelsStackPanel" Margin="10" />
             </Border>
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="2,10,10,0" Grid.Column="1" Background="#FFE9E9E9">
-                <StackPanel Name="ControlsStackPanel" Margin="5,10,10,0" />
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="10" Grid.Column="2" Background="#FFE9E9E9">
+                <StackPanel Name="ControlsStackPanel" Margin="10" />
             </Border>
         </Grid>
-        <Button Name="SaveButton" Content="Save" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="1" VerticalAlignment="Bottom" Width="75" Height="20" Click="SaveButton_Click" />
+        <Button Name="SaveButton" Content="Save" HorizontalAlignment="Right" Margin="10" Grid.Row="1" Click="SaveButton_Click" />
     </Grid>
 </Window>

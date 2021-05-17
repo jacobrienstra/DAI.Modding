@@ -23,8 +23,8 @@
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Meshes:" Grid.Row="0"/>
                     <ListBox Grid.Row="1" Margin="0,2,0,10" Name="AdditionalMeshesListBox" SelectionChanged="AdditionalMeshesListBox_SelectionChanged" />
                     <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,0,0,10">
-                        <Button DockPanel.Dock="Left" Name="AddAdditionalButton" Content="Add" Click="AddAdditionalButton_Click" Margin="0,0,6,0" MinWidth="85"/>
-                        <Button DockPanel.Dock="Right" Name="RemoveAdditionalButton" Content="Remove" IsEnabled="False" MinWidth="85" />
+                        <Button DockPanel.Dock="Right" Name="RemoveAdditionalButton" Content="Remove" IsEnabled="False" MinWidth="60" Padding="{StaticResource ButtonPaddingCompact}" />
+                        <Button DockPanel.Dock="Right" Name="AddAdditionalButton" Content="Add" Click="AddAdditionalButton_Click" Margin="0,0,6,0" MinWidth="60" Padding="{StaticResource ButtonPaddingCompact}"/>
                     </DockPanel>
                     <TextBlock TextWrapping="Wrap" Text="Variations" Grid.Row="3" />
                     <ComboBox Name="MeshVariationComboBox" Grid.Row="4" Margin="0,2,0,10" SelectionChanged="MeshVariationComboBox_SelectionChanged" />

@@ -1,28 +1,35 @@
 ﻿<Window x:Class="DAI.ModMaker.SoundPreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Sound Preview" Height="264" Width="500" Background="#FFF0F0F0" WindowStyle="ToolWindow" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker" Closing="Window_Closing">
-    <Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="37*" />
-                <ColumnDefinition Width="86*" />
-            </Grid.ColumnDefinitions>
-            <GridSplitter ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Background="#FFF0F0F0" />
-            <Grid Column="0" Margin="0,0,3,0">
-                <ListBox Name="ChunksListBox" Margin="10,10,0,10" SelectionChanged="ChunksListBox_SelectionChanged">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding ChunkId}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ListBox>
-            </Grid>
-            <Grid Column="1">
-                <TextBox Name="ChunkNameTextBox" Height="23" Margin="0,10,10,0" VerticalAlignment="Top" IsReadOnly="True" TextWrapping="NoWrap" VerticalContentAlignment="Center" FontFamily="Consolas" />
-                <ListBox Name="StreamsListBox" Margin="0,38,10,67" SelectionChanged="StreamsListBox_SelectionChanged" />
-                <Button Name="PlayButton" Content="Play" Margin="0,0,10,42" HorizontalAlignment="Right" Width="75" Height="20" VerticalAlignment="Bottom" IsEnabled="False" Click="PlayButton_Click" />
-                <Button Name="StopButton" Content="Stop" HorizontalAlignment="Left" Margin="0,0,0,42" Width="75" IsEnabled="False" Height="20" VerticalAlignment="Bottom" Click="StopButton_Click" />
-                <ProgressBar Name="SoundProgressBar" Height="20" Margin="0,0,10,10" VerticalAlignment="Bottom" />
-                <Button Name="ExtractButton" Content="Extract" Margin="0,0,90,42" HorizontalAlignment="Right" Width="75" Height="20" VerticalAlignment="Bottom" IsEnabled="False" Click="ExtractButton_Click" />
-            </Grid>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="37*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="86*" />
+        </Grid.ColumnDefinitions>
+        <GridSplitter ResizeDirection="Columns" Width="2" Padding="3" Height="Auto" VerticalAlignment="Stretch" Grid.Column="1" Margin="6,0"/>
+        <Grid Grid.Column="0">
+            <ListBox Name="ChunksListBox" SelectionChanged="ChunksListBox_SelectionChanged">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding ChunkId}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
+        </Grid>
+        <Grid Grid.Column="2" Margin="4,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+                <TextBox Name="ChunkNameTextBox" Padding="4" IsReadOnly="True" TextWrapping="NoWrap" VerticalContentAlignment="Center" FontFamily="Consolas" Grid.Row="0"/>
+                <ListBox Name="StreamsListBox" Grid.Row="1" SelectionChanged="StreamsListBox_SelectionChanged" Margin="0,10"/>
+                <DockPanel Grid.Row="2" LastChildFill="False">
+                    <Button Name="PlayButton" Content="Play" IsEnabled="False" Click="PlayButton_Click" DockPanel.Dock="Right" Margin="6,0,0,0" Style="{StaticResource DefaultButtonCompactStyle}" />
+                <Button Name="StopButton" Style="{StaticResource DefaultButtonCompactStyle}" Content="Stop" IsEnabled="False" Click="StopButton_Click" DockPanel.Dock="Right" />
+                <Button Name="ExtractButton" Content="Extract" IsEnabled="False" Click="ExtractButton_Click" DockPanel.Dock="Left" Style="{StaticResource DefaultButtonCompactStyle}"/>
+                </DockPanel>
+                <ProgressBar Name="SoundProgressBar" Grid.Row="3" MinHeight="20" Padding="4" Margin="0,10,0,0"/>
         </Grid>
     </Grid>
 </Window>

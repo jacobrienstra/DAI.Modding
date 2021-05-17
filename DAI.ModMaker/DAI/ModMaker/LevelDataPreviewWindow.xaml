@@ -5,7 +5,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="400*" />
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Padding="3,0" />
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Width="3" Height="Auto" VerticalAlignment="Stretch" Padding="3,0" Margin="6,0,0,0"/>
         <DockPanel>
             <Label Content="Use WASD to move and the Right Mouve Button to rotate the camera." DockPanel.Dock="Top"/>
             <Border BorderBrush="#FFABADB3" BorderThickness="1,1,1,1">

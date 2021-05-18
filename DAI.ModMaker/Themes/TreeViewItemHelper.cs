@@ -87,36 +87,36 @@ namespace DAI.ModMaker.Themes
                 typeof(TreeViewItemHelper),
                 new PropertyMetadata("\uE70D"));
 
-        public static Geometry GetCollapsedPath(TreeViewItem treeViewItem)
+        public static UIElement GetCollapsedIcon(TreeViewItem treeViewItem)
         {
-            return (Geometry)treeViewItem.GetValue(CollapsedPathProperty);
+            return (UIElement)treeViewItem.GetValue(CollapsedIconProperty);
         }
 
-        public static void SetCollapsedPath(TreeViewItem treeViewItem, Geometry value)
+        public static void SetCollapsedIcon(TreeViewItem treeViewItem, UIElement value)
         {
-            treeViewItem.SetValue(CollapsedPathProperty, value);
+            treeViewItem.SetValue(CollapsedIconProperty, value);
         }
 
-        public static readonly DependencyProperty CollapsedPathProperty =
+        public static readonly DependencyProperty CollapsedIconProperty =
             DependencyProperty.RegisterAttached(
-                "CollapsedPath",
-                typeof(Geometry),
+                "CollapsedIcon",
+                typeof(UIElement),
                 typeof(TreeViewItemHelper));
 
-        public static Geometry GetExpandedPath(TreeViewItem treeViewItem)
+        public static UIElement GetExpandedIcon(TreeViewItem treeViewItem)
         {
-            return (Geometry)treeViewItem.GetValue(ExpandedPathProperty);
+            return (UIElement)treeViewItem.GetValue(ExpandedIconProperty);
         }
 
-        public static void SetExpandedPath(TreeViewItem treeViewItem, Geometry value)
+        public static void SetExpandedIcon(TreeViewItem treeViewItem, UIElement value)
         {
-            treeViewItem.SetValue(ExpandedPathProperty, value);
+            treeViewItem.SetValue(ExpandedIconProperty, value);
         }
 
-        public static readonly DependencyProperty ExpandedPathProperty =
+        public static readonly DependencyProperty ExpandedIconProperty =
             DependencyProperty.RegisterAttached(
-                "ExpandedPath",
-                typeof(Geometry),
+                "ExpandedIcon",
+                typeof(UIElement),
                 typeof(TreeViewItemHelper));
 
         public static Brush GetGlyphBrush(TreeViewItem treeViewItem)

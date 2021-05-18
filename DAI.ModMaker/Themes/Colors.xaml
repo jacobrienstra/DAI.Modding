@@ -66,11 +66,15 @@
 
     <Color x:Key="ListLow">#19000000</Color>
     <Color x:Key="ListMedium">#33000000</Color>
-    <Color x:Key="ErrorText">#C50500</Color>
-    
+
     <SolidColorBrush x:Key="ListLowBrush" Color="{StaticResource ListLow}" />
     <SolidColorBrush x:Key="ListMediumBrush" Color="{StaticResource ListMedium}" />
-    <SolidColorBrush x:Key="ErrorTextBrush" Color="{StaticResource ErrorText}" />
+
+    <Color x:Key="FolderBeige">#FFDCB67A</Color>
+    <Color x:Key="Red">#FFC50500</Color>
+
+    <SolidColorBrush x:Key="FolderBeigeBrush" Color="{StaticResource FolderBeige}" />
+    <SolidColorBrush x:Key="RedBrush" Color="{StaticResource Red}" />
 
 
     <SolidColorBrush x:Key="Transparent" Color="Transparent" />

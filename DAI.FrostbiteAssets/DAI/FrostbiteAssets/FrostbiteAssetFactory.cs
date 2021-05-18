@@ -59,7 +59,7 @@ namespace DAI.FrostbiteAssets
 		public static void ParseObject<T>(T obj, AssetContainer Container, ComplexObject complexValue)
 		{
 			List<PropertyInfo> props = new List<PropertyInfo>(typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
-			bool missingFields = false;
+			//bool missingFields = false;
 			foreach (EbxField field in complexValue.Fields)
 			{
 				if (field.Descriptor.FieldName == "$")
@@ -71,7 +71,7 @@ namespace DAI.FrostbiteAssets
 				PropertyInfo pi = props.Find((PropertyInfo x) => x.Name == field.Descriptor.FieldName);
 				if (pi == null)
 				{
-					missingFields = true;
+					//missingFields = true;
 					continue;
 				}
 				object fieldValue = GetFieldValue(complexValue.Descriptor.FieldName, field, Container, complexValue, pi);

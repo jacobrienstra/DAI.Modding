@@ -12,6 +12,6 @@ namespace DAI.ModMaker.DAIRender
 
         public Vector3 Direction;
 
-        private float Padding;
+        //private float Padding;
     }
 }

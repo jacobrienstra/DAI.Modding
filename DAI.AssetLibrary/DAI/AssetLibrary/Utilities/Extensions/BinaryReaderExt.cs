@@ -21,7 +21,7 @@ namespace DAI.AssetLibrary.Utilities.Extensions
 					return result;
 				}
 				byte b = (byte)i;
-				result |= (ulong)((b & 0x7F) << shift);
+				result |= (ulong)(uint)((b & 0x7F) << shift);
 				if (b >> 7 == 0)
 				{
 					break;

@@ -41,7 +41,7 @@ namespace DAI.AssetLibrary.Assets.Bases
 
 		public ExternalGuid GetValueAsGuid()
 		{
-			ExternalGuid dAIExternalGuid = null;
+			//ExternalGuid dAIExternalGuid = null;
 			uint uIntValue = (uint)Value;
 			if (uIntValue >> 31 != 1)
 			{

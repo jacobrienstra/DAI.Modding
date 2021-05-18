@@ -55,7 +55,99 @@
                                 <ComboBoxItem Content="Choose Template..." IsSelected="True" />
                             </ComboBox>
                         </DockPanel>
-                        <TextBox Name="ScriptTextBox" Margin="0,12" Grid.Row="1" TextWrapping="NoWrap" FontFamily="Consolas" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
+                        <avalonEdit:TextEditor
+                            xmlns:editing="clr-namespace:ICSharpCode.AvalonEdit.Editing;assembly=ICSharpCode.AvalonEdit"
+                            xmlns:rendering="clr-namespace:ICSharpCode.AvalonEdit.Rendering;assembly=ICSharpCode.AvalonEdit"
+                            xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                            Name="ScriptTextEditor"
+                            Grid.Row="1"
+                            SyntaxHighlighting="C#"
+                            FontFamily="Consolas"
+                            FontSize="10pt"
+                            Margin="0,12"
+                            Foreground="{StaticResource BaseHighBrush}"
+                            LineNumbersForeground="{StaticResource BaseMediumHighBrush}"
+                            BorderBrush="{StaticResource BaseMediumBrush}"
+                            BorderThickness="1"
+                            VerticalScrollBarVisibility="Auto">
+                            <avalonEdit:TextEditor.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="Cut" Header="Cut"/>
+                                    <MenuItem Command="Copy" Header="Copy"/>
+                                    <MenuItem Command="Paste" Header="Paste"/>
+                                    <MenuItem Command="Delete" Header="Delete"/>
+                                    <Separator />
+                                    <MenuItem Command="Undo" Header="Undo"/>
+                                    <MenuItem Command="Redo" Header="Redo"/>
+                                </ContextMenu>
+                            </avalonEdit:TextEditor.ContextMenu>
+                            <avalonEdit:TextEditor.Template>
+                                <ControlTemplate TargetType="{x:Type avalonEdit:TextEditor}">
+                                    <ControlTemplate.Resources>
+                                        <Style TargetType="{x:Type rendering:TextView}">
+                                            <Setter Property="NonPrintableCharacterBrush" Value="#3F8080FF" />
+                                            <Setter Property="LinkTextForegroundBrush" Value="#FF4040FF" />
+                                            <!--  Style hyperlink displayed within text in text editor  -->
+                                            <Setter Property="LinkTextBackgroundBrush" Value="White" />
+                                        </Style>
+
+                                        <Style TargetType="{x:Type editing:TextArea}">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                            <Setter Property="SelectionBrush" Value="#1ba1e2" />
+                                            <Setter Property="SelectionBorder">
+                                                <Setter.Value>
+                                                    <Pen Brush="#1ba1e2" Thickness="1" />
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="SelectionCornerRadius" Value="0" />
+                                            <Setter Property="SelectionForeground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type editing:TextArea}">
+                                                        <DockPanel Focusable="False">
+                                                            <ItemsControl
+                                                        DockPanel.Dock="Left"
+                                                        Focusable="False"
+                                                        ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=LeftMargins}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal" />
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                            </ItemsControl>
+                                                            <ContentPresenter
+                                                        Panel.ZIndex="-1"
+                                                        Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextView}"
+                                                        Focusable="False" />
+                                                        </DockPanel>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ControlTemplate.Resources>
+                                    <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                                        <ScrollViewer
+                                    Name="PART_ScrollViewer"
+                                    Padding="{TemplateBinding Padding}"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Top"
+                                    CanContentScroll="True"
+                                    Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextArea}"
+                                    Focusable="False"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="WordWrap" Value="True">
+                                            <Setter TargetName="PART_ScrollViewer" Property="HorizontalScrollBarVisibility" Value="Disabled" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </avalonEdit:TextEditor.Template>
+                        </avalonEdit:TextEditor>
                         <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,0,0,6">
                             <Button Name="CompileButton" Margin="0" DockPanel.Dock="Right" Content="Compile" Click="CompileButton_Clicked" />
                             <Button Name="TestButton" Margin="6,0" DockPanel.Dock="Right" Content="Test" IsEnabled="False" Click="TestButton_Clicked" />

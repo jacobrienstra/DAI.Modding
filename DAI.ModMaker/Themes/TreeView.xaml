@@ -43,10 +43,10 @@
         <Setter Property="MinHeight" Value="{DynamicResource TreeViewItemMinHeight}" />
         <Setter Property="FocusVisualStyle" Value="{DynamicResource {x:Static SystemParameters.FocusVisualStyleKey}}" />
         <Setter Property="th:TreeViewItemHelper.IsEnabled" Value="True" />
-        <Setter Property="th:TreeViewItemHelper.GlyphSize" Value="30" />
+        <Setter Property="th:TreeViewItemHelper.GlyphSize" Value="25" />
         <Setter Property="th:TreeViewItemHelper.GlyphBrush" Value="{DynamicResource BaseHighBrush}" />
-        <Setter Property="th:TreeViewItemHelper.CollapsedPath" Value="{DynamicResource RightChevron}" />
-        <Setter Property="th:TreeViewItemHelper.ExpandedPath" Value="{DynamicResource DownChevron}" />
+        <Setter Property="th:TreeViewItemHelper.CollapsedIcon" Value="{DynamicResource RightChevron}" />
+        <Setter Property="th:TreeViewItemHelper.ExpandedIcon" Value="{DynamicResource DownChevron}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -78,34 +78,22 @@
                                     IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
                                     Style="{StaticResource ExpandCollapseToggleStyle}">
                                     <Grid>
-                                        <Viewbox
+                                        <th:IconElement
                                             x:Name="CollapsedGlyph"
-                                            Width="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
-                                            Height="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
+                                            FontSize="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
                                             Visibility="Collapsed"
                                             IsHitTestVisible="False"
                                             HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-                                            <Path
-                                                Width="20"
-                                                Height="20"
-                                                Fill="{TemplateBinding Foreground}"
-                                                Data="{TemplateBinding th:TreeViewItemHelper.CollapsedPath}" />
-                                        </Viewbox>
-                                        <Viewbox
+                                            VerticalAlignment="Center" 
+                                            Icon="{TemplateBinding th:TreeViewItemHelper.CollapsedIcon}"/>
+                                        <th:IconElement
                                             x:Name="ExpandedGlyph"
-                                            Width="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
-                                            Height="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
+                                            FontSize="{TemplateBinding th:TreeViewItemHelper.GlyphSize}"
                                             Visibility="Collapsed"
                                             IsHitTestVisible="False"
                                             HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-                                            <Path
-                                                Width="20"
-                                                Height="20"
-                                                Fill="{TemplateBinding Foreground}"
-                                                Data="{TemplateBinding th:TreeViewItemHelper.ExpandedPath}" />
-                                        </Viewbox>
+                                            VerticalAlignment="Center" 
+                                            Icon="{TemplateBinding th:TreeViewItemHelper.ExpandedIcon}"/>
                                     </Grid>
                                 </ToggleButton>
                                 <ContentPresenter
@@ -206,8 +194,8 @@
     <Style TargetType="TreeViewItem" BasedOn="{StaticResource DefaultTreeViewItemStyle}" />
 
     <Style x:Key="FolderTreeViewItemStyle" TargetType="TreeViewItem" BasedOn="{StaticResource DefaultTreeViewItemStyle}">
-        <Setter Property="th:TreeViewItemHelper.CollapsedPath" Value="{DynamicResource FolderClosed}" />
-        <Setter Property="th:TreeViewItemHelper.ExpandedPath" Value="{DynamicResource FolderOpen}" />
+        <Setter Property="th:TreeViewItemHelper.CollapsedIcon" Value="{StaticResource FolderClosedIcon}" />
+        <Setter Property="th:TreeViewItemHelper.ExpandedIcon" Value="{StaticResource FolderOpenIcon}" />
     </Style>
 
     <Style x:Key="DefaultTreeViewStyle" TargetType="TreeView">

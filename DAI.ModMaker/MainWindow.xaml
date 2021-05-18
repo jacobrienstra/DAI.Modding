@@ -87,7 +87,7 @@ p://schemas.microsoft.com/expression/blend/2008"
                 <ColumnDefinition Width="417*" />
             </Grid.ColumnDefinitions>
             <GridSplitter Grid.Column="1" ResizeDirection="Columns" Margin="0"/>
-            <TreeView Grid.Column="0" x:Name="AssetFolderTreeView" BorderBrush="{x:Null}" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" Style="{StaticResource DefaultTreeViewStyle}" ItemContainerStyle="{StaticResource FolderTreeViewItemStyle}" />
+            <TreeView Grid.Column="0" x:Name="AssetFolderTreeView" BorderBrush="{x:Null}" SelectedItemChanged="AssetFolderTreeView_SelectedItemChanged" Style="{StaticResource DefaultTreeViewStyle}" ItemContainerStyle="{StaticResource DefaultTreeViewItemStyle}" />
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="526*" />

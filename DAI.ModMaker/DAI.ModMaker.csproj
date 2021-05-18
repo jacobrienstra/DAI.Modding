@@ -110,7 +110,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Themes\IconElement.cs" />
     <EmbeddedResource Include="Resources\BlankTemplate.cs" />
     <Compile Include="Themes\PressHelper.cs" />
     <Compile Include="Themes\TreeViewItemHelper.cs" />

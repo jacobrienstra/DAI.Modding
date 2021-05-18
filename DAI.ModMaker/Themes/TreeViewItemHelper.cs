@@ -87,12 +87,12 @@ namespace DAI.ModMaker.Themes
                 typeof(TreeViewItemHelper),
                 new PropertyMetadata("\uE70D"));
 
-        public static UIElement GetCollapsedIcon(TreeViewItem treeViewItem)
+        public static DrawingGroup GetCollapsedIcon(TreeViewItem treeViewItem)
         {
-            return (UIElement)treeViewItem.GetValue(CollapsedIconProperty);
+            return (DrawingGroup)treeViewItem.GetValue(CollapsedIconProperty);
         }
 
-        public static void SetCollapsedIcon(TreeViewItem treeViewItem, UIElement value)
+        public static void SetCollapsedIcon(TreeViewItem treeViewItem, DrawingGroup value)
         {
             treeViewItem.SetValue(CollapsedIconProperty, value);
         }
@@ -100,15 +100,15 @@ namespace DAI.ModMaker.Themes
         public static readonly DependencyProperty CollapsedIconProperty =
             DependencyProperty.RegisterAttached(
                 "CollapsedIcon",
-                typeof(UIElement),
+                typeof(DrawingGroup),
                 typeof(TreeViewItemHelper));
 
-        public static UIElement GetExpandedIcon(TreeViewItem treeViewItem)
+        public static DrawingGroup GetExpandedIcon(TreeViewItem treeViewItem)
         {
-            return (UIElement)treeViewItem.GetValue(ExpandedIconProperty);
+            return (DrawingGroup)treeViewItem.GetValue(ExpandedIconProperty);
         }
 
-        public static void SetExpandedIcon(TreeViewItem treeViewItem, UIElement value)
+        public static void SetExpandedIcon(TreeViewItem treeViewItem, DrawingGroup value)
         {
             treeViewItem.SetValue(ExpandedIconProperty, value);
         }
@@ -116,25 +116,8 @@ namespace DAI.ModMaker.Themes
         public static readonly DependencyProperty ExpandedIconProperty =
             DependencyProperty.RegisterAttached(
                 "ExpandedIcon",
-                typeof(UIElement),
+                typeof(DrawingGroup),
                 typeof(TreeViewItemHelper));
-
-        public static Brush GetGlyphBrush(TreeViewItem treeViewItem)
-        {
-            return (Brush)treeViewItem.GetValue(GlyphBrushProperty);
-        }
-        
-        public static void SetGlyphBrush(TreeViewItem treeViewItem, Brush value)
-        {
-            treeViewItem.SetValue(GlyphBrushProperty, value);
-        }
-
-        public static readonly DependencyProperty GlyphBrushProperty =
-            DependencyProperty.RegisterAttached(
-                "GlyphBrush",
-                typeof(Brush),
-                typeof(TreeViewItemHelper),
-                null);
 
         public static double GetGlyphOpacity(TreeViewItem treeViewItem)
         {
@@ -167,13 +150,50 @@ namespace DAI.ModMaker.Themes
             treeViewItem.SetValue(GlyphSizeProperty, value);
         }
 
-    
         public static readonly DependencyProperty GlyphSizeProperty =
             DependencyProperty.RegisterAttached(
                 "GlyphSize",
                 typeof(double),
                 typeof(TreeViewItemHelper),
                 new PropertyMetadata(12.0));
+
+
+        public static Thickness GetCollapsedMargin(TreeViewItem treeViewItem)
+        {
+            return (Thickness)treeViewItem.GetValue(CollapsedMarginProperty);
+        }
+
+
+        public static void SetCollapsedMargin(TreeViewItem treeViewItem, Thickness value)
+        {
+            treeViewItem.SetValue(CollapsedMarginProperty, value);
+        }
+
+        public static readonly DependencyProperty CollapsedMarginProperty =
+           DependencyProperty.RegisterAttached(
+               "CollapsedMargin",
+               typeof(Thickness),
+               typeof(TreeViewItemHelper),
+               null);
+
+
+        public static Thickness GetExpandedMargin(TreeViewItem treeViewItem)
+        {
+            return (Thickness)treeViewItem.GetValue(ExpandedMarginProperty);
+        }
+
+        public static void SetExpandedMargin(TreeViewItem treeViewItem, Thickness value)
+        {
+            treeViewItem.SetValue(ExpandedMarginProperty, value);
+        }
+
+        public static readonly DependencyProperty ExpandedMarginProperty =
+           DependencyProperty.RegisterAttached(
+               "ExpandedMargin",
+               typeof(Thickness),
+               typeof(TreeViewItemHelper),
+               null);
+
 
         private static readonly DependencyPropertyKey IndentationPropertyKey =
             DependencyProperty.RegisterAttachedReadOnly(

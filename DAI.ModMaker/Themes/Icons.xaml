@@ -5,50 +5,35 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:th="clr-namespace:DAI.ModMaker.Themes">
 
-    <Style TargetType="{x:Type th:IconElement}">
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type th:IconElement}">
-                    <Viewbox
-                        Width="{TemplateBinding FontSize}"
-                        Height="{TemplateBinding FontSize}"
-                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                        <ContentPresenter x:Name="Icon" ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center" Width="16" Height="16"/>
-                    </Viewbox>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-    
-    <Geometry x:Key="DownChevron">M 18.935547 4.560547 L 19.814453 5.439453 L 10 15.253906 L 0.185547 5.439453 L 1.064453 4.560547 L 10 13.496094 Z</Geometry>
+    <DataTemplate DataType="{x:Type Drawing}">
+        <Rectangle Width="16" Height="16">
+            <Rectangle.Fill>
+                <DrawingBrush Drawing="{Binding}" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+    </DataTemplate>
 
-    <Geometry x:Key="RightChevron">M 5.029297 19.091797 L 14.111328 10 L 5.029297 0.908203 L 5.908203 0.029297 L 15.888672 10 L 5.908203 19.970703 Z</Geometry>
+    <DrawingGroup x:Key="DownChevron">
+        <GeometryDrawing Brush="{StaticResource BaseHighBrush}" Geometry="M 18.935547 4.560547 L 19.814453 5.439453 L 10 15.253906 L 0.185547 5.439453 L 1.064453 4.560547 L 10 13.496094 Z"/>
+    </DrawingGroup>
 
-    <Geometry x:Key="FolderOpen">
-        M1,4v9c0,0.5,0.4,1,0.9,1c0,0,0,0,0.1,0l0,0V4h6l1,2h4v3H4l-2,5h11l2-5h-1V6c0-1-1.2-1-1-1H9.5l-1-2H2
-		C1.5,3,1,3.4,1,4C1,4,1,4,1,4z
-    </Geometry>
+    <DrawingGroup x:Key="RightChevron">
+        <GeometryDrawing Brush="{StaticResource BaseHighBrush}" Geometry="M 5.029297 19.091797 L 14.111328 10 L 5.029297 0.908203 L 5.908203 0.029297 L 15.888672 10 L 5.908203 19.970703 Z"/>
+    </DrawingGroup>
 
-    <Path x:Shared="False" x:Key="FolderOpenIcon"
-        Height="16"
-        Width="16"
-        Fill="{StaticResource FolderBeigeBrush}"
-        Data="{StaticResource FolderOpen}" />
-    
-    <Geometry x:Key="FolderClosed">
-        M14,5h-3.5l-1-2H2C1.7,3,1.5,3.2,1.5,3.5v10C1.5,13.8,1.7,14,2,14h12c0.3,0,0.5-0.2,0.5-0.5v-8
-		C14.5,5.2,14.3,5,14,5z M2.5,4h6.4l0.5,1H2.5V4z
-    </Geometry>
+    <DrawingGroup x:Key="FolderClosed">
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M0,0L16,0 16,16 0,16z" />
+        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M1.5,1L9.61,1 10.61,3 13.496,3C14.323,3,14.996,3.673,14.996,4.5L14.996,12.5C14.996,13.327,14.323,14,13.496,14L1.5,14C0.673,14,0,13.327,0,12.5L0,2.5C0,1.673,0.673,1,1.5,1" />
+        <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M1.9998,3.0004L1.9998,4.0004 8.8738,4.0004 8.3738,3.0004z" />
+        <GeometryDrawing Brush="#FFDBB679" Geometry="F1M2,3L8.374,3 8.874,4 2,4z M13.496,4L10,4 9.992,4 8.992,2 1.5,2C1.225,2,1,2.224,1,2.5L1,12.5C1,12.776,1.225,13,1.5,13L13.496,13C13.773,13,13.996,12.776,13.996,12.5L13.996,4.5C13.996,4.224,13.773,4,13.496,4" />
+    </DrawingGroup>
 
-    <Path x:Shared="False" x:Key="FolderClosedIcon"
-        Height="20"
-        Width="20"
-        Fill="{StaticResource FolderBeigeBrush}"
-        Data="{StaticResource FolderClosed}" />
+    <DrawingGroup x:Key="FolderOpen">
+        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M0,0L16,0 16,16 0,16z" />
+        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M0,2.9688L0,11.9688C0,12.5858 0.227,13.0718 0.57,13.4038 1.14,13.9478 2,13.9688 2,13.9688L13.677,13.9688 16,8.1648 16,6.9688 15,6.9688 15,4.9688C15,3.6698,13.97,2.9688,13,2.9688L10.116,2.9688 9.116,0.9688 2,0.9688C1.005,0.9688,0,1.6658,0,2.9688" />
+        <GeometryDrawing Brush="#FFDCB67A" Geometry="F1M1,3L1,12C1,12.97,1.94,12.984,1.997,12.984L2,12.984 2,3 8,3 9,5 13,5 13,8 4,8 2,13 13,13 15,8 14,8 14,5C14,4,12.764,4,13,4L9.5,4 8.5,2 2,2C2,2,1,2,1,3" />
+    </DrawingGroup>
+
 
     <Geometry x:Key="Save">
         M6,12h2v3H6V12z M15,2v13h-3v-5H4v5H3l-2-2V2c0-0.6,0.4-1,1-1h12C14.6,1,15,1.4,15,2z M13,3H3v4h10V3z

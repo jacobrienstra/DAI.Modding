@@ -57,12 +57,12 @@
                             <Image.Style>
                                 <Style TargetType="Image">
                                     <Setter Property="Source"
-                                            Value="{StaticResource Run}" />
+                                            Value="{StaticResource Test}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsLiveMode}"
                                                      Value="True">
                                             <Setter Property="Source"
-                                                    Value="{StaticResource Rocket}" />
+                                                    Value="{StaticResource Test}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -80,7 +80,7 @@
                               Padding="0"
                               FontFamily="Segoe UI Symbol">
                         <MenuItem Command="{Binding ToggleLiveModeCommand}"
-                                  Icon="{StaticResource Rocket}">
+                                  Icon="{StaticResource Test}">
                             <MenuItem.Style>
                                 <Style TargetType="MenuItem">
                                     <Setter Property="Header"
@@ -118,7 +118,7 @@
                         Content="{StaticResource Save}" />
                 <Button Command="{Binding OpenBuildPathCommand, Mode=OneTime}"
                         ToolTip="Open Build Folder"
-                        Content="{StaticResource PackageFolder}" />
+                        Content="{StaticResource Test}" />
                 <Separator />
                 <Menu Background="Transparent"
                       Name="RootMenu">
@@ -131,7 +131,7 @@
                         <MenuItem.HeaderTemplate>
                             <DataTemplate DataType="{x:Type ui:OpenDocumentViewModel}">
                                 <Grid>
-                                    <Image Source="{StaticResource NuGet}" />
+                                    <Image Source="{StaticResource Test}" />
                                     <ProgressBar Name="Spinner"
                                                  VerticalAlignment="Bottom"
                                                  Height="4"

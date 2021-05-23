@@ -23,7 +23,7 @@ using Settings = NuGet.Configuration.Settings;
 
 namespace RoslynPad.UI
 {
-    [Export, Export(typeof(INuGetCompletionProvider)), Shared]
+    [Export, Export(typeof(INuGetCompletionProvider))]
     public sealed class NuGetViewModel : NotificationObject, INuGetCompletionProvider
     {
         private const int MaxSearchResults = 50;

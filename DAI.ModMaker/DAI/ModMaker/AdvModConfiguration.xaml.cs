@@ -49,7 +49,7 @@ namespace DAI.ModMaker
             for (int j = 0; j < strArrays.Length; j++)
             {
                 FileInfo fileInfo = new FileInfo(strArrays[j]);
-                TemplateComboBox.Items.Add(fileInfo.Name);
+                //TemplateComboBox.Items.Add(fileInfo.Name);
             }
         }
 
@@ -80,17 +80,17 @@ namespace DAI.ModMaker
 
         private void CompileButton_Clicked(object sender, RoutedEventArgs e)
         {
-            ScriptLogTextBox.Clear();
+            //ScriptLogTextBox.Clear();
             try
             {
                 //CompiledModScript = Scripting.GetModScriptObject(ScriptTextEditor.Document.Text);
-                TestButton.IsEnabled = true;
+                //TestButton.IsEnabled = true;
                 //CurrentMod.Script = ScriptTextEditor.Document.Text;
                 WriteLogEntry("Build successful");
             }
             catch (Exception exception)
             {
-                TestButton.IsEnabled = false;
+                //TestButton.IsEnabled = false;
                 WriteLogEntry(exception.Message);
             }
         }
@@ -192,11 +192,11 @@ namespace DAI.ModMaker
 
         private void TemplateChooseButton_Clicked(object sender, RoutedEventArgs e)
         {
-            if (TemplateComboBox.SelectedIndex >= 1)
-            {
-                string str1 = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Templates\\" + TemplateComboBox.SelectedItem);
-                //ScriptTextEditor.Document.Text = str1;
-            }
+            //if (TemplateComboBox.SelectedIndex >= 1)
+            //{
+            //    string str1 = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Templates\\" + TemplateComboBox.SelectedItem);
+            //    //ScriptTextEditor.Document.Text = str1;
+            //}
         }
 
         private void TestButton_Clicked(object sender, RoutedEventArgs e)
@@ -204,7 +204,7 @@ namespace DAI.ModMaker
             if (CompiledModScript != null)
             {
                 Scripting.CurrentMod = CurrentMod;
-                Scripting.ScriptLogTextBox = ScriptLogTextBox;
+                //Scripting.ScriptLogTextBox = ScriptLogTextBox;
                 Scripting.LogLn("Executing ModScript::ConstructUI");
                 ModConfigElementsList modConfigElementsList = new ModConfigElementsList();
                 CompiledModScript.ConstructUI(modConfigElementsList);
@@ -218,17 +218,17 @@ namespace DAI.ModMaker
 
         private void WriteLogEntry(string InStr)
         {
-            TextBox scriptLogTextBox = ScriptLogTextBox;
-            string text = scriptLogTextBox.Text;
-            string[] shortDateString = new string[8] { text, "[", null, null, null, null, null, null };
-            shortDateString[2] = DateTime.Now.ToShortDateString();
-            shortDateString[3] = " ";
-            shortDateString[4] = DateTime.Now.ToShortTimeString();
-            shortDateString[5] = "] ";
-            shortDateString[6] = InStr;
-            shortDateString[7] = "\n";
-            scriptLogTextBox.Text = string.Concat(shortDateString);
-            ScriptLogTextBox.ScrollToEnd();
+            //TextBox scriptLogTextBox = ScriptLogTextBox;
+            //string text = scriptLogTextBox.Text;
+            //string[] shortDateString = new string[8] { text, "[", null, null, null, null, null, null };
+            //shortDateString[2] = DateTime.Now.ToShortDateString();
+            //shortDateString[3] = " ";
+            //shortDateString[4] = DateTime.Now.ToShortTimeString();
+            //shortDateString[5] = "] ";
+            //shortDateString[6] = InStr;
+            //shortDateString[7] = "\n";
+            //scriptLogTextBox.Text = string.Concat(shortDateString);
+            //ScriptLogTextBox.ScrollToEnd();
         }
     }
 }

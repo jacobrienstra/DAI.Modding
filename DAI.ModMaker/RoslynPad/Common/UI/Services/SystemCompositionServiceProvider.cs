@@ -4,7 +4,7 @@ using RoslynPad.Annotations;
 
 namespace RoslynPad.UI
 {
-    [Export(typeof(IServiceProvider)), Shared]
+    [Export(typeof(IServiceProvider))]
     internal class SystemCompositionServiceProvider : IServiceProvider
     {
         private readonly CompositionContext _host;

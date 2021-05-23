@@ -23,7 +23,7 @@
                 <ToggleButton Style="{StaticResource TreeListViewToggleStyle}" />
 
                 <Image Name="Icon"
-                       Source="{StaticResource CsFile}"
+                       Source="{StaticResource Test}"
                        Height="12"
                        Margin="0 0 3 0" />
                 <TextBlock Text="{Binding Name}" />
@@ -33,7 +33,7 @@
                              Value="True">
                     <Setter TargetName="Icon"
                             Property="Source"
-                            Value="{StaticResource Folder}" />
+                            Value="{StaticResource Test}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </HierarchicalDataTemplate>
@@ -83,18 +83,18 @@
                               Style="{StaticResource SearchButtonStyle}"
                               IsChecked="{Binding SearchUsingRegex}"
                               ToolTip="Use Regular Expressions"
-                              Content="{StaticResource RegularExpression}" />
+                              Content="{StaticResource Test}" />
                 <ToggleButton DockPanel.Dock="Right"
                               Style="{StaticResource SearchButtonStyle}"
                               IsChecked="{Binding SearchFileContents}"
                               ToolTip="Search File Contents"
-                              Content="{StaticResource FileCollection}" />
+                              Content="{StaticResource Test}" />
                 <Button DockPanel.Dock="Right"
                         Style="{StaticResource SearchButtonStyle}"
                         Command="{Binding ClearSearchCommand}"
                         Visibility="{Binding CanClearSearch, Converter={StaticResource BooleanToVisibilityConverter}}"
                         ToolTip="Clear search (Esc)"
-                        Content="{StaticResource Close}" />
+                        Content="{StaticResource Test}" />
                 <Grid>
                     <TextBox Name="SearchText"
                              BorderThickness="0"
@@ -136,21 +136,21 @@
             <Button ToolTip="New Document (Ctrl+N)"
                     ToolTipService.Placement="Top"
                     Command="{Binding NewDocumentCommand, Mode=OneTime}">
-                <Image Source="{StaticResource CsFile}"
+                <Image Source="{StaticResource Test}"
                        Width="16"
                        Height="16" />
             </Button>
             <Button ToolTip="Open File (Ctrl+O)"
                     ToolTipService.Placement="Top"
                     Command="{Binding OpenFileCommand, Mode=OneTime}">
-                <Image Source="{StaticResource OpenFolder}"
+                <Image Source="{StaticResource Test}"
                        Width="16"
                        Height="16" />
             </Button>
             <Button ToolTip="Change Documents Location"
                     ToolTipService.Placement="Top"
                     Command="{Binding EditUserDocumentPathCommand, Mode=OneTime}">
-                <Image Source="{StaticResource MoveFolder}"
+                <Image Source="{StaticResource Test}"
                        Width="16"
                        Height="16" />
             </Button>

@@ -32,7 +32,7 @@ namespace RoslynPad.UI
         bool FormatDocumentOnComment { get; set; }
     }
 
-    [Export(typeof(IApplicationSettings)), Shared]
+    [Export(typeof(IApplicationSettings))]
     internal class ApplicationSettings : NotificationObject, IApplicationSettings
     {
         private const int LiveModeDelayMsDefault = 2000;

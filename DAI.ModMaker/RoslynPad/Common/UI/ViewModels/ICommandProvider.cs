@@ -13,7 +13,7 @@ namespace RoslynPad.UI
         IDelegateCommand<T> CreateAsync<T>(Func<T, Task> execute, Func<T, bool>? canExecute = null);
     }
 
-    [Export(typeof(ICommandProvider)), Shared]
+    [Export(typeof(ICommandProvider))]
     internal class CommandProvider : ICommandProvider
     {
         public IDelegateCommand Create(Action execute, Func<bool>? canExecute = null)

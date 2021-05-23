@@ -8,7 +8,7 @@ using RoslynPad.UI;
 
 namespace RoslynPad
 {
-    [Export(typeof(ITelemetryProvider)), Shared]
+    [Export(typeof(ITelemetryProvider))]
     internal class TelemetryProvider : TelemetryProviderBase
     {
         public override void Initialize(string version, IApplicationSettings settings)

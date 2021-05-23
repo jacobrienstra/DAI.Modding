@@ -44,7 +44,7 @@ namespace DAI.ModMaker
                 }
                 ResourceDataListBox.Items.Add(str);
             }
-            ScriptTextEditor.Text = CurrentMod.Script;
+            //ScriptTextEditor.Text = CurrentMod.Script;
             string[] strArrays = Directory.GetFiles(Directory.GetCurrentDirectory() + "\\Templates", "*.cs", SearchOption.AllDirectories);
             for (int j = 0; j < strArrays.Length; j++)
             {
@@ -83,9 +83,9 @@ namespace DAI.ModMaker
             ScriptLogTextBox.Clear();
             try
             {
-                CompiledModScript = Scripting.GetModScriptObject(ScriptTextEditor.Document.Text);
+                //CompiledModScript = Scripting.GetModScriptObject(ScriptTextEditor.Document.Text);
                 TestButton.IsEnabled = true;
-                CurrentMod.Script = ScriptTextEditor.Document.Text;
+                //CurrentMod.Script = ScriptTextEditor.Document.Text;
                 WriteLogEntry("Build successful");
             }
             catch (Exception exception)
@@ -170,7 +170,7 @@ namespace DAI.ModMaker
             CurrentMod.Meta.Details.Author = ModAuthorTextBox.Text;
             CurrentMod.Meta.Details.Version = ModVersionTextBox.Text;
             CurrentMod.Meta.Details.Description = ModDescriptionTextBox.Text;
-            CurrentMod.Script = ScriptTextEditor.Document.Text;
+            //CurrentMod.Script = ScriptTextEditor.Document.Text;
             Cancelled = false;
             for (int i = 0; i < CurrentMod.Meta.Resources.Count; i++)
             {
@@ -195,7 +195,7 @@ namespace DAI.ModMaker
             if (TemplateComboBox.SelectedIndex >= 1)
             {
                 string str1 = File.ReadAllText(Directory.GetCurrentDirectory() + "\\Templates\\" + TemplateComboBox.SelectedItem);
-                ScriptTextEditor.Document.Text = str1;
+                //ScriptTextEditor.Document.Text = str1;
             }
         }
 

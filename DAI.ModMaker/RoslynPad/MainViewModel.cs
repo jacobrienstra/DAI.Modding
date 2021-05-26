@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace RoslynPad
 {
-    [Export(typeof(MainViewModelBase))]
+    [Export(typeof(MainViewModelBase)), Shared]
     public class MainViewModel : MainViewModelBase
     {
         [ImportingConstructor]

@@ -68,7 +68,7 @@ namespace RoslynPad
             _viewModel = (OpenDocumentViewModel)args.NewValue;
             _viewModel.ResultsAvailable += ResultsAvailable;
             _viewModel.ReadInput += OnReadInput;
-            _viewModel.NuGet.PackageInstalled += NuGetOnPackageInstalled;
+            //_viewModel.NuGet.PackageInstalled += NuGetOnPackageInstalled;
 
             _viewModel.EditorFocus += (o, e) => Editor.Focus();
             _viewModel.DocumentUpdated += (o, e) => Dispatcher.InvokeAsync(() => Editor.RefreshHighlighting());

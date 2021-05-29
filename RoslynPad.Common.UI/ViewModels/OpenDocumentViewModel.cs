@@ -130,7 +130,7 @@ namespace RoslynPad.UI
             MainViewModel = mainViewModel;
             CommandProvider = commands;
 
-            NuGet = serviceProvider.GetService<NuGetDocumentViewModel>();
+            //NuGet = serviceProvider.GetService<NuGetDocumentViewModel>();
 
             _restoreSuccessful = true; // initially set to true so we can immediately start running and wait for restore
             _dispatcher = appDispatcher;

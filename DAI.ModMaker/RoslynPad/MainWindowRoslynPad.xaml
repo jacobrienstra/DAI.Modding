@@ -31,55 +31,73 @@
             <roslynPad:DocumentView />
         </DataTemplate>
     </FrameworkElement.Resources>
-    
-    <av:InlineModalDecorator Target="{Binding ElementName=This, Mode=OneTime}">
-        <DockPanel>
-            <Border Padding="3"
-                    Margin="1"
-                    Background="#eebbbb"
-                    DockPanel.Dock="Bottom"
-                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <DockPanel LastChildFill="False">
-                    <Button Margin="3"
-                            Content="View details"
-                            DockPanel.Dock="Right"
-                            Background="Transparent"
-                            Click="ViewErrorDetails_OnClick" />
-                    <Button Background="Transparent"
-                            Content=""
-                            FontFamily="Segoe UI Symbol"
-                            Command="{Binding ClearErrorCommand, Mode=OneTime}"
-                            Margin="3" />
-                    <TextBlock VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               Text="{Binding LastError.Message}" />
-                </DockPanel>
-            </Border>
-            <Grid IsEnabled="{Binding IsInitialized}">
-                <ContentControl Content="{Binding CurrentOpenDocument, Mode=TwoWay}" />
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Margin="5">
-                    <Image Margin="20 0 0 0"
-                           Source="{StaticResource FontSize}"
-                           Height="16"
-                           Width="16" />
-                    <Slider Width="100"
-                            ToolTip="Font Size"
-                            ToolTipService.Placement="Top"
-                            Margin="5 0 0 0"
-                            Minimum="{Binding MinimumEditorFontSize, Mode=OneTime}"
-                            Maximum="{Binding MaximumEditorFontSize, Mode=OneTime}"
-                            SmallChange="1"
-                            LargeChange="10"
-                            IsSnapToTickEnabled="True"
-                            TickFrequency="1"
-                            Value="{Binding EditorFontSize}" />
-                    <TextBlock Text="{Binding EditorFontSize}"
-                               Margin="5 0 0 0" />
-                </StackPanel>
-            </Grid>
-        </DockPanel>
-    </av:InlineModalDecorator>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ToolBar Grid.ColumnSpan="3"
+                     Background="Transparent"
+                     BorderBrush="DarkGray"
+                     BorderThickness="0 0 0 1"
+                     Grid.Row="0">
+            <Button Command="{Binding SaveCommand, Mode=OneTime}"
+                        ToolTip="New Document (Ctrl+N)"
+                        Content="{StaticResource New}" />
+            <Button Command="{Binding OpenFileCommand, Mode=OneTime}"
+                        ToolTip="Open Document (Ctrl+O)"
+                        Content="{StaticResource Open}" />
+        </ToolBar>
+
+        <av:InlineModalDecorator Target="{Binding ElementName=This, Mode=OneTime}" Grid.Row="1">
+            <DockPanel>
+                <Border Padding="3"
+                        Margin="1"
+                        Background="#eebbbb"
+                        DockPanel.Dock="Bottom"
+                        Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <DockPanel LastChildFill="False">
+                        <Button Margin="3"
+                                Content="View details"
+                                DockPanel.Dock="Right"
+                                Background="Transparent"
+                                Click="ViewErrorDetails_OnClick" />
+                        <Button Background="Transparent"
+                                Content=""
+                                FontFamily="Segoe UI Symbol"
+                                Command="{Binding ClearErrorCommand, Mode=OneTime}"
+                                Margin="3" />
+                        <TextBlock VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="{Binding LastError.Message}" />
+                    </DockPanel>
+                </Border>
+                <Grid IsEnabled="{Binding IsInitialized}">
+                    <ContentControl Content="{Binding CurrentOpenDocument, Mode=TwoWay}" />
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Margin="5">
+                        <Image Margin="20 0 0 0"
+                               Source="{StaticResource FontSize}"
+                               Height="16"
+                               Width="16" />
+                        <Slider Width="100"
+                                ToolTip="Font Size"
+                                ToolTipService.Placement="Top"
+                                Margin="5 0 0 0"
+                                Minimum="{Binding MinimumEditorFontSize, Mode=OneTime}"
+                                Maximum="{Binding MaximumEditorFontSize, Mode=OneTime}"
+                                SmallChange="1"
+                                LargeChange="10"
+                                IsSnapToTickEnabled="True"
+                                TickFrequency="1"
+                                Value="{Binding EditorFontSize}" />
+                        <TextBlock Text="{Binding EditorFontSize}"
+                                   Margin="5 0 0 0" />
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
+        </av:InlineModalDecorator>
+    </Grid>
 </Window>

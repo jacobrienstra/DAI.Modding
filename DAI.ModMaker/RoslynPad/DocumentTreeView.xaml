@@ -7,7 +7,7 @@
              xmlns:ui="clr-namespace:RoslynPad.UI;assembly=RoslynPad.Common.UI"
              xmlns:roslynPad="clr-namespace:RoslynPad"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance ui:MainViewModel}"
+             d:DataContext="{d:DesignInstance roslynPad:MainViewModel}"
              d:DesignHeight="300"
              d:DesignWidth="300">
     <FrameworkElement.Resources>
@@ -33,7 +33,7 @@
                              Value="True">
                     <Setter TargetName="Icon"
                             Property="Source"
-                            Value="{StaticResource Folder}" />
+                            Value="{StaticResource FolderClosed}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </HierarchicalDataTemplate>
@@ -75,7 +75,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border BorderBrush="#ABADB3"
+        <!--<Border BorderBrush="#ABADB3"
                 BorderThickness="1,1,1,0"
                 Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
             <DockPanel>
@@ -120,14 +120,14 @@
                     </TextBlock>
                 </Grid>
             </DockPanel>
-        </Border>
+        </Border>-->
 
         <controls:TreeListView Grid.Row="1"
                                ShowSeparator="False"
                                ItemContainerStyle="{StaticResource DocumentItemContainerStyle}"
                                ItemsSource="{Binding DocumentRoot.Children, Converter={StaticResource FilterCollectionViewConverter}}" />
 
-        <ToolBar Grid.Row="2"
+        <!--<ToolBar Grid.Row="2"
                  Background="Transparent"
                  BorderBrush="DarkGray"
                  BorderThickness="0 0 0 1"
@@ -154,7 +154,7 @@
                        Width="16"
                        Height="16" />
             </Button>
-        </ToolBar>
+        </ToolBar>-->
 
     </Grid>
 </UserControl>

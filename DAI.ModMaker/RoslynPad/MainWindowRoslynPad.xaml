@@ -58,7 +58,8 @@
                 </DockPanel>
             </Border>
             <Grid IsEnabled="{Binding IsInitialized}">
-                <dock:DockingManager Name="DockingManager"
+                <ContentControl Content="{Binding CurrentOpenDocument, Mode=TwoWay}" />
+                <!--<dock:DockingManager Name="DockingManager"
                                      DocumentsSource="{Binding OpenDocuments, Mode=OneTime}"
                                      ActiveContent="{Binding CurrentOpenDocument, Mode=TwoWay}"
                                      DocumentClosing="DockingManager_OnDocumentClosing"
@@ -87,7 +88,7 @@
                     </dock:DockingManager.DocumentPaneMenuItemHeaderTemplate>
                     <dock:LayoutRoot>
                         <dock:LayoutPanel Orientation="Horizontal">
-                            <dock:LayoutAnchorablePane Name="Documents"
+                            --><!--<dock:LayoutAnchorablePane Name="Documents"
                                                        DockWidth="200">
                                 <dock:LayoutAnchorable x:Name="DocumentsPane"
                                                        CanHide="False"
@@ -96,19 +97,19 @@
                                                        CanAutoHide="True"
                                                        AutoHideWidth="200"
                                                        Title="Documents">
-                                    <DockPanel x:Name="DocumentTree">
+                                    --><!--<DockPanel x:Name="DocumentTree">
                                         <AdornerDecorator>
                                             <roslynPad:DocumentTreeView />
                                         </AdornerDecorator>
-                                    </DockPanel>
+                                    </DockPanel>--><!--
                                 </dock:LayoutAnchorable>
-                            </dock:LayoutAnchorablePane>
+                            </dock:LayoutAnchorablePane>--><!--
                             <dock:LayoutDocumentPane />
                         </dock:LayoutPanel>
                     </dock:LayoutRoot>
-                </dock:DockingManager>
+                </dock:DockingManager>-->
 
-                <Button HorizontalAlignment="Center"
+                <!--<Button HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Padding="5"
                         Background="Transparent"
@@ -121,14 +122,14 @@
                         <TextBlock Text="New (Ctrl+N)"
                                    HorizontalAlignment="Center" />
                     </StackPanel>
-                </Button>
+                </Button>-->
 
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Bottom"
                             Margin="5">
 
-                    <ToggleButton Margin="20 0 0 0"
+                    <!--<ToggleButton Margin="20 0 0 0"
                                   BorderThickness="0"
                                   Background="Transparent"
                                   IsChecked="{Binding Settings.OptimizeCompilation}"
@@ -169,7 +170,7 @@
                                 </TextBlock>
                             </StackPanel>
                         </Button.Content>
-                    </Button>
+                    </Button>-->
 
                     <Image Margin="20 0 0 0"
                            Source="{StaticResource FontSize}"
@@ -189,7 +190,7 @@
                     <TextBlock Text="{Binding EditorFontSize}"
                                Margin="5 0 0 0" />
 
-                    <Menu Margin="20 0 0 0"
+                    <!--<Menu Margin="20 0 0 0"
                           Background="Transparent">
                         <MenuItem Padding="0"
                                   BorderThickness="0"
@@ -207,7 +208,7 @@
                             <MenuItem Header="Report a problem..."
                                       Command="{Binding ReportProblemCommand}" />
                         </MenuItem>
-                    </Menu>
+                    </Menu>-->
                 </StackPanel>
             </Grid>
         </DockPanel>

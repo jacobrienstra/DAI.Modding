@@ -9,10 +9,10 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance ui:OpenDocumentViewModel}">
     <FrameworkElement.InputBindings>
-        <KeyBinding Key="F5"
+        <!--<KeyBinding Key="F5"
                     Command="{Binding RunCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Shift+F5"
-                    Command="{Binding RestartHostCommand, Mode=OneTime}" />
+                    Command="{Binding RestartHostCommand, Mode=OneTime}" />-->
         <KeyBinding Gesture="Ctrl+S"
                     Command="{Binding SaveCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+D"
@@ -50,7 +50,7 @@
                      Background="Transparent"
                      BorderBrush="DarkGray"
                      BorderThickness="0 0 0 1">
-                <Button Command="{Binding RunCommand, Mode=OneTime}"
+                <!--<Button Command="{Binding RunCommand, Mode=OneTime}"
                         ToolTip="Run (F5)">
                     <Grid>
                         <Image>
@@ -106,21 +106,21 @@
                     <TextBlock Text="{Binding ReportedProgress, Mode=OneWay, Converter={StaticResource DoubleToPercentageTextConverter}}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
-                </Grid>
-                <Button Command="{Binding RestartHostCommand, Mode=OneTime}"
+                </Grid>-->
+                <!--<Button Command="{Binding RestartHostCommand, Mode=OneTime}"
                         ToolTip="Restart host process (Shift+F5)"
                         Content="{StaticResource Test}" />
                 <ComboBox ItemsSource="{Binding AvailablePlatforms, Mode=OneTime}"
                           SelectedItem="{Binding Platform}" />
-                <Separator />
+                <Separator />-->
                 <Button Command="{Binding SaveCommand, Mode=OneTime}"
                         ToolTip="Save (Ctrl+S)"
                         Content="{StaticResource Save}" />
-                <Button Command="{Binding OpenBuildPathCommand, Mode=OneTime}"
+                <!--<Button Command="{Binding OpenBuildPathCommand, Mode=OneTime}"
                         ToolTip="Open Build Folder"
                         Content="{StaticResource Test}" />
-                <Separator />
-                <Menu Background="Transparent"
+                <Separator />-->
+                <!--<Menu Background="Transparent"
                       Name="RootMenu">
                     <MenuItem Name="RootNuGetMenu"
                               IsSubmenuOpen="{Binding NuGet.IsPackagesMenuOpen}"
@@ -199,8 +199,8 @@
                             </DataTemplate>
                         </ItemsControl.Resources>
                     </MenuItem>
-                </Menu>
-                <Grid>
+                </Menu>-->
+                <!--<Grid>
                     <TextBox Name="NuGetSearch"
                              BorderBrush="#eee"
                              PreviewKeyDown="SearchTerm_OnPreviewKeyDown"
@@ -226,13 +226,13 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                </Grid>
-                <Decorator VerticalAlignment="Center">
+                </Grid>-->
+                <!--<Decorator VerticalAlignment="Center">
                     <CheckBox IsChecked="{Binding NuGet.Prerelease}"
                               ToolTip="Include prerelease packages"
                               Content="Prerelease" />
                 </Decorator>
-                <Separator />
+                <Separator />-->
                 <Button Content="{StaticResource FormatDocument}"
                         ToolTip="Format Document (Ctrl+D)"
                         Command="{Binding FormatDocumentCommand, Mode=OneTime}" />
@@ -367,9 +367,9 @@
                         </controls:TreeListView>
                     </DockPanel>
                 </TabItem>
-                <TabItem Name="ILViewerTab"
+                <!--<TabItem Name="ILViewerTab"
                          Header="IL"
-                         IsSelected="{Binding ShowIL}" />
+                         IsSelected="{Binding ShowIL}" />-->
             </TabControl>
         </Grid>
     </DockPanel>

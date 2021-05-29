@@ -40,7 +40,7 @@ namespace RoslynPad
 
             DataContext = _viewModel;
             InitializeComponent();
-            DocumentsPane.ToggleAutoHide();
+            //DocumentsPane.ToggleAutoHide();
 
             LoadWindowLayout();
             LoadDockLayout();
@@ -55,109 +55,109 @@ namespace RoslynPad
 
         protected override async void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
+            //base.OnClosing(e);
 
-            if (!_isClosing)
-            {
-                SaveDockLayout();
-                SaveWindowLayout();
+            //if (!_isClosing)
+            //{
+            //    SaveDockLayout();
+            //    SaveWindowLayout();
 
-                _isClosing = true;
-                IsEnabled = false;
-                e.Cancel = true;
+            //    _isClosing = true;
+            //    IsEnabled = false;
+            //    e.Cancel = true;
 
-                try
-                {
-                    await Task.Run(() => _viewModel.OnExit()).ConfigureAwait(true);
-                }
-                catch
-                {
-                    // ignored
-                }
+            //    try
+            //    {
+            //        await Task.Run(() => _viewModel.OnExit()).ConfigureAwait(true);
+            //    }
+            //    catch
+            //    {
+            //        // ignored
+            //    }
 
-                _isClosed = true;
-                // ReSharper disable once UnusedVariable
-                var closeTask = Dispatcher.InvokeAsync(Close);
-            }
-            else
-            {
-                e.Cancel = !_isClosed;
-            }
+            //    _isClosed = true;
+            //    // ReSharper disable once UnusedVariable
+            //    var closeTask = Dispatcher.InvokeAsync(Close);
+            //}
+            //else
+            //{
+            //    e.Cancel = !_isClosed;
+            //}
         }
 
         private void LoadWindowLayout()
         {
-            var boundsString = _viewModel.Settings.WindowBounds;
-            if (!string.IsNullOrEmpty(boundsString))
-            {
-                try
-                {
-                    var bounds = Rect.Parse(boundsString);
-                    if (bounds != default)
-                    {
-                        Left = bounds.Left;
-                        Top = bounds.Top;
-                        Width = bounds.Width;
-                        Height = bounds.Height;
-                    }
-                }
-                catch (FormatException)
-                {
-                }
-            }
+            //var boundsString = _viewModel.Settings.WindowBounds;
+            //if (!string.IsNullOrEmpty(boundsString))
+            //{
+            //    try
+            //    {
+            //        var bounds = Rect.Parse(boundsString);
+            //        if (bounds != default)
+            //        {
+            //            Left = bounds.Left;
+            //            Top = bounds.Top;
+            //            Width = bounds.Width;
+            //            Height = bounds.Height;
+            //        }
+            //    }
+            //    catch (FormatException)
+            //    {
+            //    }
+            //}
 
-            if (Enum.TryParse(_viewModel.Settings.WindowState, out WindowState state) &&
-                state != WindowState.Minimized)
-            {
-                WindowState = state;
-            }
+            //if (Enum.TryParse(_viewModel.Settings.WindowState, out WindowState state) &&
+            //    state != WindowState.Minimized)
+            //{
+            //    WindowState = state;
+            //}
 
-            if (_viewModel.Settings.WindowFontSize.HasValue)
-            {
-                FontSize = _viewModel.Settings.WindowFontSize.Value;
-            }
+            //if (_viewModel.Settings.WindowFontSize.HasValue)
+            //{
+            //    FontSize = _viewModel.Settings.WindowFontSize.Value;
+            //}
         }
 
         private void SaveWindowLayout()
         {
-            _viewModel.Settings.WindowBounds = RestoreBounds.ToString(CultureInfo.InvariantCulture);
-            _viewModel.Settings.WindowState = WindowState.ToString();
+            //_viewModel.Settings.WindowBounds = RestoreBounds.ToString(CultureInfo.InvariantCulture);
+            //_viewModel.Settings.WindowState = WindowState.ToString();
         }
 
         private void LoadDockLayout()
         {
-            var layout = _viewModel.Settings.DockLayout;
-            if (string.IsNullOrEmpty(layout)) return;
+            //var layout = _viewModel.Settings.DockLayout;
+            //if (string.IsNullOrEmpty(layout)) return;
 
-            var serializer = new XmlLayoutSerializer(DockingManager);
-            var reader = new StringReader(layout);
-            try
-            {
-                serializer.Deserialize(reader);
-            }
-            catch
-            {
-                // ignored
-            }
+            //var serializer = new XmlLayoutSerializer(DockingManager);
+            //var reader = new StringReader(layout);
+            //try
+            //{
+            //    serializer.Deserialize(reader);
+            //}
+            //catch
+            //{
+            //    // ignored
+            //}
         }
 
         private void SaveDockLayout()
         {
-            var serializer = new XmlLayoutSerializer(DockingManager);
-            var document = new XDocument();
-            using (var writer = document.CreateWriter())
-            {
-                serializer.Serialize(writer);
-            }
-            document.Root?.Element("FloatingWindows")?.Remove();
-            _viewModel.Settings.DockLayout = document.ToString();
+            //var serializer = new XmlLayoutSerializer(DockingManager);
+            //var document = new XDocument();
+            //using (var writer = document.CreateWriter())
+            //{
+            //    serializer.Serialize(writer);
+            //}
+            //document.Root?.Element("FloatingWindows")?.Remove();
+            //_viewModel.Settings.DockLayout = document.ToString();
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            base.OnClosed(e);
+            //base.OnClosed(e);
 
-            Application.Current.Shutdown();
+            //Application.Current.Shutdown();
         }
 
         private async void DockingManager_OnDocumentClosing(object sender, DocumentClosingEventArgs e)
@@ -177,7 +177,7 @@ namespace RoslynPad
 
         private void ViewUpdateClick(object sender, RoutedEventArgs e)
         {
-            Task.Run(() => Process.Start("https://roslynpad.net/"));
+            //Task.Run(() => Process.Start("https://roslynpad.net/"));
         }
     }
 }

@@ -15,7 +15,6 @@ using ICSharpCode.AvalonEdit.Document;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-using RoslynPad.Controls;
 using RoslynPad.Editor;
 using RoslynPad.Runtime;
 using RoslynPad.UI;
@@ -122,6 +121,12 @@ namespace RoslynPad
             _syncContext?.Post(o => ResultPaneRow.Height = new GridLength(1, GridUnitType.Star), null);
         }
 
+        //private void OpenDocument(object source)
+        //{
+        //    var documentViewModel = (DocumentViewModel)((FrameworkElement)source).DataContext;
+        //    _viewModel.OpenDocument(documentViewModel);
+        //}
+
         private void OnError(ExceptionResultObject? e)
         {
             if (e != null)
@@ -149,22 +154,6 @@ namespace RoslynPad
                 Editor.Document.Insert(0, text, AnchorMovementType.Default);
             });
         }
-
-        //protected override void OnPreviewKeyDown(KeyEventArgs e)
-        //{
-        //    base.OnPreviewKeyDown(e);
-
-        //    if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
-        //    {
-        //        switch (e.Key)
-        //        {
-        //            case Key.T:
-        //                e.Handled = true;
-        //                NuGetSearch.Focus();
-        //                break;
-        //        }
-        //    }
-        //}
 
         private void Editor_OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -282,22 +271,6 @@ namespace RoslynPad
             CopyValueWithChildren.IsEnabled = isResult;
         }
 
-        //private void SearchTerm_OnPreviewKeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (e.Key == Key.Down && _viewModel.NuGet.Packages?.Any() == true)
-        //    {
-        //        if (!_viewModel.NuGet.IsPackagesMenuOpen)
-        //        {
-        //            _viewModel.NuGet.IsPackagesMenuOpen = true;
-        //        }
-        //        RootNuGetMenu.Focus();
-        //    }
-        //    else if (e.Key == Key.Enter)
-        //    {
-        //        e.Handled = true;
-        //        Editor.Focus();
-        //    }
-        //}
 
         private void ScrollViewer_OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
@@ -306,14 +279,7 @@ namespace RoslynPad
 
         private void OnTabSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //    if (ILViewerTab.IsSelected && ILViewerTab.Content == null)
-            //    {
-            //        var ilViewer = new ILViewer();
-            //        ilViewer.SetBinding(TextElement.FontSizeProperty,
-            //            nameof(_viewModel.MainViewModel) + "." + nameof(_viewModel.MainViewModel.EditorFontSize));
-            //        ilViewer.SetBinding(ILViewer.TextProperty, nameof(_viewModel.ILText));
-            //        ILViewerTab.Content = ilViewer;
-            //    }
+            
         }
     }
 }

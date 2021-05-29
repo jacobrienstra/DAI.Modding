@@ -198,14 +198,14 @@ namespace RoslynPad.UI
         {
             string? documentsPath;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //{
                 documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            }
-            else // Unix or Mac
-            {
-                documentsPath = Environment.GetEnvironmentVariable("HOME");
-            }
+            //}
+            //else // Unix or Mac
+            //{
+            //    documentsPath = Environment.GetEnvironmentVariable("HOME");
+            //}
 
             if (string.IsNullOrEmpty(documentsPath))
             {

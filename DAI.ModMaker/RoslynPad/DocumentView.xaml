@@ -9,10 +9,6 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance ui:OpenDocumentViewModel}">
     <FrameworkElement.InputBindings>
-        <!--<KeyBinding Key="F5"
-                    Command="{Binding RunCommand, Mode=OneTime}" />
-        <KeyBinding Gesture="Shift+F5"
-                    Command="{Binding RestartHostCommand, Mode=OneTime}" />-->
         <KeyBinding Gesture="Ctrl+S"
                     Command="{Binding SaveCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+D"
@@ -50,189 +46,10 @@
                      Background="Transparent"
                      BorderBrush="DarkGray"
                      BorderThickness="0 0 0 1">
-                <!--<Button Command="{Binding RunCommand, Mode=OneTime}"
-                        ToolTip="Run (F5)">
-                    <Grid>
-                        <Image>
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Setter Property="Source"
-                                            Value="{StaticResource Test}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLiveMode}"
-                                                     Value="True">
-                                            <Setter Property="Source"
-                                                    Value="{StaticResource Test}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <ProgressBar VerticalAlignment="Bottom"
-                                     Height="4"
-                                     IsIndeterminate="{Binding IsRunning}"
-                                     BorderThickness="0"
-                                     Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    </Grid>
-                </Button>
-                <Menu Background="Transparent">
-                    <MenuItem Header="▾"
-                              Padding="0"
-                              FontFamily="Segoe UI Symbol">
-                        <MenuItem Command="{Binding ToggleLiveModeCommand}"
-                                  Icon="{StaticResource Test}">
-                            <MenuItem.Style>
-                                <Style TargetType="MenuItem">
-                                    <Setter Property="Header"
-                                            Value="Live Mode" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLiveMode}"
-                                                     Value="True">
-                                            <Setter Property="Header"
-                                                    Value="Turn off Live Mode" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </MenuItem.Style>
-                        </MenuItem>
-                    </MenuItem>
-                </Menu>
-                <Grid Visibility="{Binding HasReportedProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                      Width="60"
-                      Margin="5, 0" >
-                    <ProgressBar Value="{Binding ReportedProgress, Mode=OneWay}" 
-                                 Minimum="0.0"
-                                 Maximum="1.0" />
-                    <TextBlock Text="{Binding ReportedProgress, Mode=OneWay, Converter={StaticResource DoubleToPercentageTextConverter}}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                </Grid>-->
-                <!--<Button Command="{Binding RestartHostCommand, Mode=OneTime}"
-                        ToolTip="Restart host process (Shift+F5)"
-                        Content="{StaticResource Test}" />
-                <ComboBox ItemsSource="{Binding AvailablePlatforms, Mode=OneTime}"
-                          SelectedItem="{Binding Platform}" />
-                <Separator />-->
+          
                 <Button Command="{Binding SaveCommand, Mode=OneTime}"
                         ToolTip="Save (Ctrl+S)"
                         Content="{StaticResource Save}" />
-                <!--<Button Command="{Binding OpenBuildPathCommand, Mode=OneTime}"
-                        ToolTip="Open Build Folder"
-                        Content="{StaticResource Test}" />
-                <Separator />-->
-                <!--<Menu Background="Transparent"
-                      Name="RootMenu">
-                    <MenuItem Name="RootNuGetMenu"
-                              IsSubmenuOpen="{Binding NuGet.IsPackagesMenuOpen}"
-                              ItemsSource="{Binding NuGet.Packages}"
-                              Header="{Binding Mode=OneTime}"
-                              ToolTip="NuGet Packages"
-                              IsTextSearchEnabled="True">
-                        <MenuItem.HeaderTemplate>
-                            <DataTemplate DataType="{x:Type ui:OpenDocumentViewModel}">
-                                <Grid>
-                                    <Image Source="{StaticResource Test}" />
-                                    <ProgressBar Name="Spinner"
-                                                 VerticalAlignment="Bottom"
-                                                 Height="4"
-                                                 BorderThickness="0"
-                                                 IsIndeterminate="{Binding NuGet.IsSearching}"
-                                                 Visibility="{Binding NuGet.IsSearching, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                </Grid>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsRestoring}"
-                                                 Value="True">
-                                        <Setter TargetName="Spinner"
-                                                Property="Foreground"
-                                                Value="Orange" />
-                                        <Setter TargetName="Spinner"
-                                                Property="Visibility"
-                                                Value="Visible" />
-                                        <Setter TargetName="Spinner"
-                                                Property="IsIndeterminate"
-                                                Value="True" />
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </MenuItem.HeaderTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="MenuItem">
-                                <Setter Property="Command"
-                                        Value="{Binding ElementName=RootMenu, Path=DataContext.NuGet.InstallPackageCommand, Mode=OneTime}" />
-                                <Setter Property="CommandParameter"
-                                        Value="{Binding Mode=OneTime}" />
-                                <Setter Property="Icon"
-                                        Value="{Binding Mode=OneTime}" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type ui:PackageData}">
-                                <TextBlock>
-                                    <Run Text="{Binding Id, Mode=OneTime}" />
-                                    <Run Text="{Binding Version, Mode=OneTime}" />
-                                </TextBlock>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.Resources>
-                            <DataTemplate DataType="{x:Type ui:PackageData}">
-                                <Menu Background="Transparent"
-                                      ToolTip="Other versions">
-                                    <MenuItem ItemsSource="{Binding OtherVersions, Mode=OneTime}"
-                                              DisplayMemberPath="Version"
-                                              Padding="2">
-                                        <MenuItem.Header>
-                                            <TextBlock FontWeight="Bold"
-                                                       FontFamily="Segoe UI Symbol"
-                                                       Text=""
-                                                       FontSize="8" />
-                                        </MenuItem.Header>
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style TargetType="MenuItem">
-                                                <Setter Property="Command"
-                                                        Value="{Binding ElementName=RootMenu, Path=DataContext.NuGet.InstallPackageCommand, Mode=OneTime}" />
-                                                <Setter Property="CommandParameter"
-                                                        Value="{Binding Mode=OneTime}" />
-                                            </Style>
-                                        </ItemsControl.ItemContainerStyle>
-                                    </MenuItem>
-                                </Menu>
-                            </DataTemplate>
-                        </ItemsControl.Resources>
-                    </MenuItem>
-                </Menu>-->
-                <!--<Grid>
-                    <TextBox Name="NuGetSearch"
-                             BorderBrush="#eee"
-                             PreviewKeyDown="SearchTerm_OnPreviewKeyDown"
-                             Text="{Binding NuGet.SearchTerm, Delay=500, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource {x:Static ToolBar.TextBoxStyleKey}}"
-                             Width="200" />
-                    <TextBlock IsHitTestVisible="False"
-                               Text="Search NuGet (Ctrl+T)"
-                               VerticalAlignment="Center"
-                               Margin="10,0,0,0"
-                               Foreground="DarkGray">
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Text, ElementName=NuGetSearch}"
-                                                 Value="">
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Grid>-->
-                <!--<Decorator VerticalAlignment="Center">
-                    <CheckBox IsChecked="{Binding NuGet.Prerelease}"
-                              ToolTip="Include prerelease packages"
-                              Content="Prerelease" />
-                </Decorator>
-                <Separator />-->
                 <Button Content="{StaticResource FormatDocument}"
                         ToolTip="Format Document (Ctrl+D)"
                         Command="{Binding FormatDocumentCommand, Mode=OneTime}" />
@@ -367,9 +184,6 @@
                         </controls:TreeListView>
                     </DockPanel>
                 </TabItem>
-                <!--<TabItem Name="ILViewerTab"
-                         Header="IL"
-                         IsSelected="{Binding ShowIL}" />-->
             </TabControl>
         </Grid>
     </DockPanel>

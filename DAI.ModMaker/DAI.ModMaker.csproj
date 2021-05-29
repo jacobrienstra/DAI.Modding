@@ -116,14 +116,8 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="RoslynPad\AppDispatcher.cs" />
-    <Compile Include="RoslynPad\Controls\ILViewer.xaml.cs">
-      <DependentUpon>ILViewer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RoslynPad\Controls\TreeListView.cs" />
     <Compile Include="RoslynPad\Converters\DoubleToPercentageTextConverter.cs" />
-    <Compile Include="RoslynPad\DocumentTreeView.xaml.cs">
-      <DependentUpon>DocumentTreeView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RoslynPad\DocumentView.xaml.cs">
       <DependentUpon>DocumentView.xaml</DependentUpon>
     </Compile>
@@ -445,14 +439,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="RoslynPad\Controls\ILViewer.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RoslynPad\DocumentTreeView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="RoslynPad\DocumentView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -524,7 +510,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="RoslynPad\Controls\ILAsm-Mode.xshd" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ealayer3.exe" />
@@ -628,5 +613,6 @@
       <Version>1.0.4</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

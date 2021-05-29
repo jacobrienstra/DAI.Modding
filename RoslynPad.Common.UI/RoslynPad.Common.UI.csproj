@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CE8BD3E8-B705-47FD-94CD-A6E774FFAE5A}</ProjectGuid>
+    <ProjectGuid>{806B451F-7AE9-4420-81E5-4F6E39DC2373}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RoslynPad.Common.UI</RootNamespace>
@@ -12,8 +12,6 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,23 +50,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyAttributes.cs" />
@@ -99,7 +87,26 @@
     <Compile Include="ViewModels\OpenDocumentViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{7208e169-0496-4b89-b7c9-2ac5ae553e77}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Build\RoslynPad.Build.csproj">
+      <Project>{f08fae8e-9243-403a-8aef-0459ea179ea6}</Project>
+      <Name>RoslynPad.Build</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime.Compat50\RoslynPad.Runtime.Compat50.csproj">
+      <Project>{62b68d5e-4bee-4bbd-b940-d23f52d8471e}</Project>
+      <Name>RoslynPad.Runtime.Compat50</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime\RoslynPad.Runtime.csproj">
+      <Project>{22ce2efc-3069-41a8-aead-116b99287303}</Project>
+      <Name>RoslynPad.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPan.Roslyn\RoslynPad.Roslyn.csproj">
+      <Project>{af8e31d3-fa5c-4be9-ac29-e161120d8583}</Project>
+      <Name>RoslynPad.Roslyn</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights">
@@ -120,26 +127,9 @@
     <PackageReference Include="System.Reactive.Core">
       <Version>4.1.2</Version>
     </PackageReference>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.7.1</Version>
-    </PackageReference>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
       <Version>4.3.0</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RoslynPad.Build\RoslynPad.Build.csproj">
-      <Project>{b12777ad-c00b-4382-b3b9-7b62a0170f6a}</Project>
-      <Name>RoslynPad.Build</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RoslynPad.Runtime\RoslynPad.Runtime.csproj">
-      <Project>{46a5ad36-b08d-4b7d-8d04-7b23b409c232}</Project>
-      <Name>RoslynPad.Runtime</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RoslynPan.Roslyn\RoslynPad.Roslyn.csproj">
-      <Project>{af8e31d3-fa5c-4be9-ac29-e161120d8583}</Project>
-      <Name>RoslynPad.Roslyn</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

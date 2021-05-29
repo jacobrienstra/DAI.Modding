@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:controls="clr-namespace:RoslynPad.Controls;assembly="
+             xmlns:controls="clr-namespace:RoslynPad.Controls"
              xmlns:ui="clr-namespace:RoslynPad.UI;assembly=RoslynPad.Common.UI"
              xmlns:roslynPad="clr-namespace:RoslynPad"
              mc:Ignorable="d"
@@ -33,7 +33,7 @@
                              Value="True">
                     <Setter TargetName="Icon"
                             Property="Source"
-                            Value="{StaticResource Test}" />
+                            Value="{StaticResource Folder}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </HierarchicalDataTemplate>

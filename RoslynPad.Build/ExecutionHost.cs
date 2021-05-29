@@ -544,7 +544,7 @@ namespace RoslynPad.Build
                 string[] errors;
                 try
                 {
-                    errors = await FileExtensions.ReadAllLinesAsync(errorsPath).ConfigureAwait(false);
+                    errors = await FileExtensions.ReadAllLinesAsync(errorsPath, cancellationToken).ConfigureAwait(false);
                     if (errors.Length == 0)
                     {
                         errors = GetErrorsFromResult(result);
@@ -577,7 +577,7 @@ namespace RoslynPad.Build
             async Task<string[]> ReadPathsFile(string file, CancellationToken cancellationToken)
             {
                 var path = Path.Combine(BuildPath, file);
-                var paths = await FileExtensions.ReadAllLinesAsync(path).ConfigureAwait(false);
+                var paths = await FileExtensions.ReadAllLinesAsync(path, cancellationToken).ConfigureAwait(false);
                 return paths;
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Extensions
@@ -14,6 +15,8 @@ namespace Extensions
             return str.IndexOf(value, comparison) >= 0;
         }
     }
+
+
 
 
     public static class FileExtensions
@@ -31,36 +34,46 @@ namespace Extensions
         /// </summary>
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-        public static Task<string[]> ReadAllLinesAsync(string path)
+        private static StreamReader AsyncStreamReader(string path)
         {
-            return ReadAllLinesAsync(path, Encoding.UTF8);
+            FileStream stream = new FileStream(
+                path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize,
+                FileOptions.Asynchronous | FileOptions.SequentialScan);
+
+            return new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
         }
 
-        public static async Task<string[]> ReadAllLinesAsync(string path, Encoding encoding)
+        public static Task<string[]> ReadAllLinesAsync(string path, CancellationToken cancellationToken)
         {
-            var lines = new List<string>();
+            return cancellationToken.IsCancellationRequested
+                   ? Task.FromCanceled<string[]>(cancellationToken)
+                   : InternalReadAllLinesAsync(path, cancellationToken);
+        }
+    
+        private static async Task<string[]> InternalReadAllLinesAsync(string path, CancellationToken cancellationToken)
+        {
 
-            // Open the FileStream with the same FileMode, FileAccess
-            // and FileShare as a call to File.OpenText would've done.
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
-            using (var reader = new StreamReader(stream, encoding))
+            using (StreamReader sr = AsyncStreamReader(path))
             {
-                string line;
-                while ((line = await reader.ReadLineAsync()) != null)
+                cancellationToken.ThrowIfCancellationRequested();
+                string? line;
+                List<string> lines = new List<string>();
+                while ((line = await sr.ReadLineAsync().ConfigureAwait(false)) != null)
                 {
                     lines.Add(line);
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
-            }
 
-            return lines.ToArray();
+                return lines.ToArray();
+            }
         }
 
         public static async Task WriteAllTextAsync(string path, string data)
-        {
-            using (var sw = new StreamWriter(path))
             {
-                await sw.WriteAsync(data);
+                using (var sw = new StreamWriter(path))
+                {
+                    await sw.WriteAsync(data);
+                }
             }
-        }
     }
 }

@@ -160,7 +160,7 @@ namespace RoslynPad.Annotations
   /// </example>
   [AttributeUsage(AttributeTargets.Method)]
   [Conditional("JETBRAINS_ANNOTATIONS")]
-  public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
+  internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
   {
         public NotifyPropertyChangedInvocatorAttribute() { }
         public NotifyPropertyChangedInvocatorAttribute(string parameterName)

@@ -109,7 +109,7 @@
                 </Grid>
                 <Button Command="{Binding RestartHostCommand, Mode=OneTime}"
                         ToolTip="Restart host process (Shift+F5)"
-                        Content="{StaticResource Restart}" />
+                        Content="{StaticResource Test}" />
                 <ComboBox ItemsSource="{Binding AvailablePlatforms, Mode=OneTime}"
                           SelectedItem="{Binding Platform}" />
                 <Separator />

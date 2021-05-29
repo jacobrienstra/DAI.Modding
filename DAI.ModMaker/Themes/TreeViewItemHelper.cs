@@ -87,12 +87,12 @@ namespace DAI.ModMaker.Themes
                 typeof(TreeViewItemHelper),
                 new PropertyMetadata("\uE70D"));
 
-        public static DrawingGroup GetCollapsedIcon(TreeViewItem treeViewItem)
+        public static DrawingImage GetCollapsedIcon(TreeViewItem treeViewItem)
         {
-            return (DrawingGroup)treeViewItem.GetValue(CollapsedIconProperty);
+            return (DrawingImage)treeViewItem.GetValue(CollapsedIconProperty);
         }
 
-        public static void SetCollapsedIcon(TreeViewItem treeViewItem, DrawingGroup value)
+        public static void SetCollapsedIcon(TreeViewItem treeViewItem, DrawingImage value)
         {
             treeViewItem.SetValue(CollapsedIconProperty, value);
         }
@@ -100,15 +100,15 @@ namespace DAI.ModMaker.Themes
         public static readonly DependencyProperty CollapsedIconProperty =
             DependencyProperty.RegisterAttached(
                 "CollapsedIcon",
-                typeof(DrawingGroup),
+                typeof(DrawingImage),
                 typeof(TreeViewItemHelper));
 
-        public static DrawingGroup GetExpandedIcon(TreeViewItem treeViewItem)
+        public static DrawingImage GetExpandedIcon(TreeViewItem treeViewItem)
         {
-            return (DrawingGroup)treeViewItem.GetValue(ExpandedIconProperty);
+            return (DrawingImage)treeViewItem.GetValue(ExpandedIconProperty);
         }
 
-        public static void SetExpandedIcon(TreeViewItem treeViewItem, DrawingGroup value)
+        public static void SetExpandedIcon(TreeViewItem treeViewItem, DrawingImage value)
         {
             treeViewItem.SetValue(ExpandedIconProperty, value);
         }
@@ -116,7 +116,7 @@ namespace DAI.ModMaker.Themes
         public static readonly DependencyProperty ExpandedIconProperty =
             DependencyProperty.RegisterAttached(
                 "ExpandedIcon",
-                typeof(DrawingGroup),
+                typeof(DrawingImage),
                 typeof(TreeViewItemHelper));
 
         public static double GetGlyphOpacity(TreeViewItem treeViewItem)

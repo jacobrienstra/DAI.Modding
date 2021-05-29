@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B12777AD-C00B-4382-B3B9-7B62A0170F6A}</ProjectGuid>
+    <ProjectGuid>{F08FAE8E-9243-403A-8AEF-0459EA179EA6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RoslynPad.Build</RootNamespace>
@@ -12,8 +12,6 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,9 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -79,19 +75,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Extensions\Extensions.csproj">
       <Project>{7208e169-0496-4b89-b7c9-2ac5ae553e77}</Project>
       <Name>Extensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\RoslynPad.Runtime.Compat50\RoslynPad.Runtime.Compat50.csproj">
-      <Project>{c2a77d8b-72d8-4569-a7f1-fc730a5fc90a}</Project>
+      <Project>{62b68d5e-4bee-4bbd-b940-d23f52d8471e}</Project>
       <Name>RoslynPad.Runtime.Compat50</Name>
     </ProjectReference>
     <ProjectReference Include="..\RoslynPad.Runtime\RoslynPad.Runtime.csproj">
-      <Project>{46a5ad36-b08d-4b7d-8d04-7b23b409c232}</Project>
+      <Project>{22ce2efc-3069-41a8-aead-116b99287303}</Project>
       <Name>RoslynPad.Runtime</Name>
     </ProjectReference>
     <ProjectReference Include="..\RoslynPan.Roslyn\RoslynPad.Roslyn.csproj">

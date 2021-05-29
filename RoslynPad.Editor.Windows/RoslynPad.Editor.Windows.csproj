@@ -127,6 +127,14 @@
       <Project>{b1fa28e5-a94d-4a8e-ba15-cbea91ed8ef4}</Project>
       <Name>RoslynPad.Roslyn.Windows</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime.Compat50\RoslynPad.Runtime.Compat50.csproj">
+      <Project>{62b68d5e-4bee-4bbd-b940-d23f52d8471e}</Project>
+      <Name>RoslynPad.Runtime.Compat50</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime\RoslynPad.Runtime.csproj">
+      <Project>{22ce2efc-3069-41a8-aead-116b99287303}</Project>
+      <Name>RoslynPad.Runtime</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RoslynPan.Roslyn\RoslynPad.Roslyn.csproj">
       <Project>{af8e31d3-fa5c-4be9-ac29-e161120d8583}</Project>
       <Name>RoslynPad.Roslyn</Name>

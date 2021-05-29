@@ -7,10 +7,14 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+
 using Avalon.Windows.Controls;
+
 using ICSharpCode.AvalonEdit.Document;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+
 using RoslynPad.Controls;
 using RoslynPad.Editor;
 using RoslynPad.Runtime;

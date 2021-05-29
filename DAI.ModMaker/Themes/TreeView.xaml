@@ -88,7 +88,7 @@
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Margin="{TemplateBinding th:TreeViewItemHelper.CollapsedMargin}">
-                                            <ContentControl x:Name="CollapsedIconControl" Content="{TemplateBinding th:TreeViewItemHelper.CollapsedIcon}"/>
+                                            <Image x:Name="CollapsedIconControl" Source="{TemplateBinding th:TreeViewItemHelper.CollapsedIcon}"/>
                                         </Viewbox>
                                         <Viewbox
                                             x:Name="ExpandedGlyph"
@@ -99,7 +99,7 @@
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Margin="{TemplateBinding th:TreeViewItemHelper.ExpandedMargin}">
-                                            <ContentControl x:Name="ExpandedIconControl" Content="{TemplateBinding th:TreeViewItemHelper.ExpandedIcon}"/>
+                                            <Image x:Name="ExpandedIconControl" Source="{TemplateBinding th:TreeViewItemHelper.ExpandedIcon}"/>
                                         </Viewbox>
                                     </Grid>
                                 </ToggleButton>

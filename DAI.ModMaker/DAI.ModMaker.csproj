@@ -438,7 +438,7 @@
     </Page>
     <Page Include="RoslynPad\ScriptEditor.xaml">
       <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RoslynPad\RenameSymbolDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -9,7 +9,7 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance ui:OpenDocumentViewModel}">
     <FrameworkElement.InputBindings>
-        <KeyBinding Gesture="Ctrl+S"
+        <!--<KeyBinding Gesture="Ctrl+S"
                     Command="{Binding SaveCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+D"
                     Command="{Binding FormatDocumentCommand, Mode=OneTime}" />
@@ -18,9 +18,9 @@
         <KeyBinding Gesture="Ctrl+U"
                     Command="{Binding UncommentSelectionCommand, Mode=OneTime}" />
         <KeyBinding Gesture="F2"
-                    Command="{Binding RenameSymbolCommand, Mode=OneTime}" />
+                    Command="{Binding RenameSymbolCommand, Mode=OneTime}" />-->
     </FrameworkElement.InputBindings>
-    <DockPanel>
+    <!--<DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -174,7 +174,7 @@
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="controls:TreeListViewItem"
                                        BasedOn="{StaticResource {x:Type controls:TreeListViewItem}}">
-                                    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
+                                    --><!-- ReSharper disable once Xaml.BindingWithContextNotResolved --><!--
                                     <Setter Property="IsExpanded"
                                             Value="{Binding IsExpanded, Mode=OneTime}" />
                                     <EventSetter Event="KeyDown"
@@ -186,5 +186,5 @@
                 </TabItem>
             </TabControl>
         </Grid>
-    </DockPanel>
+    </DockPanel>-->
 </UserControl>

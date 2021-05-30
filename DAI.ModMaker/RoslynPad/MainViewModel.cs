@@ -10,7 +10,7 @@ namespace RoslynPad
     public class MainViewModel : MainViewModelBase
     {
         [ImportingConstructor]
-        public MainViewModel(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IApplicationSettings settings, /*NuGetViewModel nugetViewModel,*/ DocumentFileWatcher documentFileWatcher) : base(serviceProvider, telemetryProvider, commands, settings, /*nugetViewModel,*/ documentFileWatcher)
+        public MainViewModel(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, DocumentFileWatcher documentFileWatcher) : base(serviceProvider, telemetryProvider, commands, appDispatcher, settings, documentFileWatcher)
         {
         }
 

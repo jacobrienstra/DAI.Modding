@@ -8,113 +8,188 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Composition;
+using System.Threading;
 using Microsoft.CodeAnalysis;
-using NuGet.Packaging;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Rename;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.CodeAnalysis.Text;
 using RoslynPad.Roslyn;
+using RoslynPad.UI;
 using RoslynPad.Utilities;
+using RoslynPad.Build;
+using RoslynPad.NuGet;
+using RoslynPad.Roslyn.Rename;
+using RoslynPad.Runtime;
 
-namespace RoslynPad.UI
-{
-    public class MainViewModelBase : NotificationObject
-    {
+namespace RoslynPad.UI {
+    public class MainViewModelBase : NotificationObject {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IAppDispatcher _dispatcher;
         private readonly ITelemetryProvider _telemetryProvider;
         private readonly ICommandProvider _commands;
-        private readonly DocumentFileWatcher _documentFileWatcher;
-        private static readonly Version _currentVersion = new Version(16, 0);
-        private static readonly string _currentVersionVariant = "";
-
-        public const string NuGetPathVariableName = "$NuGet";
-
-        private OpenDocumentViewModel? _currentOpenDocument;
-        //private bool _hasUpdate;
-        private double _editorFontSize;
-        //private string? _searchText;
-        //private bool _isWithinSearchResults;
-        private bool _isInitialized;
-        private DocumentViewModel _documentRoot;
-        private DocumentWatcher _documentWatcher;
-
         public IApplicationSettings Settings { get; }
-        public DocumentViewModel DocumentRoot
-        {
-            get => _documentRoot;
-            private set => SetProperty(ref _documentRoot, value);
-        }
+
+        private IExecutionHost _executionHost;
+        private ExecutionHostParameters _executionHostParameters;
+        private readonly ObservableCollection<IResultObject> _results;
+        private CancellationTokenSource? _runCts;
+        
+        private bool _isDirty;
+        private bool _isSaving;
+        private Action<ExceptionResultObject?>? _onError;
+        private Func<TextSpan>? _getSelection;
+
+        private DocumentViewModel? _document;
+        private DocumentViewModel _documentRootFolder;
+        private DocumentId? _documentId;
+        private DocumentWatcher _documentWatcher;
+        private readonly DocumentFileWatcher _documentFileWatcher;
+
+        private double _editorFontSize;
+        private bool _isInitialized;
+
         public RoslynHost RoslynHost { get; private set; }
         public ImmutableArray<MetadataReference> DefaultReferences { get; private set; }
         public ImmutableArray<MetadataReference> DefaultReferencesCompat50 { get; private set; }
 
-        public bool IsInitialized
-        {
-            get => _isInitialized;
-            private set
-            {
-                SetProperty(ref _isInitialized, value);
-                OnPropertyChanged(nameof(HasNoOpenDocument));
-            }
-        }
+        public IDelegateCommand OpenBuildPathCommand { get; }
+        public IDelegateCommand NewDocumentCommand { get; }
+        public IDelegateCommand OpenFileCommand { get; }
+        public IDelegateCommand SaveCommand { get; }
+        public IDelegateCommand EditUserDocumentPathCommand { get; }
+        public IDelegateCommand CloseCurrentDocumentCommand { get; }
+        public IDelegateCommand FormatDocumentCommand { get; }
+        public IDelegateCommand CommentSelectionCommand { get; }
+        public IDelegateCommand UncommentSelectionCommand { get; }
+        public IDelegateCommand RenameSymbolCommand { get; }
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized.
-        public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IApplicationSettings settings, /*NuGetViewModel nugetViewModel,*/ DocumentFileWatcher documentFileWatcher)
-#pragma warning restore CS8618 // Non-nullable field is uninitialized.
-        {
+        public string Id { get; }
+        public string BuildPath { get; }
+
+        public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, DocumentFileWatcher documentFileWatcher) {
             _serviceProvider = serviceProvider;
             _telemetryProvider = telemetryProvider;
             _commands = commands;
             _documentFileWatcher = documentFileWatcher;
+            _dispatcher = appDispatcher;
 
-            settings.LoadDefault();
-            Settings = settings;
-
-            _telemetryProvider.Initialize(_currentVersion.ToString(), settings);
-            _telemetryProvider.LastErrorChanged += () =>
-            {
+            _telemetryProvider.Initialize(/*_currentVersion.ToString(),*/ settings);
+            _telemetryProvider.LastErrorChanged += () => {
                 OnPropertyChanged(nameof(LastError));
                 OnPropertyChanged(nameof(HasError));
             };
 
-            //NuGet = nugetViewModel;
+            settings.LoadDefault();
+            Settings = settings;
+            _editorFontSize = Settings.EditorFontSize;
+
+            DocumentRootFolder = CreateDocumentRoot();
 
             NewDocumentCommand = commands.Create(CreateNewDocument);
             OpenFileCommand = commands.CreateAsync(OpenFile);
-            SaveCommand = commands.CreateAsync(() => Save());
-            CloseCurrentDocumentCommand = commands.CreateAsync(CloseCurrentDocument);
-            //CloseDocumentCommand = commands.CreateAsync<OpenDocumentViewModel>(CloseDocument);
+            SaveCommand = commands.CreateAsync(() => Save(promptSave: false));
             ClearErrorCommand = commands.Create(() => _telemetryProvider.ClearLastError());
-            //ReportProblemCommand = commands.Create(ReportProblem);
             EditUserDocumentPathCommand = commands.Create(EditUserDocumentPath);
-            //ToggleOptimizationCommand = commands.Create(() => settings.OptimizeCompilation = !settings.OptimizeCompilation);
+            FormatDocumentCommand = commands.CreateAsync(() => FormatDocument());
+            CommentSelectionCommand = commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Comment));
+            UncommentSelectionCommand = commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Uncomment));
+            RenameSymbolCommand = commands.CreateAsync(RenameSymbol);
 
-            _editorFontSize = Settings.EditorFontSize;
+            _results = new ObservableCollection<IResultObject>();
 
-            DocumentRoot = CreateDocumentRoot();
-
-            //OpenDocuments = new ObservableCollection<OpenDocumentViewModel>();
-            //OpenDocuments.CollectionChanged += (sender, args) => OnPropertyChanged(nameof(HasNoOpenDocuments));
+            Id = Guid.NewGuid().ToString("n");
+            BuildPath = Path.Combine(Path.GetTempPath(), "roslynpad", "build", Id);
+            Directory.CreateDirectory(BuildPath);
         }
 
-        public async Task Initialize()
-        {
-            if (IsInitialized) return;
+        public DocumentViewModel DocumentRootFolder {
+            get => _documentRootFolder;
+            private set => SetProperty(ref _documentRootFolder, value);
+        }
+        public DocumentViewModel? Document {
+            get => _document;
+            private set {
+                if (_document != value) {
+                    _document = value;
 
-            try
-            {
-                await InitializeInternal().ConfigureAwait(true);
-
-                IsInitialized = true;
+                    //if (_executionHost != null && value != null) {
+                    //    _executionHost.Name = value.Name;
+                    //}
+                }
             }
-            catch (Exception e)
-            {
+        }
+        public DocumentId DocumentId {
+            get => _documentId ?? throw new ArgumentNullException(nameof(_documentId));
+            private set => _documentId = value;
+        }
+        public event EventHandler DocumentChanged;
+
+        public bool IsDirty {
+            get => _isDirty;
+            private set => SetProperty(ref _isDirty, value);
+        }
+        public bool IsInitialized {
+            get => _isInitialized;
+            private set {
+                SetProperty(ref _isInitialized, value);
+                OnPropertyChanged(nameof(HasNoOpenDocument));
+            }
+        }
+        protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(typeof(MainViewModelBase).Assembly);
+        public string WorkingDirectory => Document != null
+            ? Path.GetDirectoryName(Document.Path)!
+            : DocumentRootFolder.Path;
+        public string WindowTitle {
+            get {
+                var title = "RoslynPad ";
+                return title;
+            }
+        }
+        public string Title => Document != null ? Document.Name : "New";
+        public bool HasNoOpenDocument => IsInitialized && Document == null;
+        public double MinimumEditorFontSize => 8;
+        public double MaximumEditorFontSize => 72;
+        public double EditorFontSize {
+            get => _editorFontSize; set {
+                if (value < MinimumEditorFontSize || value > MaximumEditorFontSize) return;
+                if (SetProperty(ref _editorFontSize, value)) {
+                    Settings.EditorFontSize = value;
+                    EditorFontSizeChanged?.Invoke(value);
+                }
+            }
+        }
+        public event Action<double> EditorFontSizeChanged;
+
+        public async Task Initialize() {
+            if (IsInitialized) return;
+            try {
+                await InitializeInternal().ConfigureAwait(true);
+                IsInitialized = true;
+            } catch (Exception e) {
                 _telemetryProvider.ReportError(e);
             }
         }
+        internal void InitializeDocument(DocumentId documentId, Action<ExceptionResultObject?> onError, Func<TextSpan> getSelection) {
+            _onError = onError;
+            _getSelection = getSelection;
+            DocumentId = documentId;
+            _executionHostParameters = new ExecutionHostParameters(
+                BuildPath,
+                //serviceProvider.GetService<NuGetViewModel>().ConfigPath,
+                RoslynHost.DefaultImports,
+                RoslynHost.DisabledDiagnostics,
+                WorkingDirectory);
+            _executionHost = new ExecutionHost(_executionHostParameters, RoslynHost);
 
-        protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(
-            typeof(MainViewModelBase).Assembly);
-
-        private async Task InitializeInternal()
-        {
+            _executionHost.Dumped += ExecutionHostOnDump;
+            _executionHost.Error += ExecutionHostOnError;
+            _executionHost.ReadInput += ExecutionHostOnInputRequest;
+            _executionHost.CompilationErrors += ExecutionHostOnCompilationErrors;
+        }
+        private async Task InitializeInternal() {
             RoslynHost = await Task.Run(() => new RoslynHost(CompositionAssemblies,
                 RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Runtime.ObjectExtensions) }),
                 disabledDiagnostics: ImmutableArray.Create("CS1701", "CS1702")))
@@ -125,553 +200,361 @@ namespace RoslynPad.UI
             DefaultReferencesCompat50 = DefaultReferences.Add(MetadataReference.CreateFromFile(
                 Path.Combine(Path.GetDirectoryName(runtimeAssemblyPath)!, "RoslynPad.Runtime.Compat50.dll")));
 
-            //OpenDocumentFromCommandLine();
-            await OpenAutoSavedDocuments().ConfigureAwait(true);
-
-            //if (HasCachedUpdate())
-            //{
-            //    HasUpdate = true;
-            //}
-            //else
-            //{
-            //    // ReSharper disable once UnusedVariable
-            //    var task = Task.Run(CheckForUpdates);
-            //}
+            CreateNewDocument();
         }
 
-        //private void OpenDocumentFromCommandLine()
-        //{
-        //    string[] args = Environment.GetCommandLineArgs();
-
-        //    if (args.Length > 1)
-        //    {
-        //        string filePath = args[1];
-
-        //        if (File.Exists(filePath))
-        //        {
-        //            var document = DocumentViewModel.FromPath(filePath);
-        //            OpenDocument(document);
-        //        }
+        //private DocumentViewModel GetOpenDocumentViewModel(DocumentViewModel? documentViewModel = null) {
+        //    var d = _serviceProvider.GetService<OpenDocumentViewModel>();
+        //    d.SetDocument(documentViewModel);
+        //    return d;
+        //}
+        //public OpenDocumentViewModel? CurrentOpenDocument {
+        //    get => _currentOpenDocument;
+        //    set {
+        //        if (value == null) return; // prevent binding from clearing the value
+        //        SetProperty(ref _currentOpenDocument, value);
         //    }
         //}
 
-        private async Task OpenAutoSavedDocuments()
-        {
-            var documents = await Task.Run(() => LoadAutoSavedDocuments(DocumentRoot.Path)).ConfigureAwait(true);
-
-            //OpenDocuments.AddRange(documents);
-
-            if (CurrentOpenDocument == null)
-            {
-                CreateNewDocument();
-            }
-            //else
-            //{
-            //    CurrentOpenDocument = OpenDocuments[0];
-            //}
-        }
-
-        private IEnumerable<OpenDocumentViewModel> LoadAutoSavedDocuments(string root)
-        {
-            return IOUtilities.EnumerateFilesRecursive(root, DocumentViewModel.GetAutoSaveName("*")).Select(x =>
-                GetOpenDocumentViewModel(DocumentViewModel.FromPath(x)));
-        }
-
-        private OpenDocumentViewModel GetOpenDocumentViewModel(DocumentViewModel? documentViewModel = null)
-        {
-            var d = _serviceProvider.GetService<OpenDocumentViewModel>();
-            d.SetDocument(documentViewModel);
-            return d;
-        }
-
-        //public string WindowTitle
-        //{
-        //    get
-        //    {
-        //        var currentVersion = _currentVersion.Minor <= 0 && _currentVersion.Build <= 0
-        //            ? _currentVersion.Major.ToString()
-        //            : _currentVersion.ToString();
-        //        var title = "RoslynPad " + currentVersion;
-        //        if (!string.IsNullOrEmpty(_currentVersionVariant))
-        //        {
-        //            title += "-" + _currentVersionVariant;
-        //        }
-        //        return title;
-        //    }
-        //}
-
-        //private static void ReportProblem()
-        //{
-        //    Task.Run(() => Process.Start(
-        //        new ProcessStartInfo
-        //        {
-        //            FileName = "https://github.com/aelij/RoslynPad/issues",
-        //            UseShellExecute = true,
-        //        }));
-        //}
-
-        //public bool HasUpdate
-        //{
-        //    get => _hasUpdate; private set => SetProperty(ref _hasUpdate, value);
-        //}
-
-        //private bool HasCachedUpdate()
-        //{
-        //    return Version.TryParse(Settings.LatestVersion, out var latestVersion) &&
-        //           latestVersion > _currentVersion;
-        //}
-
-        //private async Task CheckForUpdates()
-        //{
-        //    string latestVersionString;
-        //    using (var client = new System.Net.Http.HttpClient())
-        //    {
-        //        try
-        //        {
-        //            latestVersionString = await client.GetStringAsync("https://roslynpad.net/latest").ConfigureAwait(false);
-        //        }
-        //        catch
-        //        {
-        //            return;
-        //        }
-        //    }
-
-        //    if (Version.TryParse(latestVersionString, out var latestVersion))
-        //    {
-        //        if (latestVersion > _currentVersion)
-        //        {
-        //            HasUpdate = true;
-        //        }
-        //        Settings.LatestVersion = latestVersionString;
-        //    }
-        //}
-
-        private DocumentViewModel CreateDocumentRoot()
-        {
+        private DocumentViewModel CreateDocumentRoot() {
             _documentWatcher?.Dispose();
             var root = DocumentViewModel.CreateRoot(Settings.EffectiveDocumentPath);
             _documentWatcher = new DocumentWatcher(_documentFileWatcher, root);
             return root;
         }
+        public void CreateNewDocument() {
+            SetDocument(null);
+        }
+        public void SetDocument(DocumentViewModel? document = null) {
+            Document = document == null ? null : DocumentViewModel.FromPath(document.Path);
+            IsDirty = document?.IsAutoSave == true;
+            //_executionHost.Name = Document?.Name ?? "Untitled";
+            DocumentChanged.Invoke(this, EventArgs.Empty);
+        }
+        public void OpenDocument(DocumentViewModel document) {
+            if (document.IsFolder) return;
+            SetDocument(document);
+        }
+        public async Task OpenFile() {
+            if (!IsInitialized) return;
 
-        public void EditUserDocumentPath()
-        {
+            var dialog = _serviceProvider.GetService<IOpenFileDialog>();
+            dialog.AllowMultiple = false;
+            dialog.Filter = new FileDialogFilter("C# Scripts", "cs", "csx");
+            var fileName = await dialog.ShowAsync().ConfigureAwait(true);
+            if (fileName == null) {
+                return;
+            }
+            // make sure we use the normalized path, in case the user used the wrong capitalization on Windows
+            var filePath = IOUtilities.NormalizeFilePath(fileName.First());
+            var document = DocumentViewModel.FromPath(filePath);
+            if (!document.IsAutoSave) {
+                var autoSavePath = document.GetAutoSavePath();
+                if (File.Exists(autoSavePath)) {
+                    document = DocumentViewModel.FromPath(autoSavePath);
+                }
+            }
+            OpenDocument(document);
+        }
+        public DocumentViewModel AddDocument(string documentName) {
+            return DocumentRootFolder.CreateNew(documentName);
+        }
+        private void OnDocumentUpdated() {
+            DocumentUpdated?.Invoke(this, EventArgs.Empty);
+        }
+        public event EventHandler? DocumentUpdated;
+        public async Task<string> LoadText() {
+            if (Document == null) {
+                return string.Empty;
+            }
+            using var fileStream = File.OpenText(Document.Path);
+            return await fileStream.ReadToEndAsync().ConfigureAwait(false);
+        }
+        public event EventHandler? EditorFocus;
+        private void OnEditorFocus() {
+            EditorFocus?.Invoke(this, EventArgs.Empty);
+        }
+        public void OnTextChanged() {
+            IsDirty = true;
+        }
+        public async Task AutoSave() {
+            if (!IsDirty) return;
+            var document = Document;
+            if (document == null) {
+                var index = 1;
+                string path;
+                do {
+                    path = Path.Combine(WorkingDirectory, DocumentViewModel.GetAutoSaveName("Program" + index++));
+                }
+                while (File.Exists(path));
+                document = DocumentViewModel.FromPath(path);
+            }
+            Document = document;
+            await SaveDocument(Document.GetAutoSavePath()).ConfigureAwait(false);
+        }
+        public async Task<SaveResult> Save(bool promptSave) {
+            if (_isSaving) return SaveResult.Cancel;
+            if (!IsDirty && promptSave) return SaveResult.Save;
+            _isSaving = true;
+            try {
+                var result = SaveResult.Save;
+                if (Document == null) {
+                    var dialog = _serviceProvider.GetService<ISaveDocumentDialog>();
+                    dialog.ShowDontSave = promptSave;
+                    dialog.AllowNameEdit = true;
+                    dialog.FilePathFactory = s => DocumentViewModel.GetDocumentPathFromName(WorkingDirectory, s);
+                    await dialog.ShowAsync();
+                    result = dialog.Result;
+                    if (result == SaveResult.Save && dialog.DocumentName != null) {
+                        Document?.DeleteAutoSave();
+                        Document = AddDocument(dialog.DocumentName);
+                        OnPropertyChanged(nameof(Title));
+                    }
+                } else if (promptSave) {
+                    var dialog = _serviceProvider.GetService<ISaveDocumentDialog>();
+                    dialog.ShowDontSave = true;
+                    dialog.DocumentName = Document.Name;
+                    await dialog.ShowAsync();
+                    result = dialog.Result;
+                }
+                if (result == SaveResult.Save && Document != null) {
+                    // ReSharper disable once PossibleNullReferenceException
+                    await SaveDocument(Document.GetSavePath()).ConfigureAwait(true);
+                    IsDirty = false;
+                }
+                if (result != SaveResult.Cancel) {
+                    Document?.DeleteAutoSave();
+                }
+                return result;
+            } finally {
+                _isSaving = false;
+            }
+        }
+        private async Task SaveDocument(string path) {
+            if (!_isInitialized) return;
+            var document = RoslynHost.GetDocument(DocumentId);
+            if (document == null) {
+                return;
+            }
+            var text = await document.GetTextAsync().ConfigureAwait(false);
+            using var writer = File.CreateText(path);
+            for (int lineIndex = 0; lineIndex < text.Lines.Count - 1; ++lineIndex) {
+                var lineText = text.Lines[lineIndex].ToString();
+                await writer.WriteLineAsync(lineText).ConfigureAwait(false);
+            }
+            await writer.WriteAsync(text.Lines[text.Lines.Count - 1].ToString()).ConfigureAwait(false);
+        }
+        public void EditUserDocumentPath() {
             var dialog = _serviceProvider.GetService<IFolderBrowserDialog>();
             dialog.ShowEditBox = true;
             dialog.SelectedPath = Settings.EffectiveDocumentPath;
 
-            if (dialog.Show() == true)
-            {
+            if (dialog.Show() == true) {
                 string documentPath = dialog.SelectedPath;
-                if (!DocumentRoot.Path.Equals(documentPath, StringComparison.OrdinalIgnoreCase))
-                {
+                if (!DocumentRootFolder.Path.Equals(documentPath, StringComparison.OrdinalIgnoreCase)) {
                     Settings.DocumentPath = documentPath;
-
-                    DocumentRoot = CreateDocumentRoot();
+                    DocumentRootFolder = CreateDocumentRoot();
                 }
             }
         }
 
-        //public NuGetViewModel NuGet { get; }
-
-        //public ObservableCollection<OpenDocumentViewModel> OpenDocuments { get; }
-
-        public OpenDocumentViewModel? CurrentOpenDocument
-        {
-            get => _currentOpenDocument;
-            set
-            {
-                if (value == null) return; // prevent binding from clearing the value
-                SetProperty(ref _currentOpenDocument, value);
-            }
-        }
-
-        private void ClearCurrentOpenDocument()
-        {
-            if (_currentOpenDocument == null) return;
-            _currentOpenDocument = null;
-            OnPropertyChanged(nameof(CurrentOpenDocument));
-        }
-
-        public IDelegateCommand NewDocumentCommand { get; }
-
-        public IDelegateCommand OpenFileCommand { get; }
-
-        public IDelegateCommand SaveCommand { get; }
-
-        public IDelegateCommand EditUserDocumentPathCommand { get; }
-
-        public IDelegateCommand CloseCurrentDocumentCommand { get; }
-
-        //public IDelegateCommand<OpenDocumentViewModel> CloseDocumentCommand { get; }
-
-        //public IDelegateCommand ToggleOptimizationCommand { get; }
-
-        public void OpenDocument(DocumentViewModel document)
-        {
-            if (document.IsFolder) return;
-
-            //var openDocument = OpenDocuments.FirstOrDefault(x => x.Document?.Path != null && string.Equals(x.Document.Path, document.Path, StringComparison.Ordinal));
-            //if (openDocument == null)
-            //{
-            var openDocument = GetOpenDocumentViewModel(document);
-            //OpenDocuments.Add(openDocument);
-            //}
-
-            CurrentOpenDocument = openDocument;
-        }
-
-
-        public async Task OpenFile()
-        {
-            if (!IsInitialized) return;
-
-            var dialog = _serviceProvider.GetService<IOpenFileDialog>();
-            dialog.Filter = new FileDialogFilter("C# Scripts", "cs", "csx");
-            var fileNames = await dialog.ShowAsync().ConfigureAwait(true);
-            if (fileNames == null)
-            {
-                return;
-            }
-
-            // make sure we use the normalized path, in case the user used the wrong capitalization on Windows
-            var filePath = IOUtilities.NormalizeFilePath(fileNames.First());
-            var document = DocumentViewModel.FromPath(filePath);
-            if (!document.IsAutoSave)
-            {
-                var autoSavePath = document.GetAutoSavePath();
-                if (File.Exists(autoSavePath))
-                {
-                    document = DocumentViewModel.FromPath(autoSavePath);
-                }
-            }
-
-            OpenDocument(document);
-        }
-
-        public void CreateNewDocument()
-        {
-            var openDocument = GetOpenDocumentViewModel(null);
-            //OpenDocuments.Add(openDocument);
-            CurrentOpenDocument = openDocument;
-        }
-
-        public async Task Save()
-        {
-            if (CurrentOpenDocument == null) return;
-            await CurrentOpenDocument.Save(promptSave: true).ConfigureAwait(true);
-        }
-
-        public async Task CloseDocument(OpenDocumentViewModel document)
-        {
-            if (document == null)
-            {
-                return;
-            }
-
-            var result = await document.Save(promptSave: true).ConfigureAwait(true);
-            if (result == SaveResult.Cancel)
-            {
-                return;
-            }
-
-            if (document.DocumentId != null)
-            {
-                RoslynHost.CloseDocument(document.DocumentId);
-            }
-
-            //OpenDocuments.Remove(document);
-            document.Close();
-        }
-
-        public async Task AutoSaveOpenDocuments()
-        {
-            //foreach (var document in OpenDocuments)
-            //{
-                await CurrentOpenDocument.AutoSave().ConfigureAwait(false);
-            //}
-        }
-
-        private async Task CloseCurrentDocument()
-        {
-            if (CurrentOpenDocument == null) return;
-            await CloseDocument(CurrentOpenDocument).ConfigureAwait(false);
-            //if (!OpenDocuments.Any())
-            //{
-            ClearCurrentOpenDocument();
-            //}
-        }
-
-        public async Task CloseAllDocuments()
-        {
-            // can't modify the collection while enumerating it.
-            //var openDocs = new ObservableCollection<OpenDocumentViewModel>(OpenDocuments);
-            //foreach (var document in openDocs)
-            //{
-                await CloseDocument(CurrentOpenDocument).ConfigureAwait(false);
-            //}
-        }
-
-        public async Task OnExit()
-        {
-            await AutoSaveOpenDocuments().ConfigureAwait(false);
+        public async Task OnExit() {
+            await Save(false).ConfigureAwait(false);
             IOUtilities.PerformIO(() => Directory.Delete(Path.Combine(Path.GetTempPath(), "RoslynPad"), recursive: true));
         }
-
-        public Exception? LastError
-        {
-            get
-            {
+        public Exception? LastError {
+            get {
                 var exception = _telemetryProvider.LastError;
                 var aggregateException = exception as AggregateException;
                 return aggregateException?.Flatten() ?? exception;
             }
         }
-
         public bool HasError => LastError != null;
-
         public IDelegateCommand ClearErrorCommand { get; }
 
-        public bool SendTelemetry
-        {
-            get => Settings.SendErrors; set
-            {
+        public bool SendTelemetry {
+            get => Settings.SendErrors; set {
                 Settings.SendErrors = value;
                 OnPropertyChanged(nameof(SendTelemetry));
             }
         }
 
-        public bool HasNoOpenDocument => IsInitialized && CurrentOpenDocument == null;
 
-        public IDelegateCommand ReportProblemCommand { get; }
+        #region Execution
+        public IEnumerable<object> Results => _results;
+        internal IEnumerable<IResultObject> ResultsInternal => _results;
+        public void SendInput(string input) {
+            _ = _executionHost?.SendInputAsync(input);
+        }
+        private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
+            return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
+        }
+        //public void OpenBuildPath() {
+        //    Task.Run(() => {
+        //        try {
+        //            Process.Start(new ProcessStartInfo(new Uri("file://" + BuildPath).ToString()) { UseShellExecute = true });
+        //        } catch (Exception ex) {
+        //            _telemetryProvider.ReportError(ex);
+        //        }
+        //    });
+        //}
 
-        public double MinimumEditorFontSize => 8;
-        public double MaximumEditorFontSize => 72;
+        private void AddResult(object o) {
+            AddResult(ResultObject.Create(o, DumpQuotas.Default));
+        }
 
-        public double EditorFontSize
-        {
-            get => _editorFontSize; set
-            {
-                if (value < MinimumEditorFontSize || value > MaximumEditorFontSize) return;
+        private void AddResult(IResultObject o) {
+            _dispatcher.InvokeAsync(() => {
+                _results.Add(o);
+                ResultsAvailable?.Invoke();
+            }, AppDispatcherPriority.Low);
+        }
 
-                if (SetProperty(ref _editorFontSize, value))
-                {
-                    Settings.EditorFontSize = value;
-                    EditorFontSizeChanged?.Invoke(value);
+        private void ExecutionHostOnInputRequest() {
+            _dispatcher.InvokeAsync(() => {
+                ReadInput?.Invoke();
+            }, AppDispatcherPriority.Low);
+        }
+
+        private void ExecutionHostOnDump(ResultObject result) {
+            AddResult(result);
+        }
+
+        private void ExecutionHostOnError(ExceptionResultObject errorResult) {
+            _dispatcher.InvokeAsync(() => {
+                _onError?.Invoke(errorResult);
+                if (errorResult != null) {
+                    _results.Add(errorResult);
+
+                    ResultsAvailable?.Invoke();
+                }
+            }, AppDispatcherPriority.Low);
+        }
+
+        private void ExecutionHostOnCompilationErrors(IList<CompilationErrorResultObject> errors) {
+            _dispatcher.InvokeAsync(() => {
+                foreach (var error in errors) {
+                    _results.Add(error);
+                }
+
+                ResultsAvailable?.Invoke();
+            });
+        }
+
+        public event Action? ReadInput;
+        public event Action? ResultsAvailable;
+
+        private void ClearResults(Func<IResultObject, bool> filter) {
+            _dispatcher.InvokeAsync(() => {
+                foreach (var result in _results.Where(filter).ToArray()) {
+                    _results.Remove(result);
+                }
+            });
+        }
+
+        private async Task<string> GetCode(CancellationToken cancellationToken) {
+            var document = RoslynHost.GetDocument(DocumentId);
+            if (document == null) {
+                return string.Empty;
+            }
+
+            return (await document.GetTextAsync(cancellationToken)
+                .ConfigureAwait(false)).ToString();
+        }
+
+        private void Reset() {
+            if (_runCts != null) {
+                _runCts.Cancel();
+                _runCts.Dispose();
+            }
+            _runCts = new CancellationTokenSource();
+        }
+        #endregion
+
+        public enum CommentAction {
+            Comment,
+            Uncomment
+        }
+        public async Task CommentUncommentSelection(CommentAction action) {
+            const string singleLineCommentString = "//";
+
+            var document = RoslynHost.GetDocument(DocumentId);
+            if (document == null) {
+                return;
+            }
+
+            if (_getSelection == null) {
+                return;
+            }
+
+            var selection = _getSelection();
+
+            var documentText = await document.GetTextAsync().ConfigureAwait(false);
+            var changes = new List<TextChange>();
+            var lines = documentText.Lines.SkipWhile(x => !x.Span.IntersectsWith(selection))
+                .TakeWhile(x => x.Span.IntersectsWith(selection)).ToArray();
+
+            if (action == CommentAction.Comment) {
+                foreach (var line in lines) {
+                    if (!string.IsNullOrWhiteSpace(documentText.GetSubText(line.Span).ToString())) {
+                        changes.Add(new TextChange(new TextSpan(line.Start, 0), singleLineCommentString));
+                    }
+                }
+            } else if (action == CommentAction.Uncomment) {
+                foreach (var line in lines) {
+                    var text = documentText.GetSubText(line.Span).ToString();
+                    if (text.TrimStart().StartsWith(singleLineCommentString, StringComparison.Ordinal)) {
+                        changes.Add(new TextChange(new TextSpan(
+                            line.Start + text.IndexOf(singleLineCommentString, StringComparison.Ordinal),
+                            singleLineCommentString.Length), string.Empty));
+                    }
                 }
             }
+
+            if (changes.Count == 0) return;
+
+            RoslynHost.UpdateDocument(document.WithText(documentText.WithChanges(changes)));
+            if (action == CommentAction.Uncomment && Settings.FormatDocumentOnComment) {
+                await FormatDocument().ConfigureAwait(false);
+            }
         }
-
-        public event Action<double> EditorFontSizeChanged;
-
-        public DocumentViewModel AddDocument(string documentName)
-        {
-            return DocumentRoot.CreateNew(documentName);
+        public async Task FormatDocument() {
+            var document = RoslynHost.GetDocument(DocumentId);
+            var formattedDocument = await Formatter.FormatAsync(document!).ConfigureAwait(false);
+            RoslynHost.UpdateDocument(formattedDocument);
         }
+        public async Task RenameSymbol() {
+            var host = RoslynHost;
+            var document = host.GetDocument(DocumentId);
+            if (document == null || _getSelection == null) {
+                return;
+            }
 
-        //public string? SearchText
-        //{
-        //    get => _searchText;
-        //    set
-        //    {
-        //        if (SetProperty(ref _searchText, value) && Settings.SearchWhileTyping)
-        //        {
-        //            SearchCommand.Execute();
-        //        }
-        //        OnPropertyChanged(nameof(CanClearSearch));
-        //    }
-        //}
+            var symbol = await RenameHelper.GetRenameSymbol(document, _getSelection().Start).ConfigureAwait(true);
+            if (symbol == null) return;
 
-        //public bool IsWithinSearchResults
-        //{
-        //    get => _isWithinSearchResults;
-        //    private set
-        //    {
-        //        SetProperty(ref _isWithinSearchResults, value);
-        //        OnPropertyChanged(nameof(CanClearSearch));
-        //    }
-        //}
-
-        //public bool CanClearSearch => IsWithinSearchResults || !string.IsNullOrEmpty(SearchText);
-
-        //public IDelegateCommand SearchCommand => _commands.CreateAsync(Search);
-
-        //#region Search
-
-        //private async Task Search()
-        //{
-        //    if (string.IsNullOrWhiteSpace(SearchText))
-        //    {
-        //        ClearSearch();
-        //        return;
-        //    }
-
-        //    if (!SearchFileContents)
-        //    {
-        //        IsWithinSearchResults = true;
-
-        //        foreach (var document in GetAllDocumentsForSearch(DocumentRoot))
-        //        {
-        //            document.IsSearchMatch = SearchDocumentName(document);
-        //        }
-
-        //        return;
-        //    }
-
-        //    Regex? regex = null;
-        //    if (SearchUsingRegex)
-        //    {
-        //        regex = CreateSearchRegex();
-
-        //        if (regex == null)
-        //        {
-        //            return;
-        //        }
-        //    }
-
-        //    IsWithinSearchResults = true;
-
-        //    foreach (var document in GetAllDocumentsForSearch(DocumentRoot))
-        //    {
-        //        if (SearchDocumentName(document))
-        //        {
-        //            document.IsSearchMatch = true;
-        //        }
-        //        else
-        //        {
-        //            await SearchInFile(document, regex).ConfigureAwait(false);
-        //        }
-        //    }
-
-        //    bool SearchDocumentName(DocumentViewModel document)
-        //    {
-        //        return document.Name.IndexOf(SearchText!, StringComparison.OrdinalIgnoreCase) >= 0;
-        //    }
-
-        //    Regex? CreateSearchRegex()
-        //    {
-        //        try
-        //        {
-        //            var regex = new Regex(SearchText, RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
-
-        //            ClearError(nameof(SearchText), "Regex");
-
-        //            return regex;
-        //        }
-        //        catch (ArgumentException)
-        //        {
-        //            SetError(nameof(SearchText), "Regex", "Invalid regular expression");
-
-        //            return null;
-        //        }
-        //    }
-
-        //    async Task SearchInFile(DocumentViewModel document, Regex? regex)
-        //    {
-        //        // a regex can span many lines so we need to load the entire file;
-        //        // otherwise, search line-by-line
-
-        //        if (regex != null)
-        //        {
-        //            var documentText = await IOUtilities.ReadAllTextAsync(document.Path).ConfigureAwait(false);
-        //            try
-        //            {
-        //                document.IsSearchMatch = regex.IsMatch(documentText);
-        //            }
-        //            catch (RegexMatchTimeoutException)
-        //            {
-        //                document.IsSearchMatch = false;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // need IAsyncEnumerable here, but for now just push it to the thread-pool
-        //            await Task.Run(() =>
-        //            {
-        //                var lines = IOUtilities.ReadLines(document.Path);
-        //                document.IsSearchMatch = lines.Any(line =>
-        //                    line.IndexOf(SearchText!, StringComparison.OrdinalIgnoreCase) >= 0);
-        //            }).ConfigureAwait(false);
-        //        }
-        //    }
-        //}
-
-        //private static IEnumerable<DocumentViewModel> GetAllDocumentsForSearch(DocumentViewModel root)
-        //{
-        //    foreach (var document in root.Children)
-        //    {
-        //        if (document.IsFolder)
-        //        {
-        //            foreach (var childDocument in GetAllDocumentsForSearch(document))
-        //            {
-        //                yield return childDocument;
-        //            }
-
-        //            // TODO: I'm lazy :)
-        //            document.IsSearchMatch = document.Children.Any(c => c.IsSearchMatch);
-        //        }
-        //        else
-        //        {
-        //            yield return document;
-        //        }
-        //    }
-        //}
-
-        //public bool SearchFileContents
-        //{
-        //    get => Settings.SearchFileContents;
-        //    set
-        //    {
-        //        Settings.SearchFileContents = value;
-        //        if (!value)
-        //        {
-        //            SearchUsingRegex = false;
-        //        }
-        //        OnPropertyChanged();
-        //    }
-        //}
-
-        //public bool SearchUsingRegex
-        //{
-        //    get => Settings.SearchUsingRegex;
-        //    set
-        //    {
-        //        Settings.SearchUsingRegex = value;
-        //        if (value)
-        //        {
-        //            SearchFileContents = true;
-        //        }
-        //        OnPropertyChanged();
-        //    }
-        //}
-
-        //public IDelegateCommand ClearSearchCommand => _commands.Create(ClearSearch);
-
-        //private void ClearSearch()
-        //{
-        //    SearchText = null;
-        //    IsWithinSearchResults = false;
-        //    ClearErrors(nameof(SearchText));
-
-        //    foreach (var document in GetAllDocumentsForSearch(DocumentRoot))
-        //    {
-        //        document.IsSearchMatch = true;
-        //    }
-        //}
-
-        //#endregion
+            var dialog = _serviceProvider.GetService<IRenameSymbolDialog>();
+            dialog.Initialize(symbol.Name);
+            await dialog.ShowAsync();
+            if (dialog.ShouldRename) {
+                var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, symbol, dialog.SymbolName ?? string.Empty,
+                    document.Project.Solution.Options).ConfigureAwait(true);
+                var newDocument = newSolution.GetDocument(DocumentId);
+                // TODO: possibly update entire solution
+                host.UpdateDocument(newDocument!);
+            }
+            OnEditorFocus();
+        }
 
         #region Document Watcher
 
-        private class DocumentWatcher : IDisposable
-        {
+        private class DocumentWatcher : IDisposable {
             private static readonly char[] PathSeparators = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
             private readonly DocumentViewModel _documentRoot;
             private readonly IDisposable _subscription;
 
-            public DocumentWatcher(DocumentFileWatcher watcher, DocumentViewModel documentRoot)
-            {
+            public DocumentWatcher(DocumentFileWatcher watcher, DocumentViewModel documentRoot) {
                 _documentRoot = documentRoot;
                 watcher.Path = documentRoot.Path;
                 _subscription = watcher.Subscribe(OnDocumentFileChanged);
@@ -679,17 +562,14 @@ namespace RoslynPad.UI
 
             public void Dispose() => _subscription.Dispose();
 
-            private void OnDocumentFileChanged(DocumentFileChanged data)
-            {
+            private void OnDocumentFileChanged(DocumentFileChanged data) {
                 var pathParts = data.Path.Substring(_documentRoot.Path.Length)
                     .Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
 
                 DocumentViewModel? current = _documentRoot;
 
-                for (var index = 0; index < pathParts.Length; index++)
-                {
-                    if (!current.IsChildrenInitialized)
-                    {
+                for (var index = 0; index < pathParts.Length; index++) {
+                    if (!current.IsChildrenInitialized) {
                         break;
                     }
 
@@ -700,18 +580,15 @@ namespace RoslynPad.UI
                     current = current.InternalChildren[part];
 
                     // the current part is not in the tree
-                    if (current == null)
-                    {
-                        if (data.Type != DocumentFileChangeType.Deleted)
-                        {
+                    if (current == null) {
+                        if (data.Type != DocumentFileChangeType.Deleted) {
                             var currentPath = isLast && data.Type == DocumentFileChangeType.Renamed
                                 ? data.NewPath
                                 : Path.Combine(_documentRoot.Path, Path.Combine(pathParts.Take(index + 1).ToArray()));
 
                             var newDocument = DocumentViewModel.FromPath(currentPath!);
                             if (!newDocument.IsAutoSave &&
-                                IsRelevantDocument(newDocument))
-                            {
+                                IsRelevantDocument(newDocument)) {
                                 parent.AddChild(newDocument);
                             }
                         }
@@ -720,18 +597,14 @@ namespace RoslynPad.UI
                     }
 
                     // it's the last part - the actual file
-                    if (isLast)
-                    {
-                        switch (data.Type)
-                        {
+                    if (isLast) {
+                        switch (data.Type) {
                             case DocumentFileChangeType.Renamed:
-                                if (data.NewPath != null)
-                                {
+                                if (data.NewPath != null) {
                                     current.ChangePath(data.NewPath);
                                     // move it to the correct place
                                     parent.InternalChildren.Remove(current);
-                                    if (IsRelevantDocument(current))
-                                    {
+                                    if (IsRelevantDocument(current)) {
                                         parent.AddChild(current);
                                     }
                                 }
@@ -744,8 +617,7 @@ namespace RoslynPad.UI
                 }
             }
 
-            private static bool IsRelevantDocument(DocumentViewModel document)
-            {
+            private static bool IsRelevantDocument(DocumentViewModel document) {
                 return document.IsFolder || string.Equals(Path.GetExtension(document.OriginalName),
                            DocumentViewModel.DefaultFileExtension, StringComparison.OrdinalIgnoreCase);
             }

@@ -4,7 +4,7 @@ namespace RoslynPad.UI
 {
     public interface ITelemetryProvider
     {
-        void Initialize(string version, IApplicationSettings settings);
+        void Initialize(/*string version,*/ IApplicationSettings settings);
         Exception? LastError { get; }
         event Action LastErrorChanged;
         void ClearLastError();

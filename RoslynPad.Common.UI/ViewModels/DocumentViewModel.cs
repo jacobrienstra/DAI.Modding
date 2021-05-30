@@ -15,7 +15,6 @@ namespace RoslynPad.UI
         internal const string AutoSaveSuffix = ".autosave";
 
         private bool _isExpanded;
-        private bool? _isAutoSaveOnly;
         private bool _isSearchMatch;
         private string _path;
         private string _name;
@@ -160,21 +159,6 @@ namespace RoslynPad.UI
         }
 
         public bool IsAutoSave { get; }
-
-        public bool IsAutoSaveOnly
-        {
-            get
-            {
-                if (_isAutoSaveOnly == null)
-                {
-                    _isAutoSaveOnly = IsAutoSave &&
-                                      // ReSharper disable once AssignNullToNotNullAttribute
-                                      !File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path)!, Name + DefaultFileExtension));
-                }
-
-                return _isAutoSaveOnly.Value;
-            }
-        }
 
         public bool IsChildrenInitialized => InternalChildren != null;
 

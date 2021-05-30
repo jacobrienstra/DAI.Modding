@@ -118,9 +118,6 @@
     <Compile Include="RoslynPad\AppDispatcher.cs" />
     <Compile Include="RoslynPad\Controls\TreeListView.cs" />
     <Compile Include="RoslynPad\Converters\DoubleToPercentageTextConverter.cs" />
-    <Compile Include="RoslynPad\DocumentView.xaml.cs">
-      <DependentUpon>DocumentView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RoslynPad\FolderBrowserDialogAdapter.cs" />
     <Compile Include="RoslynPad\Formatting\BooleanToVisibilityConverter.cs" />
     <Compile Include="RoslynPad\Formatting\CodeActionsConverter.cs" />
@@ -128,8 +125,8 @@
     <Compile Include="RoslynPad\Formatting\DocumentCollectionViewConverter.cs" />
     <Compile Include="RoslynPad\GlobalSuppressions.cs" />
     <Compile Include="RoslynPad\MainViewModel.cs" />
-    <Compile Include="RoslynPad\MainWindowRoslynPad.xaml.cs">
-      <DependentUpon>MainWindowRoslynPad.xaml</DependentUpon>
+    <Compile Include="RoslynPad\ScriptEditor.xaml.cs">
+      <DependentUpon>ScriptEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="RoslynPad\OpenFileDialogAdapter.cs" />
     <Compile Include="RoslynPad\RenameSymbolDialog.xaml.cs">
@@ -439,11 +436,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="RoslynPad\DocumentView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RoslynPad\MainWindowRoslynPad.xaml">
+    <Page Include="RoslynPad\ScriptEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>

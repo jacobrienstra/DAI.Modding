@@ -11,9 +11,9 @@ namespace RoslynPad
     [Export(typeof(ITelemetryProvider))]
     internal class TelemetryProvider : TelemetryProviderBase
     {
-        public override void Initialize(string version, IApplicationSettings settings)
+        public override void Initialize(/*string version,*/ IApplicationSettings settings)
         {
-            base.Initialize(version, settings);
+            base.Initialize(/*version, */settings);
 
             Application.Current.DispatcherUnhandledException += OnUnhandledDispatcherException;
         }

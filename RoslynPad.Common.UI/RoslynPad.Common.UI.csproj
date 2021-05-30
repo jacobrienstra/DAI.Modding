@@ -84,7 +84,6 @@
     <Compile Include="ViewModels\MainViewModelBase.cs" />
     <Compile Include="ViewModels\NotificationObject.cs" />
     <Compile Include="ViewModels\NuGetViewModel.cs" />
-    <Compile Include="ViewModels\OpenDocumentViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Extensions\Extensions.csproj">

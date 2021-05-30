@@ -2,33 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Composition;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Rename;
-using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.Text;
 using RoslynPad.Roslyn;
-using RoslynPad.UI;
 using RoslynPad.Utilities;
 using RoslynPad.Build;
-using RoslynPad.NuGet;
 using RoslynPad.Roslyn.Rename;
 using RoslynPad.Runtime;
+using System.Diagnostics;
+using Microsoft.CodeAnalysis.Scripting;
+using RoslynPad.NuGet;
+using NuGet.Versioning;
 
 namespace RoslynPad.UI {
     public class MainViewModelBase : NotificationObject {
         private readonly IServiceProvider _serviceProvider;
         private readonly IAppDispatcher _dispatcher;
         private readonly ITelemetryProvider _telemetryProvider;
+        private readonly IPlatformsFactory _platformsFactory;
         private readonly ICommandProvider _commands;
         public IApplicationSettings Settings { get; }
 
@@ -36,7 +34,16 @@ namespace RoslynPad.UI {
         private ExecutionHostParameters _executionHostParameters;
         private readonly ObservableCollection<IResultObject> _results;
         private CancellationTokenSource? _runCts;
-        
+        private CancellationTokenSource? _restoreCts;
+        private ExecutionPlatform _platform;
+        private double? _reportedProgress;
+        private bool _isRunning;
+        private IReadOnlyList<ExecutionPlatform>? _availablePlatforms;
+        private bool _isRestoring;
+        private bool _restoreSuccessful;
+        private bool _isLiveMode;
+        private Timer? _liveModeTimer;
+
         private bool _isDirty;
         private bool _isSaving;
         private Action<ExceptionResultObject?>? _onError;
@@ -56,6 +63,7 @@ namespace RoslynPad.UI {
         public ImmutableArray<MetadataReference> DefaultReferencesCompat50 { get; private set; }
 
         public IDelegateCommand OpenBuildPathCommand { get; }
+        public IDelegateCommand RunCommand { get; }
         public IDelegateCommand NewDocumentCommand { get; }
         public IDelegateCommand OpenFileCommand { get; }
         public IDelegateCommand SaveCommand { get; }
@@ -72,9 +80,11 @@ namespace RoslynPad.UI {
         public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, DocumentFileWatcher documentFileWatcher) {
             _serviceProvider = serviceProvider;
             _telemetryProvider = telemetryProvider;
+            _platformsFactory = serviceProvider.GetService<IPlatformsFactory>();
             _commands = commands;
             _documentFileWatcher = documentFileWatcher;
             _dispatcher = appDispatcher;
+            _platformsFactory.Changed += InitializePlatforms;
 
             _telemetryProvider.Initialize(/*_currentVersion.ToString(),*/ settings);
             _telemetryProvider.LastErrorChanged += () => {
@@ -87,16 +97,17 @@ namespace RoslynPad.UI {
             _editorFontSize = Settings.EditorFontSize;
 
             DocumentRootFolder = CreateDocumentRoot();
+            RunCommand = commands.CreateAsync(Run, () => !IsRunning && RestoreSuccessful && Platform != null);
 
-            NewDocumentCommand = commands.Create(CreateNewDocument);
-            OpenFileCommand = commands.CreateAsync(OpenFile);
-            SaveCommand = commands.CreateAsync(() => Save(promptSave: false));
-            ClearErrorCommand = commands.Create(() => _telemetryProvider.ClearLastError());
-            EditUserDocumentPathCommand = commands.Create(EditUserDocumentPath);
-            FormatDocumentCommand = commands.CreateAsync(() => FormatDocument());
-            CommentSelectionCommand = commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Comment));
-            UncommentSelectionCommand = commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Uncomment));
-            RenameSymbolCommand = commands.CreateAsync(RenameSymbol);
+            NewDocumentCommand = _commands.Create(CreateNewDocument);
+            OpenFileCommand = _commands.CreateAsync(OpenFile);
+            SaveCommand = _commands.CreateAsync(() => Save(promptSave: false));
+            ClearErrorCommand = _commands.Create(() => _telemetryProvider.ClearLastError());
+            EditUserDocumentPathCommand = _commands.Create(EditUserDocumentPath);
+            FormatDocumentCommand = _commands.CreateAsync(() => FormatDocument());
+            CommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Comment));
+            UncommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Uncomment));
+            RenameSymbolCommand = _commands.CreateAsync(RenameSymbol);
 
             _results = new ObservableCollection<IResultObject>();
 
@@ -176,6 +187,7 @@ namespace RoslynPad.UI {
             _onError = onError;
             _getSelection = getSelection;
             DocumentId = documentId;
+
             _executionHostParameters = new ExecutionHostParameters(
                 BuildPath,
                 //serviceProvider.GetService<NuGetViewModel>().ConfigPath,
@@ -184,10 +196,19 @@ namespace RoslynPad.UI {
                 WorkingDirectory);
             _executionHost = new ExecutionHost(_executionHostParameters, RoslynHost);
 
+            InitializePlatforms();
+            Platform = AvailablePlatforms.FirstOrDefault(p => p.Name == Settings.DefaultPlatformName) ??
+            AvailablePlatforms.FirstOrDefault();
+            UpdatePackages();
+
             _executionHost.Dumped += ExecutionHostOnDump;
             _executionHost.Error += ExecutionHostOnError;
             _executionHost.ReadInput += ExecutionHostOnInputRequest;
             _executionHost.CompilationErrors += ExecutionHostOnCompilationErrors;
+            _executionHost.RestoreStarted += OnRestoreStarted;
+            _executionHost.RestoreCompleted += OnRestoreCompleted;
+            _executionHost.RestoreMessage += AddResult;
+            _executionHost.ProgressChanged += p => ReportedProgress = p.Progress;
         }
         private async Task InitializeInternal() {
             RoslynHost = await Task.Run(() => new RoslynHost(CompositionAssemblies,
@@ -371,7 +392,6 @@ namespace RoslynPad.UI {
         }
         public bool HasError => LastError != null;
         public IDelegateCommand ClearErrorCommand { get; }
-
         public bool SendTelemetry {
             get => Settings.SendErrors; set {
                 Settings.SendErrors = value;
@@ -383,43 +403,22 @@ namespace RoslynPad.UI {
         #region Execution
         public IEnumerable<object> Results => _results;
         internal IEnumerable<IResultObject> ResultsInternal => _results;
-        public void SendInput(string input) {
-            _ = _executionHost?.SendInputAsync(input);
-        }
-        private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
-            return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
-        }
-        //public void OpenBuildPath() {
-        //    Task.Run(() => {
-        //        try {
-        //            Process.Start(new ProcessStartInfo(new Uri("file://" + BuildPath).ToString()) { UseShellExecute = true });
-        //        } catch (Exception ex) {
-        //            _telemetryProvider.ReportError(ex);
-        //        }
-        //    });
-        //}
-
         private void AddResult(object o) {
-            AddResult(ResultObject.Create(o, DumpQuotas.Default));
-        }
-
-        private void AddResult(IResultObject o) {
             _dispatcher.InvokeAsync(() => {
-                _results.Add(o);
+                _results.Add(ResultObject.Create(o, DumpQuotas.Default));
                 ResultsAvailable?.Invoke();
             }, AppDispatcherPriority.Low);
         }
-
+        public event Action? ReadInput;
+        public event Action? ResultsAvailable;
         private void ExecutionHostOnInputRequest() {
             _dispatcher.InvokeAsync(() => {
                 ReadInput?.Invoke();
             }, AppDispatcherPriority.Low);
         }
-
         private void ExecutionHostOnDump(ResultObject result) {
             AddResult(result);
         }
-
         private void ExecutionHostOnError(ExceptionResultObject errorResult) {
             _dispatcher.InvokeAsync(() => {
                 _onError?.Invoke(errorResult);
@@ -430,7 +429,6 @@ namespace RoslynPad.UI {
                 }
             }, AppDispatcherPriority.Low);
         }
-
         private void ExecutionHostOnCompilationErrors(IList<CompilationErrorResultObject> errors) {
             _dispatcher.InvokeAsync(() => {
                 foreach (var error in errors) {
@@ -440,10 +438,6 @@ namespace RoslynPad.UI {
                 ResultsAvailable?.Invoke();
             });
         }
-
-        public event Action? ReadInput;
-        public event Action? ResultsAvailable;
-
         private void ClearResults(Func<IResultObject, bool> filter) {
             _dispatcher.InvokeAsync(() => {
                 foreach (var result in _results.Where(filter).ToArray()) {
@@ -451,7 +445,23 @@ namespace RoslynPad.UI {
                 }
             });
         }
+        
+        private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
+            return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
+        }
+        public void OpenBuildPath() {
+            Task.Run(() => {
+                try {
+                    Process.Start(new ProcessStartInfo(new Uri("file://" + BuildPath).ToString()) { UseShellExecute = true });
+                } catch (Exception ex) {
+                    _telemetryProvider.ReportError(ex);
+                }
+            });
+        }
 
+        public void SendInput(string input) {
+            _executionHost?.SendInputAsync(input);
+        }
         private async Task<string> GetCode(CancellationToken cancellationToken) {
             var document = RoslynHost.GetDocument(DocumentId);
             if (document == null) {
@@ -461,7 +471,6 @@ namespace RoslynPad.UI {
             return (await document.GetTextAsync(cancellationToken)
                 .ConfigureAwait(false)).ToString();
         }
-
         private void Reset() {
             if (_runCts != null) {
                 _runCts.Cancel();
@@ -469,6 +478,230 @@ namespace RoslynPad.UI {
             }
             _runCts = new CancellationTokenSource();
         }
+        public ExecutionPlatform? Platform {
+            get => _platform;
+            set {
+                if (value == null) throw new InvalidOperationException();
+
+                if (SetProperty(ref _platform, value)) {
+                    _executionHost.Platform = value;
+                    UpdatePackages();
+                }
+            }
+        }
+        private async Task RestartHost() {
+            Reset();
+            try {
+                await Task.Run(() => _executionHost?.TerminateAsync()).ConfigureAwait(false);
+            } catch (Exception e) {
+                _telemetryProvider.ReportError(e);
+                throw;
+            } finally {
+                SetIsRunning(false);
+            }
+        }
+        private void SetIsRunning(bool value) {
+            _dispatcher.InvokeAsync(() => IsRunning = value);
+        }
+        public bool IsRunning {
+            get => _isRunning;
+            private set {
+                if (SetProperty(ref _isRunning, value)) {
+                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                }
+            }
+        }
+        private async Task Run() {
+            if (IsRunning) return;
+            ReportedProgress = null;
+            Reset();
+            SetIsRunning(true);
+            StartExec();
+            var cancellationToken = _runCts!.Token;
+            try {
+                var code = await GetCode(cancellationToken).ConfigureAwait(true);
+                if (_executionHost != null) {
+                    // Make sure the execution working directory matches the current script path
+                    // which may have changed since we loaded.
+                    if (_executionHostParameters.WorkingDirectory != WorkingDirectory)
+                        _executionHostParameters.WorkingDirectory = WorkingDirectory;
+
+                    await _executionHost.ExecuteAsync(code, false, OptimizationLevel).ConfigureAwait(true);
+                }
+            } catch (CompilationErrorException ex) {
+                foreach (var diagnostic in ex.Diagnostics) {
+                    _results.Add(ResultObject.Create(diagnostic, DumpQuotas.Default));
+                }
+            } catch (Exception ex) {
+                AddResult(ex);
+            } finally {
+                SetIsRunning(false);
+                ReportedProgress = null;
+            }
+        }
+        private void StartExec() {
+            ClearResults(t => !(t is RestoreResultObject));
+
+            _onError?.Invoke(null);
+        }
+        private OptimizationLevel OptimizationLevel => Settings.OptimizeCompilation ? OptimizationLevel.Release : OptimizationLevel.Debug;
+        private void UpdatePackages() {
+            _restoreCts?.Cancel();
+            _restoreCts = new CancellationTokenSource();
+            _ = UpdatePackagesAsync(_restoreCts.Token);
+            async Task UpdatePackagesAsync(CancellationToken cancellationToken) {
+                var document = RoslynHost.GetDocument(DocumentId);
+                if (document == null) {
+                    return;
+                }
+                var syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var libraries = ParseReferences(syntaxRoot!);
+                var defaultReferences = Platform?.FrameworkVersion?.Major < 5
+                    ? DefaultReferencesCompat50
+                    : DefaultReferences;
+                if (defaultReferences.Length > 0) {
+                    libraries.AddRange(GetReferencePaths(defaultReferences).Select(p => LibraryRef.Reference(p)));
+                }
+                _executionHost.UpdateLibraries(libraries);
+            }
+        }
+        private List<LibraryRef> ParseReferences(SyntaxNode syntaxRoot) {
+            const string NuGetPrefix = "nuget:";
+            const string LegacyNuGetPrefix = "$NuGet\\";
+            const string FxPrefix = "framework:";
+            var libraries = new List<LibraryRef>();
+            if (!(syntaxRoot is Microsoft.CodeAnalysis.CSharp.Syntax.CompilationUnitSyntax compilation)) {
+                return libraries;
+            }
+            foreach (var directive in compilation.GetReferenceDirectives()) {
+                var value = directive.File.ValueText;
+                string? id, version;
+                if (HasPrefix(FxPrefix, value)) {
+                    libraries.Add(LibraryRef.FrameworkReference(
+                        value.Substring(FxPrefix.Length, value.Length - FxPrefix.Length)));
+                    continue;
+                }
+                if (HasPrefix(NuGetPrefix, value)) {
+                    (id, version) = ParseNuGetReference(NuGetPrefix, value);
+                } else if (HasPrefix(LegacyNuGetPrefix, value)) {
+                    (id, version) = ParseLegacyNuGetReference(value);
+                    if (id == null) {
+                        continue;
+                    }
+                } else {
+                    libraries.Add(LibraryRef.Reference(value));
+
+                    continue;
+                }
+                VersionRange versionRange;
+                if (version == string.Empty) {
+                    versionRange = VersionRange.All;
+                } else if (!VersionRange.TryParse(version, out versionRange)) {
+                    continue;
+                }
+                libraries.Add(LibraryRef.PackageReference(id, version ?? string.Empty));
+            }
+            return libraries;
+            // local functions
+            static bool HasPrefix(string prefix, string value) {
+                return value.Length > prefix.Length &&
+                       value.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase);
+            }
+            static (string id, string version) ParseNuGetReference(string prefix, string value) {
+                string id, version;
+                var indexOfSlash = value.IndexOf('/');
+                if (indexOfSlash >= 0) {
+                    id = value.Substring(prefix.Length, indexOfSlash - prefix.Length);
+                    version = indexOfSlash != value.Length - 1 ? value.Substring(indexOfSlash + 1) : string.Empty;
+                } else {
+                    id = value.Substring(prefix.Length);
+                    version = string.Empty;
+                }
+                return (id, version);
+            }
+            static (string? id, string? version) ParseLegacyNuGetReference(string value) {
+                var split = value.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                if (split.Length >= 3) {
+                    return (split[1], split[2]);
+                }
+                return (null, null);
+            }
+        }
+
+        public double? ReportedProgress {
+            get => _reportedProgress;
+            private set {
+                if (_reportedProgress != value) {
+                    SetProperty(ref _reportedProgress, value);
+                    OnPropertyChanged(nameof(HasReportedProgress));
+                }
+            }
+        }
+        public bool HasReportedProgress => ReportedProgress.HasValue;
+        public IReadOnlyList<ExecutionPlatform> AvailablePlatforms {
+            get => _availablePlatforms ?? throw new ArgumentNullException(nameof(_availablePlatforms));
+            private set => SetProperty(ref _availablePlatforms, value);
+        }
+        private void InitializePlatforms() {
+            AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
+            _executionHost.DotNetExecutable = _platformsFactory.DotNetExecutable;
+        }
+        private void OnRestoreStarted() {
+            IsRestoring = true;
+        }
+        private void OnRestoreCompleted(RestoreResult restoreResult) {
+            IsRestoring = false;
+            ClearResults(t => t is RestoreResultObject);
+            if (restoreResult.Success) {
+                var host = RoslynHost;
+                var document = host.GetDocument(DocumentId);
+                if (document == null) {
+                    return;
+                }
+                var project = document.Project;
+                project = project
+                    .WithMetadataReferences(_executionHost.MetadataReferences)
+                    .WithAnalyzerReferences(_executionHost.Analyzers);
+                document = project.GetDocument(DocumentId);
+                host.UpdateDocument(document!);
+                OnDocumentUpdated();
+            } else {
+                foreach (var error in restoreResult.Errors) {
+                    AddResult(new RestoreResultObject(error, "Error"));
+                }
+            }
+            RestoreSuccessful = restoreResult.Success;
+        }
+        public bool IsRestoring {
+            get => _isRestoring;
+            private set => SetProperty(ref _isRestoring, value);
+        }
+        public bool RestoreSuccessful {
+            get => _restoreSuccessful;
+            private set {
+                if (SetProperty(ref _restoreSuccessful, value)) {
+                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                }
+            }
+        }
+        public bool IsLiveMode {
+            get => _isLiveMode;
+            private set {
+                if (!SetProperty(ref _isLiveMode, value)) return;
+                RunCommand.RaiseCanExecuteChanged();
+                if (value) {
+                    // ReSharper disable once UnusedVariable
+                    _ = Run();
+                    if (_liveModeTimer == null) {
+                        _liveModeTimer = new Timer(o => _dispatcher.InvokeAsync(() => {
+                            // ReSharper disable once UnusedVariable
+                            var runTask = Run();
+                        }), null, Timeout.Infinite, Timeout.Infinite);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         public enum CommentAction {

@@ -6,7 +6,7 @@ namespace RoslynPad.Build
     {
         public ExecutionHostParameters(
             string buildPath,
-            //string nuGetConfigPath,
+            string nuGetConfigPath,
             ImmutableArray<string> imports,
             ImmutableArray<string> disabledDiagnostics,
             string workingDirectory,
@@ -14,7 +14,7 @@ namespace RoslynPad.Build
             bool allowUnsafe = true)
         {
             BuildPath = buildPath;
-            //NuGetConfigPath = nuGetConfigPath;
+            NuGetConfigPath = nuGetConfigPath;
             Imports = imports;
             DisabledDiagnostics = disabledDiagnostics;
             WorkingDirectory = workingDirectory;
@@ -23,7 +23,7 @@ namespace RoslynPad.Build
         }
 
         public string BuildPath { get; }
-        //public string NuGetConfigPath { get; }
+        public string NuGetConfigPath { get; }
         public ImmutableArray<string> Imports { get; set; }
         public ImmutableArray<string> DisabledDiagnostics { get; }
         public string WorkingDirectory { get; set; }

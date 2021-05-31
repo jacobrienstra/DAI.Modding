@@ -448,10 +448,9 @@ namespace RoslynPad.Build
 
                 try
                 {
-                    //if (File.Exists(_parameters.NuGetConfigPath))
-                    //{
-                    //    File.Copy(_parameters.NuGetConfigPath, Path.Combine(BuildPath, "nuget.config"), overwrite: true);
-                    //}
+                    if (File.Exists(_parameters.NuGetConfigPath)) {
+                        File.Copy(_parameters.NuGetConfigPath, Path.Combine(BuildPath, "nuget.config"), overwrite: true);
+                    }
 
                     await BuildGlobalJson().ConfigureAwait(false);
                     var csprojPath = await BuildCsproj().ConfigureAwait(false);

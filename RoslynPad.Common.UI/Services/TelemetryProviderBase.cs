@@ -9,7 +9,7 @@ namespace RoslynPad.UI
         private TelemetryClient? _client;
         private Exception? _lastError;
 
-        public virtual void Initialize(/*string version, */IApplicationSettings settings)
+        public virtual void Initialize(string version, IApplicationSettings settings)
         {
             if (settings.SendErrors)
             {
@@ -22,7 +22,7 @@ namespace RoslynPad.UI
                         InstrumentationKey = instrumentationKey
                     };
 
-                    //_client.Context.Component.Version = version;
+                    _client.Context.Component.Version = version;
 
                     _client.TrackPageView("Main");
                 }

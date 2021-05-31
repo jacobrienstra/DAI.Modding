@@ -24,6 +24,8 @@ using RoslynPad.Roslyn;
 using RoslynPad.Roslyn.Rename;
 using RoslynPad.Runtime;
 using RoslynPad.Utilities;
+using System.Diagnostics;
+using Microsoft.CodeAnalysis.Scripting;
 
 namespace RoslynPad.UI {
     public class MainViewModelBase : NotificationObject {
@@ -33,10 +35,13 @@ namespace RoslynPad.UI {
         private readonly IPlatformsFactory _platformsFactory;
         private readonly ICommandProvider _commands;
         public IApplicationSettings Settings { get; }
+        private static readonly Version _currentVersion = new Version(16, 0);
+        private static readonly string _currentVersionVariant = "";
+        public const string NuGetPathVariableName = "$NuGet";
 
         private IExecutionHost _executionHost;
         private ExecutionHostParameters _executionHostParameters;
-        private readonly ObservableCollection<IResultObject> _results;
+        private ObservableCollection<IResultObject> _results;
         private CancellationTokenSource? _runCts;
         private CancellationTokenSource? _restoreCts;
         private ExecutionPlatform _platform;
@@ -61,6 +66,7 @@ namespace RoslynPad.UI {
 
         private double _editorFontSize;
         private bool _isInitialized;
+        private bool _isDocInitialized;
 
         public RoslynHost RoslynHost { get; private set; }
         public ImmutableArray<MetadataReference> DefaultReferences { get; private set; }
@@ -68,6 +74,7 @@ namespace RoslynPad.UI {
 
         public IDelegateCommand OpenBuildPathCommand { get; }
         public IDelegateCommand RunCommand { get; }
+        public IDelegateCommand RestartHostCommand { get; }
         public IDelegateCommand NewDocumentCommand { get; }
         public IDelegateCommand OpenFileCommand { get; }
         public IDelegateCommand SaveCommand { get; }
@@ -77,32 +84,34 @@ namespace RoslynPad.UI {
         public IDelegateCommand CommentSelectionCommand { get; }
         public IDelegateCommand UncommentSelectionCommand { get; }
         public IDelegateCommand RenameSymbolCommand { get; }
+        public IDelegateCommand ToggleLiveModeCommand { get; }
 
-        public string Id { get; }
-        public string BuildPath { get; }
+        public string Id { get; private set; }
+        public string BuildPath { get; private set; }
+        public NuGetViewModel NuGet { get; }
+        public NuGetDocumentViewModel NuGetDoc { get; private set; }
 
-        public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, DocumentFileWatcher documentFileWatcher) {
+
+        public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, NuGetViewModel nugetViewModel, DocumentFileWatcher documentFileWatcher) {
             _serviceProvider = serviceProvider;
             _telemetryProvider = telemetryProvider;
             _platformsFactory = serviceProvider.GetService<IPlatformsFactory>();
             _commands = commands;
             _documentFileWatcher = documentFileWatcher;
             _dispatcher = appDispatcher;
-            _platformsFactory.Changed += InitializePlatforms;
 
-            _telemetryProvider.Initialize(/*_currentVersion.ToString(),*/ settings);
+            settings.LoadDefault();
+            Settings = settings;
+            _telemetryProvider.Initialize(_currentVersion.ToString(), settings);
             _telemetryProvider.LastErrorChanged += () => {
                 OnPropertyChanged(nameof(LastError));
                 OnPropertyChanged(nameof(HasError));
             };
-
-            settings.LoadDefault();
-            Settings = settings;
-            _editorFontSize = Settings.EditorFontSize;
+            NuGet = nugetViewModel;
 
             DocumentRootFolder = CreateDocumentRoot();
             RunCommand = commands.CreateAsync(Run, () => !IsRunning && RestoreSuccessful && Platform != null);
-
+            RestartHostCommand = commands.CreateAsync(RestartHost, () => Platform != null);
             NewDocumentCommand = _commands.Create(CreateNewDocument);
             OpenFileCommand = _commands.CreateAsync(OpenFile);
             SaveCommand = _commands.CreateAsync(() => Save(promptSave: false));
@@ -112,12 +121,76 @@ namespace RoslynPad.UI {
             CommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Comment));
             UncommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Uncomment));
             RenameSymbolCommand = _commands.CreateAsync(RenameSymbol);
+            ToggleLiveModeCommand = commands.Create(() => IsLiveMode = !IsLiveMode);
 
-            _results = new ObservableCollection<IResultObject>();
+            _editorFontSize = Settings.EditorFontSize;
+        }
 
+        public async Task Initialize() {
+            if (IsInitialized) return;
+            try {
+                await InitializeInternal().ConfigureAwait(true);
+                IsInitialized = true;
+            } catch (Exception e) {
+                _telemetryProvider.ReportError(e);
+            }
+        }
+        private async Task InitializeInternal() {
+            RoslynHost = await Task.Run(() => new RoslynHost(CompositionAssemblies,
+                RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Runtime.ObjectExtensions) }),
+                disabledDiagnostics: ImmutableArray.Create("CS1701", "CS1702")))
+                .ConfigureAwait(true);
+
+            var runtimeAssemblyPath = typeof(Runtime.ObjectExtensions).Assembly.Location;
+            DefaultReferences = RoslynHost.DefaultReferences;
+            DefaultReferencesCompat50 = DefaultReferences.Add(MetadataReference.CreateFromFile(
+                Path.Combine(Path.GetDirectoryName(runtimeAssemblyPath)!, "RoslynPad.Runtime.Compat50.dll")));
+            CreateNewDocument();
+        }
+        internal void DocumentConstructor() {
+            // Constructor
             Id = Guid.NewGuid().ToString("n");
             BuildPath = Path.Combine(Path.GetTempPath(), "roslynpad", "build", Id);
             Directory.CreateDirectory(BuildPath);
+
+            _results = new ObservableCollection<IResultObject>();
+            _restoreSuccessful = true; // initially set to true so we can immediately start running and wait for restore
+
+            NuGetDoc = _serviceProvider.GetService<NuGetDocumentViewModel>();
+            _platformsFactory.Changed += InitializePlatforms;
+
+            _executionHostParameters = new ExecutionHostParameters(
+                BuildPath,
+                _serviceProvider.GetService<NuGetViewModel>().ConfigPath,
+                RoslynHost.DefaultImports,
+                RoslynHost.DisabledDiagnostics,
+                WorkingDirectory);
+            _executionHost = new ExecutionHost(_executionHostParameters, RoslynHost);
+
+            _executionHost.Dumped += ExecutionHostOnDump;
+            _executionHost.Error += ExecutionHostOnError;
+            _executionHost.ReadInput += ExecutionHostOnInputRequest;
+            _executionHost.CompilationErrors += ExecutionHostOnCompilationErrors;
+            _executionHost.RestoreStarted += OnRestoreStarted;
+            _executionHost.RestoreCompleted += OnRestoreCompleted;
+            _executionHost.RestoreMessage += AddResult;
+            _executionHost.ProgressChanged += p => ReportedProgress = p.Progress;
+
+            InitializePlatforms();
+        }
+
+        internal void InitializeDocument(DocumentId documentId,
+            Action<ExceptionResultObject?> onError,
+            Func<TextSpan> getSelection) {
+            _onError = onError;
+            _getSelection = getSelection;
+            DocumentId = documentId;
+            _isDocInitialized = true;
+
+            Platform = AvailablePlatforms.FirstOrDefault(p => p.Name == Settings.DefaultPlatformName) ??
+                       AvailablePlatforms.FirstOrDefault();
+            UpdatePackages();
+            RestartHostCommand?.Execute();
         }
 
         public DocumentViewModel DocumentRootFolder {
@@ -127,12 +200,13 @@ namespace RoslynPad.UI {
         public DocumentViewModel? Document {
             get => _document;
             private set {
+                if (value == null) return;
                 if (_document != value) {
-                    _document = value;
+                    SetProperty(ref _document, value);
 
-                    //if (_executionHost != null && value != null) {
-                    //    _executionHost.Name = value.Name;
-                    //}
+                    if (_executionHost != null && value != null) {
+                       _executionHost.Name = value.Name;
+                    }
                 }
             }
         }
@@ -150,7 +224,7 @@ namespace RoslynPad.UI {
             get => _isInitialized;
             private set {
                 SetProperty(ref _isInitialized, value);
-                OnPropertyChanged(nameof(HasNoOpenDocument));
+                //OnPropertyChanged(nameof(HasNoOpenDocument));
             }
         }
         protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(typeof(MainViewModelBase).Assembly);
@@ -164,7 +238,7 @@ namespace RoslynPad.UI {
             }
         }
         public string Title => Document != null ? Document.Name : "New";
-        public bool HasNoOpenDocument => IsInitialized && Document == null;
+        //public bool HasNoOpenDocument => IsInitialized && Document == null;
         public double MinimumEditorFontSize => 8;
         public double MaximumEditorFontSize => 72;
         public double EditorFontSize {
@@ -178,61 +252,7 @@ namespace RoslynPad.UI {
         }
         public event Action<double> EditorFontSizeChanged;
 
-        public async Task Initialize() {
-            if (IsInitialized) return;
-            try {
-                await InitializeInternal().ConfigureAwait(true);
-                IsInitialized = true;
-            } catch (Exception e) {
-                _telemetryProvider.ReportError(e);
-            }
-        }
-        internal void InitializeDocument(DocumentId documentId, Action<ExceptionResultObject?> onError, Func<TextSpan> getSelection) {
-            _onError = onError;
-            _getSelection = getSelection;
-            DocumentId = documentId;
 
-            _executionHostParameters = new ExecutionHostParameters(
-                BuildPath,
-                //serviceProvider.GetService<NuGetViewModel>().ConfigPath,
-                RoslynHost.DefaultImports,
-                RoslynHost.DisabledDiagnostics,
-                WorkingDirectory);
-            _executionHost = new ExecutionHost(_executionHostParameters, RoslynHost);
-
-            InitializePlatforms();
-            Platform = AvailablePlatforms.FirstOrDefault(p => p.Name == Settings.DefaultPlatformName) ??
-            AvailablePlatforms.FirstOrDefault();
-            UpdatePackages();
-
-            _executionHost.Dumped += ExecutionHostOnDump;
-            _executionHost.Error += ExecutionHostOnError;
-            _executionHost.ReadInput += ExecutionHostOnInputRequest;
-            _executionHost.CompilationErrors += ExecutionHostOnCompilationErrors;
-            _executionHost.RestoreStarted += OnRestoreStarted;
-            _executionHost.RestoreCompleted += OnRestoreCompleted;
-            _executionHost.RestoreMessage += AddResult;
-            _executionHost.ProgressChanged += p => ReportedProgress = p.Progress;
-        }
-        private async Task InitializeInternal() {
-            RoslynHost = await Task.Run(() => new RoslynHost(CompositionAssemblies,
-                RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Runtime.ObjectExtensions) }),
-                disabledDiagnostics: ImmutableArray.Create("CS1701", "CS1702")))
-                .ConfigureAwait(true);
-
-            var runtimeAssemblyPath = typeof(Runtime.ObjectExtensions).Assembly.Location;
-            DefaultReferences = RoslynHost.DefaultReferences;
-            DefaultReferencesCompat50 = DefaultReferences.Add(MetadataReference.CreateFromFile(
-                Path.Combine(Path.GetDirectoryName(runtimeAssemblyPath)!, "RoslynPad.Runtime.Compat50.dll")));
-
-            CreateNewDocument();
-        }
-
-        //private DocumentViewModel GetOpenDocumentViewModel(DocumentViewModel? documentViewModel = null) {
-        //    var d = _serviceProvider.GetService<OpenDocumentViewModel>();
-        //    d.SetDocument(documentViewModel);
-        //    return d;
-        //}
         //public OpenDocumentViewModel? CurrentOpenDocument {
         //    get => _currentOpenDocument;
         //    set {
@@ -247,18 +267,23 @@ namespace RoslynPad.UI {
             _documentWatcher = new DocumentWatcher(_documentFileWatcher, root);
             return root;
         }
-        public void CreateNewDocument() {
-            SetDocument(null);
+        private void GetOpenDocumentViewModel(DocumentViewModel? documentViewModel = null) {
+            DocumentConstructor();
+            SetDocument(documentViewModel);
         }
+        public void CreateNewDocument() {
+            GetOpenDocumentViewModel(null);
+        }
+
         public void SetDocument(DocumentViewModel? document = null) {
             Document = document == null ? null : DocumentViewModel.FromPath(document.Path);
             IsDirty = document?.IsAutoSave == true;
-            //_executionHost.Name = Document?.Name ?? "Untitled";
+            _executionHost.Name = Document?.Name ?? "Untitled";
             DocumentChanged.Invoke(this, EventArgs.Empty);
         }
         public void OpenDocument(DocumentViewModel document) {
             if (document.IsFolder) return;
-            SetDocument(document);
+            GetOpenDocumentViewModel(document);
         }
         public async Task OpenFile() {
             if (!IsInitialized) return;
@@ -356,7 +381,7 @@ namespace RoslynPad.UI {
             }
         }
         private async Task SaveDocument(string path) {
-            if (!_isInitialized) return;
+            if (!_isDocInitialized) return;
             var document = RoslynHost.GetDocument(DocumentId);
             if (document == null) {
                 return;
@@ -490,6 +515,12 @@ namespace RoslynPad.UI {
                 if (SetProperty(ref _platform, value)) {
                     _executionHost.Platform = value;
                     UpdatePackages();
+                }
+                RunCommand.RaiseCanExecuteChanged();
+                RestartHostCommand.RaiseCanExecuteChanged();
+
+                if (_isDocInitialized) {
+                    RestartHostCommand.Execute();
                 }
             }
         }

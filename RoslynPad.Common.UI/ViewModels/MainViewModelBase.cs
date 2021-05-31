@@ -5,11 +5,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Composition;
 using System.Threading;
-using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
@@ -29,30 +26,34 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace RoslynPad.UI {
     public class MainViewModelBase : NotificationObject {
+
+        #region PrivateFields
+
+        #region Providers
         private readonly IServiceProvider _serviceProvider;
         private readonly IAppDispatcher _dispatcher;
         private readonly ITelemetryProvider _telemetryProvider;
         private readonly IPlatformsFactory _platformsFactory;
         private readonly ICommandProvider _commands;
-        public IApplicationSettings Settings { get; }
-        private static readonly Version _currentVersion = new Version(16, 0);
-        private static readonly string _currentVersionVariant = "";
-        public const string NuGetPathVariableName = "$NuGet";
+        #endregion
 
+        #region ExecutionHost
         private IExecutionHost _executionHost;
         private ExecutionHostParameters _executionHostParameters;
-        private ObservableCollection<IResultObject> _results;
         private CancellationTokenSource? _runCts;
         private CancellationTokenSource? _restoreCts;
+        private IReadOnlyList<ExecutionPlatform>? _availablePlatforms;
         private ExecutionPlatform _platform;
         private double? _reportedProgress;
         private bool _isRunning;
-        private IReadOnlyList<ExecutionPlatform>? _availablePlatforms;
         private bool _isRestoring;
         private bool _restoreSuccessful;
         private bool _isLiveMode;
         private Timer? _liveModeTimer;
+        private ObservableCollection<IResultObject> _results;
+        #endregion
 
+        #region Document
         private bool _isDirty;
         private bool _isSaving;
         private Action<ExceptionResultObject?>? _onError;
@@ -64,14 +65,77 @@ namespace RoslynPad.UI {
         private DocumentWatcher _documentWatcher;
         private readonly DocumentFileWatcher _documentFileWatcher;
 
+        private bool _isDocInitialized;
+        #endregion
+
         private double _editorFontSize;
         private bool _isInitialized;
-        private bool _isDocInitialized;
 
+        #endregion
+
+        #region PublicProperties
+
+        public bool IsInitialized {
+            get => _isInitialized;
+            private set {
+                SetProperty(ref _isInitialized, value);
+                //OnPropertyChanged(nameof(HasNoOpenDocument));
+            }
+        }
+        public IApplicationSettings Settings { get; }
+        public string WorkingDirectory => Document != null
+           ? Path.GetDirectoryName(Document.Path)!
+           : DocumentRootFolder.Path;
+        public string WindowTitle {
+            get {
+                var title = "RoslynPad ";
+                return title;
+            }
+        }
+        public string Title => Document != null ? Document.Name : "New";
+        //public bool HasNoOpenDocument => IsInitialized && Document == null;
+
+        #region Build
         public RoslynHost RoslynHost { get; private set; }
         public ImmutableArray<MetadataReference> DefaultReferences { get; private set; }
         public ImmutableArray<MetadataReference> DefaultReferencesCompat50 { get; private set; }
+        public string Id { get; private set; }
+        public string BuildPath { get; private set; }
+        public NuGetViewModel NuGet { get; }
+        public NuGetDocumentViewModel NuGetDoc { get; private set; }
+        public IReadOnlyList<ExecutionPlatform> AvailablePlatforms {
+            get => _availablePlatforms ?? throw new ArgumentNullException(nameof(_availablePlatforms));
+            private set => SetProperty(ref _availablePlatforms, value);
+        }
+        public ExecutionPlatform? Platform {
+            get => _platform;
+            set {
+                if (value == null) throw new InvalidOperationException();
 
+                if (SetProperty(ref _platform, value)) {
+                    _executionHost.Platform = value;
+                    UpdatePackages();
+                }
+                RunCommand.RaiseCanExecuteChanged();
+                RestartHostCommand.RaiseCanExecuteChanged();
+
+                if (_isDocInitialized) {
+                    RestartHostCommand.Execute();
+                }
+            }
+        }
+        public bool IsRunning {
+            get => _isRunning;
+            private set {
+                if (SetProperty(ref _isRunning, value)) {
+                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                }
+            }
+        }
+        private OptimizationLevel OptimizationLevel => Settings.OptimizeCompilation ? OptimizationLevel.Release : OptimizationLevel.Debug;
+        #endregion
+
+        #region Commands
         public IDelegateCommand OpenBuildPathCommand { get; }
         public IDelegateCommand RunCommand { get; }
         public IDelegateCommand RestartHostCommand { get; }
@@ -85,13 +149,62 @@ namespace RoslynPad.UI {
         public IDelegateCommand UncommentSelectionCommand { get; }
         public IDelegateCommand RenameSymbolCommand { get; }
         public IDelegateCommand ToggleLiveModeCommand { get; }
+        #endregion
 
-        public string Id { get; private set; }
-        public string BuildPath { get; private set; }
-        public NuGetViewModel NuGet { get; }
-        public NuGetDocumentViewModel NuGetDoc { get; private set; }
+        #region Document
+        public DocumentViewModel DocumentRootFolder {
+            get => _documentRootFolder;
+            private set => SetProperty(ref _documentRootFolder, value);
+        }
+        public DocumentViewModel? Document {
+            get => _document;
+            private set {
+                if (value == null) return;
+                if (_document != value) {
+                    SetProperty(ref _document, value);
 
+                    if (_executionHost != null && value != null) {
+                        _executionHost.Name = value.Name;
+                    }
+                }
+            }
+        }
+        public DocumentId DocumentId {
+            get => _documentId ?? throw new ArgumentNullException(nameof(_documentId));
+            private set => _documentId = value;
+        }
+        public bool IsDirty {
+            get => _isDirty;
+            private set => SetProperty(ref _isDirty, value);
+        }
+        #endregion
 
+        #region Editor
+        public double MinimumEditorFontSize => 8;
+        public double MaximumEditorFontSize => 72;
+        public double EditorFontSize {
+            get => _editorFontSize; set {
+                if (value < MinimumEditorFontSize || value > MaximumEditorFontSize) return;
+                if (SetProperty(ref _editorFontSize, value)) {
+                    Settings.EditorFontSize = value;
+                    EditorFontSizeChanged?.Invoke(value);
+                }
+            }
+        }
+        #endregion
+
+        #endregion
+
+        #region Events
+        public event EventHandler DocumentChanged;
+        public event EventHandler? DocumentUpdated;
+        public event Action<double> EditorFontSizeChanged;
+        public event EventHandler? EditorFocus;
+        public event Action? ReadInput;
+        public event Action? ResultsAvailable;
+        #endregion
+
+        #region Contructors_Initializers
         public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, NuGetViewModel nugetViewModel, DocumentFileWatcher documentFileWatcher) {
             _serviceProvider = serviceProvider;
             _telemetryProvider = telemetryProvider;
@@ -102,7 +215,7 @@ namespace RoslynPad.UI {
 
             settings.LoadDefault();
             Settings = settings;
-            _telemetryProvider.Initialize(_currentVersion.ToString(), settings);
+            _telemetryProvider.Initialize(settings);
             _telemetryProvider.LastErrorChanged += () => {
                 OnPropertyChanged(nameof(LastError));
                 OnPropertyChanged(nameof(HasError));
@@ -126,6 +239,7 @@ namespace RoslynPad.UI {
             _editorFontSize = Settings.EditorFontSize;
         }
 
+        protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(typeof(MainViewModelBase).Assembly);
         public async Task Initialize() {
             if (IsInitialized) return;
             try {
@@ -147,8 +261,8 @@ namespace RoslynPad.UI {
                 Path.Combine(Path.GetDirectoryName(runtimeAssemblyPath)!, "RoslynPad.Runtime.Compat50.dll")));
             CreateNewDocument();
         }
-        internal void DocumentConstructor() {
-            // Constructor
+
+        internal void SetupDocument(DocumentViewModel? documentViewModel = null) {
             Id = Guid.NewGuid().ToString("n");
             BuildPath = Path.Combine(Path.GetTempPath(), "roslynpad", "build", Id);
             Directory.CreateDirectory(BuildPath);
@@ -177,8 +291,11 @@ namespace RoslynPad.UI {
             _executionHost.ProgressChanged += p => ReportedProgress = p.Progress;
 
             InitializePlatforms();
+            Document = documentViewModel == null ? null : DocumentViewModel.FromPath(documentViewModel.Path);
+            IsDirty = documentViewModel?.IsAutoSave == true;
+            _executionHost.Name = Document?.Name ?? "Untitled";
+            DocumentChanged.Invoke(this, EventArgs.Empty);
         }
-
         internal void InitializeDocument(DocumentId documentId,
             Action<ExceptionResultObject?> onError,
             Func<TextSpan> getSelection) {
@@ -192,98 +309,31 @@ namespace RoslynPad.UI {
             UpdatePackages();
             RestartHostCommand?.Execute();
         }
+        #endregion
 
-        public DocumentViewModel DocumentRootFolder {
-            get => _documentRootFolder;
-            private set => SetProperty(ref _documentRootFolder, value);
-        }
-        public DocumentViewModel? Document {
-            get => _document;
-            private set {
-                if (value == null) return;
-                if (_document != value) {
-                    SetProperty(ref _document, value);
+        #region DocumentHandling
 
-                    if (_executionHost != null && value != null) {
-                       _executionHost.Name = value.Name;
-                    }
+        public void EditUserDocumentPath() {
+            var dialog = _serviceProvider.GetService<IFolderBrowserDialog>();
+            dialog.ShowEditBox = true;
+            dialog.SelectedPath = Settings.EffectiveDocumentPath;
+
+            if (dialog.Show() == true) {
+                string documentPath = dialog.SelectedPath;
+                if (!DocumentRootFolder.Path.Equals(documentPath, StringComparison.OrdinalIgnoreCase)) {
+                    Settings.DocumentPath = documentPath;
+                    DocumentRootFolder = CreateDocumentRoot();
                 }
             }
         }
-        public DocumentId DocumentId {
-            get => _documentId ?? throw new ArgumentNullException(nameof(_documentId));
-            private set => _documentId = value;
-        }
-        public event EventHandler DocumentChanged;
-
-        public bool IsDirty {
-            get => _isDirty;
-            private set => SetProperty(ref _isDirty, value);
-        }
-        public bool IsInitialized {
-            get => _isInitialized;
-            private set {
-                SetProperty(ref _isInitialized, value);
-                //OnPropertyChanged(nameof(HasNoOpenDocument));
-            }
-        }
-        protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(typeof(MainViewModelBase).Assembly);
-        public string WorkingDirectory => Document != null
-            ? Path.GetDirectoryName(Document.Path)!
-            : DocumentRootFolder.Path;
-        public string WindowTitle {
-            get {
-                var title = "RoslynPad ";
-                return title;
-            }
-        }
-        public string Title => Document != null ? Document.Name : "New";
-        //public bool HasNoOpenDocument => IsInitialized && Document == null;
-        public double MinimumEditorFontSize => 8;
-        public double MaximumEditorFontSize => 72;
-        public double EditorFontSize {
-            get => _editorFontSize; set {
-                if (value < MinimumEditorFontSize || value > MaximumEditorFontSize) return;
-                if (SetProperty(ref _editorFontSize, value)) {
-                    Settings.EditorFontSize = value;
-                    EditorFontSizeChanged?.Invoke(value);
-                }
-            }
-        }
-        public event Action<double> EditorFontSizeChanged;
-
-
-        //public OpenDocumentViewModel? CurrentOpenDocument {
-        //    get => _currentOpenDocument;
-        //    set {
-        //        if (value == null) return; // prevent binding from clearing the value
-        //        SetProperty(ref _currentOpenDocument, value);
-        //    }
-        //}
-
         private DocumentViewModel CreateDocumentRoot() {
             _documentWatcher?.Dispose();
             var root = DocumentViewModel.CreateRoot(Settings.EffectiveDocumentPath);
             _documentWatcher = new DocumentWatcher(_documentFileWatcher, root);
             return root;
         }
-        private void GetOpenDocumentViewModel(DocumentViewModel? documentViewModel = null) {
-            DocumentConstructor();
-            SetDocument(documentViewModel);
-        }
         public void CreateNewDocument() {
-            GetOpenDocumentViewModel(null);
-        }
-
-        public void SetDocument(DocumentViewModel? document = null) {
-            Document = document == null ? null : DocumentViewModel.FromPath(document.Path);
-            IsDirty = document?.IsAutoSave == true;
-            _executionHost.Name = Document?.Name ?? "Untitled";
-            DocumentChanged.Invoke(this, EventArgs.Empty);
-        }
-        public void OpenDocument(DocumentViewModel document) {
-            if (document.IsFolder) return;
-            GetOpenDocumentViewModel(document);
+            SetupDocument(null);
         }
         public async Task OpenFile() {
             if (!IsInitialized) return;
@@ -306,26 +356,16 @@ namespace RoslynPad.UI {
             }
             OpenDocument(document);
         }
-        public DocumentViewModel AddDocument(string documentName) {
-            return DocumentRootFolder.CreateNew(documentName);
+        public void OpenDocument(DocumentViewModel document) {
+            if (document.IsFolder) return;
+            SetupDocument(document);
         }
-        private void OnDocumentUpdated() {
-            DocumentUpdated?.Invoke(this, EventArgs.Empty);
-        }
-        public event EventHandler? DocumentUpdated;
         public async Task<string> LoadText() {
             if (Document == null) {
                 return string.Empty;
             }
             using var fileStream = File.OpenText(Document.Path);
             return await fileStream.ReadToEndAsync().ConfigureAwait(false);
-        }
-        public event EventHandler? EditorFocus;
-        private void OnEditorFocus() {
-            EditorFocus?.Invoke(this, EventArgs.Empty);
-        }
-        public void OnTextChanged() {
-            IsDirty = true;
         }
         public async Task AutoSave() {
             if (!IsDirty) return;
@@ -394,24 +434,33 @@ namespace RoslynPad.UI {
             }
             await writer.WriteAsync(text.Lines[text.Lines.Count - 1].ToString()).ConfigureAwait(false);
         }
-        public void EditUserDocumentPath() {
-            var dialog = _serviceProvider.GetService<IFolderBrowserDialog>();
-            dialog.ShowEditBox = true;
-            dialog.SelectedPath = Settings.EffectiveDocumentPath;
-
-            if (dialog.Show() == true) {
-                string documentPath = dialog.SelectedPath;
-                if (!DocumentRootFolder.Path.Equals(documentPath, StringComparison.OrdinalIgnoreCase)) {
-                    Settings.DocumentPath = documentPath;
-                    DocumentRootFolder = CreateDocumentRoot();
-                }
-            }
+        public DocumentViewModel AddDocument(string documentName) {
+            return DocumentRootFolder.CreateNew(documentName);
+        }
+        private void OnDocumentUpdated() {
+            DocumentUpdated?.Invoke(this, EventArgs.Empty);
+        }
+        private void OnEditorFocus() {
+            EditorFocus?.Invoke(this, EventArgs.Empty);
+        }
+        public void OnTextChanged() {
+            IsDirty = true;
         }
 
+        #endregion
+
+        public bool SendTelemetry {
+            get => Settings.SendErrors; set {
+                Settings.SendErrors = value;
+                OnPropertyChanged(nameof(SendTelemetry));
+            }
+        }
         public async Task OnExit() {
             await Save(false).ConfigureAwait(false);
             IOUtilities.PerformIO(() => Directory.Delete(Path.Combine(Path.GetTempPath(), "RoslynPad"), recursive: true));
         }
+
+        #region Execution
         public Exception? LastError {
             get {
                 var exception = _telemetryProvider.LastError;
@@ -421,15 +470,6 @@ namespace RoslynPad.UI {
         }
         public bool HasError => LastError != null;
         public IDelegateCommand ClearErrorCommand { get; }
-        public bool SendTelemetry {
-            get => Settings.SendErrors; set {
-                Settings.SendErrors = value;
-                OnPropertyChanged(nameof(SendTelemetry));
-            }
-        }
-
-
-        #region Execution
         public IEnumerable<object> Results => _results;
         internal IEnumerable<IResultObject> ResultsInternal => _results;
         private void AddResult(object o) {
@@ -438,67 +478,12 @@ namespace RoslynPad.UI {
                 ResultsAvailable?.Invoke();
             }, AppDispatcherPriority.Low);
         }
-        public event Action? ReadInput;
-        public event Action? ResultsAvailable;
-        private void ExecutionHostOnInputRequest() {
-            _dispatcher.InvokeAsync(() => {
-                ReadInput?.Invoke();
-            }, AppDispatcherPriority.Low);
-        }
-        private void ExecutionHostOnDump(ResultObject result) {
-            AddResult(result);
-        }
-        private void ExecutionHostOnError(ExceptionResultObject errorResult) {
-            _dispatcher.InvokeAsync(() => {
-                _onError?.Invoke(errorResult);
-                if (errorResult != null) {
-                    _results.Add(errorResult);
-
-                    ResultsAvailable?.Invoke();
-                }
-            }, AppDispatcherPriority.Low);
-        }
-        private void ExecutionHostOnCompilationErrors(IList<CompilationErrorResultObject> errors) {
-            _dispatcher.InvokeAsync(() => {
-                foreach (var error in errors) {
-                    _results.Add(error);
-                }
-
-                ResultsAvailable?.Invoke();
-            });
-        }
         private void ClearResults(Func<IResultObject, bool> filter) {
             _dispatcher.InvokeAsync(() => {
                 foreach (var result in _results.Where(filter).ToArray()) {
                     _results.Remove(result);
                 }
             });
-        }
-        
-        private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
-            return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
-        }
-        public void OpenBuildPath() {
-            Task.Run(() => {
-                try {
-                    Process.Start(new ProcessStartInfo(new Uri("file://" + BuildPath).ToString()) { UseShellExecute = true });
-                } catch (Exception ex) {
-                    _telemetryProvider.ReportError(ex);
-                }
-            });
-        }
-
-        public void SendInput(string input) {
-            _executionHost?.SendInputAsync(input);
-        }
-        private async Task<string> GetCode(CancellationToken cancellationToken) {
-            var document = RoslynHost.GetDocument(DocumentId);
-            if (document == null) {
-                return string.Empty;
-            }
-
-            return (await document.GetTextAsync(cancellationToken)
-                .ConfigureAwait(false)).ToString();
         }
         private void Reset() {
             if (_runCts != null) {
@@ -507,98 +492,26 @@ namespace RoslynPad.UI {
             }
             _runCts = new CancellationTokenSource();
         }
-        public ExecutionPlatform? Platform {
-            get => _platform;
-            set {
-                if (value == null) throw new InvalidOperationException();
-
-                if (SetProperty(ref _platform, value)) {
-                    _executionHost.Platform = value;
-                    UpdatePackages();
-                }
-                RunCommand.RaiseCanExecuteChanged();
-                RestartHostCommand.RaiseCanExecuteChanged();
-
-                if (_isDocInitialized) {
-                    RestartHostCommand.Execute();
-                }
-            }
-        }
-        private async Task RestartHost() {
-            Reset();
-            try {
-                await Task.Run(() => _executionHost?.TerminateAsync()).ConfigureAwait(false);
-            } catch (Exception e) {
-                _telemetryProvider.ReportError(e);
-                throw;
-            } finally {
-                SetIsRunning(false);
-            }
-        }
-        private void SetIsRunning(bool value) {
-            _dispatcher.InvokeAsync(() => IsRunning = value);
-        }
-        public bool IsRunning {
-            get => _isRunning;
+        public bool IsLiveMode {
+            get => _isLiveMode;
             private set {
-                if (SetProperty(ref _isRunning, value)) {
-                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                if (!SetProperty(ref _isLiveMode, value)) return;
+                //RunCommand.RaiseCanExecuteChanged();
+                if (value) {
+                    // ReSharper disable once UnusedVariable
+                    _ = Run();
+                    if (_liveModeTimer == null) {
+                        _liveModeTimer = new Timer(o => _dispatcher.InvokeAsync(() => {
+                            // ReSharper disable once UnusedVariable
+                            var runTask = Run();
+                        }), null, Timeout.Infinite, Timeout.Infinite);
+                    }
                 }
             }
         }
-        private async Task Run() {
-            if (IsRunning) return;
-            ReportedProgress = null;
-            Reset();
-            SetIsRunning(true);
-            StartExec();
-            var cancellationToken = _runCts!.Token;
-            try {
-                var code = await GetCode(cancellationToken).ConfigureAwait(true);
-                if (_executionHost != null) {
-                    // Make sure the execution working directory matches the current script path
-                    // which may have changed since we loaded.
-                    if (_executionHostParameters.WorkingDirectory != WorkingDirectory)
-                        _executionHostParameters.WorkingDirectory = WorkingDirectory;
 
-                    await _executionHost.ExecuteAsync(code, false, OptimizationLevel).ConfigureAwait(true);
-                }
-            } catch (CompilationErrorException ex) {
-                foreach (var diagnostic in ex.Diagnostics) {
-                    _results.Add(ResultObject.Create(diagnostic, DumpQuotas.Default));
-                }
-            } catch (Exception ex) {
-                AddResult(ex);
-            } finally {
-                SetIsRunning(false);
-                ReportedProgress = null;
-            }
-        }
-        private void StartExec() {
-            ClearResults(t => !(t is RestoreResultObject));
-
-            _onError?.Invoke(null);
-        }
-        private OptimizationLevel OptimizationLevel => Settings.OptimizeCompilation ? OptimizationLevel.Release : OptimizationLevel.Debug;
-        private void UpdatePackages() {
-            _restoreCts?.Cancel();
-            _restoreCts = new CancellationTokenSource();
-            _ = UpdatePackagesAsync(_restoreCts.Token);
-            async Task UpdatePackagesAsync(CancellationToken cancellationToken) {
-                var document = RoslynHost.GetDocument(DocumentId);
-                if (document == null) {
-                    return;
-                }
-                var syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-                var libraries = ParseReferences(syntaxRoot!);
-                var defaultReferences = Platform?.FrameworkVersion?.Major < 5
-                    ? DefaultReferencesCompat50
-                    : DefaultReferences;
-                if (defaultReferences.Length > 0) {
-                    libraries.AddRange(GetReferencePaths(defaultReferences).Select(p => LibraryRef.Reference(p)));
-                }
-                _executionHost.UpdateLibraries(libraries);
-            }
+        private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
+            return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
         }
         private List<LibraryRef> ParseReferences(SyntaxNode syntaxRoot) {
             const string NuGetPrefix = "nuget:";
@@ -662,6 +575,126 @@ namespace RoslynPad.UI {
                 return (null, null);
             }
         }
+        public void OpenBuildPath() {
+            Task.Run(() => {
+                try {
+                    Process.Start(new ProcessStartInfo(new Uri("file://" + BuildPath).ToString()) { UseShellExecute = true });
+                } catch (Exception ex) {
+                    _telemetryProvider.ReportError(ex);
+                }
+            });
+        }
+
+        private void ExecutionHostOnInputRequest() {
+            _dispatcher.InvokeAsync(() => {
+                ReadInput?.Invoke();
+            }, AppDispatcherPriority.Low);
+        }
+        private void ExecutionHostOnDump(ResultObject result) {
+            AddResult(result);
+        }
+        private void ExecutionHostOnError(ExceptionResultObject errorResult) {
+            _dispatcher.InvokeAsync(() => {
+                _onError?.Invoke(errorResult);
+                if (errorResult != null) {
+                    _results.Add(errorResult);
+
+                    ResultsAvailable?.Invoke();
+                }
+            }, AppDispatcherPriority.Low);
+        }
+        private void ExecutionHostOnCompilationErrors(IList<CompilationErrorResultObject> errors) {
+            _dispatcher.InvokeAsync(() => {
+                foreach (var error in errors) {
+                    _results.Add(error);
+                }
+
+                ResultsAvailable?.Invoke();
+            });
+        }
+        
+        public void SendInput(string input) {
+            _executionHost?.SendInputAsync(input);
+        }
+
+        private async Task Run() {
+            if (IsRunning) return;
+            ReportedProgress = null;
+            Reset();
+            SetIsRunning(true);
+            StartExec();
+            var cancellationToken = _runCts!.Token;
+            try {
+                var code = await GetCode(cancellationToken).ConfigureAwait(true);
+                if (_executionHost != null) {
+                    // Make sure the execution working directory matches the current script path
+                    // which may have changed since we loaded.
+                    if (_executionHostParameters.WorkingDirectory != WorkingDirectory)
+                        _executionHostParameters.WorkingDirectory = WorkingDirectory;
+
+                    await _executionHost.ExecuteAsync(code, false, OptimizationLevel).ConfigureAwait(true);
+                }
+            } catch (CompilationErrorException ex) {
+                foreach (var diagnostic in ex.Diagnostics) {
+                    _results.Add(ResultObject.Create(diagnostic, DumpQuotas.Default));
+                }
+            } catch (Exception ex) {
+                AddResult(ex);
+            } finally {
+                SetIsRunning(false);
+                ReportedProgress = null;
+            }
+        }
+        private async Task RestartHost() {
+            Reset();
+            try {
+                await Task.Run(() => _executionHost?.TerminateAsync()).ConfigureAwait(false);
+            } catch (Exception e) {
+                _telemetryProvider.ReportError(e);
+                throw;
+            } finally {
+                SetIsRunning(false);
+            }
+        }
+        private async Task<string> GetCode(CancellationToken cancellationToken) {
+            var document = RoslynHost.GetDocument(DocumentId);
+            if (document == null) {
+                return string.Empty;
+            }
+
+            return (await document.GetTextAsync(cancellationToken)
+                .ConfigureAwait(false)).ToString();
+        }
+
+        private void InitializePlatforms() {
+            AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
+            _executionHost.DotNetExecutable = _platformsFactory.DotNetExecutable;
+        }
+        private void StartExec() {
+            ClearResults(t => !(t is RestoreResultObject));
+
+            _onError?.Invoke(null);
+        }
+        private void UpdatePackages() {
+            _restoreCts?.Cancel();
+            _restoreCts = new CancellationTokenSource();
+            _ = UpdatePackagesAsync(_restoreCts.Token);
+            async Task UpdatePackagesAsync(CancellationToken cancellationToken) {
+                var document = RoslynHost.GetDocument(DocumentId);
+                if (document == null) {
+                    return;
+                }
+                var syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+                var libraries = ParseReferences(syntaxRoot!);
+                var defaultReferences = Platform?.FrameworkVersion?.Major < 5
+                    ? DefaultReferencesCompat50
+                    : DefaultReferences;
+                if (defaultReferences.Length > 0) {
+                    libraries.AddRange(GetReferencePaths(defaultReferences).Select(p => LibraryRef.Reference(p)));
+                }
+                _executionHost.UpdateLibraries(libraries);
+            }
+        }
 
         public double? ReportedProgress {
             get => _reportedProgress;
@@ -673,13 +706,20 @@ namespace RoslynPad.UI {
             }
         }
         public bool HasReportedProgress => ReportedProgress.HasValue;
-        public IReadOnlyList<ExecutionPlatform> AvailablePlatforms {
-            get => _availablePlatforms ?? throw new ArgumentNullException(nameof(_availablePlatforms));
-            private set => SetProperty(ref _availablePlatforms, value);
+        private void SetIsRunning(bool value) {
+            _dispatcher.InvokeAsync(() => IsRunning = value);
         }
-        private void InitializePlatforms() {
-            AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
-            _executionHost.DotNetExecutable = _platformsFactory.DotNetExecutable;
+        public bool IsRestoring {
+            get => _isRestoring;
+            private set => SetProperty(ref _isRestoring, value);
+        }
+        public bool RestoreSuccessful {
+            get => _restoreSuccessful;
+            private set {
+                if (SetProperty(ref _restoreSuccessful, value)) {
+                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                }
+            }
         }
         private void OnRestoreStarted() {
             IsRestoring = true;
@@ -706,35 +746,6 @@ namespace RoslynPad.UI {
                 }
             }
             RestoreSuccessful = restoreResult.Success;
-        }
-        public bool IsRestoring {
-            get => _isRestoring;
-            private set => SetProperty(ref _isRestoring, value);
-        }
-        public bool RestoreSuccessful {
-            get => _restoreSuccessful;
-            private set {
-                if (SetProperty(ref _restoreSuccessful, value)) {
-                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
-                }
-            }
-        }
-        public bool IsLiveMode {
-            get => _isLiveMode;
-            private set {
-                if (!SetProperty(ref _isLiveMode, value)) return;
-                RunCommand.RaiseCanExecuteChanged();
-                if (value) {
-                    // ReSharper disable once UnusedVariable
-                    _ = Run();
-                    if (_liveModeTimer == null) {
-                        _liveModeTimer = new Timer(o => _dispatcher.InvokeAsync(() => {
-                            // ReSharper disable once UnusedVariable
-                            var runTask = Run();
-                        }), null, Timeout.Infinite, Timeout.Infinite);
-                    }
-                }
-            }
         }
 
         #endregion

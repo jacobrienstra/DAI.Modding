@@ -48,8 +48,8 @@ namespace RoslynPad.UI {
         private bool _isRunning;
         private bool _isRestoring;
         private bool _restoreSuccessful;
-        private bool _isLiveMode;
-        private Timer? _liveModeTimer;
+        //private bool _isLiveMode;
+        //private Timer? _liveModeTimer;
         private ObservableCollection<IResultObject> _results;
         #endregion
 

@@ -1,17 +1,15 @@
 ﻿using Microsoft.Win32;
-using NuGet.Versioning;
+
 using RoslynPad.UI;
-using RoslynPad.Utilities;
+
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Composition;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace RoslynPad
-{
+namespace RoslynPad {
     [Export(typeof(IPlatformsFactory))]
     internal class PlatformsFactory : IPlatformsFactory
     {
@@ -22,81 +20,70 @@ namespace RoslynPad
 
         public IEnumerable<ExecutionPlatform> GetExecutionPlatforms()
         {
-            if (GetCoreVersions() is var core)
-            {
-                foreach (var version in core.versions)
-                {
-                    if (Version.TryParse(version.name, out var parsedVersion))
-                    {
-                        yield return new ExecutionPlatform(".NET Core", version.tfm, parsedVersion, Architecture.X64, isCore: true);
-                    }
-                }
-            }
+            //if (GetCoreVersions() is var core)
+            //{
+            //    foreach (var version in core.versions)
+            //    {
+            //        if (Version.TryParse(version.name, out var parsedVersion))
+            //        {
+            //            yield return new ExecutionPlatform(".NET Core", version.tfm, parsedVersion, Architecture.X64, isCore: true);
+            //        }
+            //    }
+            //}
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var targetFrameworkName = GetNetFrameworkName();
                 yield return new ExecutionPlatform(".NET Framework x86", targetFrameworkName, null, Architecture.X86, isCore: false);
-                yield return new ExecutionPlatform(".NET Framework x64", targetFrameworkName, null, Architecture.X64, isCore: false);
+                //yield return new ExecutionPlatform(".NET Framework x64", targetFrameworkName, null, Architecture.X64, isCore: false);
             }
         }
 
         public string DotNetExecutable => FindNetCore().dotnetExe;
 
-        private (IReadOnlyList<(string tfm, string name)> versions, string dotnetExe) GetCoreVersions()
-        {
-            var (dotnetExe, sdkPath) = FindNetCore();
+        //private (IReadOnlyList<(string tfm, string name)> versions, string dotnetExe) GetCoreVersions() {
+        //    var (dotnetExe, sdkPath) = FindNetCore();
 
-            if (!string.IsNullOrEmpty(dotnetExe))
-            {
-                var dictionary = new Dictionary<NuGetVersion, (string tfm, string name)>();
+        //    if (!string.IsNullOrEmpty(dotnetExe)) {
+        //        var dictionary = new Dictionary<NuGetVersion, (string tfm, string name)>();
 
-                foreach (var directory in IOUtilities.EnumerateDirectories(sdkPath))
-                {
-                    var versionName = Path.GetFileName(directory);
-                    if (NuGetVersion.TryParse(versionName, out var version) && version.Major > 1)
-                    {
-                        dictionary.Add(version, ($"netcoreapp{version.Major}.{version.Minor}", versionName));
-                    }
-                }
+        //        foreach (var directory in IOUtilities.EnumerateDirectories(sdkPath)) {
+        //            var versionName = Path.GetFileName(directory);
+        //            if (NuGetVersion.TryParse(versionName, out var version) && version.Major > 1) {
+        //                dictionary.Add(version, ($"netcoreapp{version.Major}.{version.Minor}", versionName));
+        //            }
+        //        }
 
-                return (dictionary.OrderBy(c => c.Key.IsPrerelease).ThenByDescending(c => c.Key).Select(c => c.Value).ToImmutableArray(),
-                        dotnetExe);
-            }
+        //        return (dictionary.OrderBy(c => c.Key.IsPrerelease).ThenByDescending(c => c.Key).Select(c => c.Value).ToImmutableArray(),
+        //                dotnetExe);
+        //    }
 
-            return (ImmutableArray<(string, string)>.Empty, string.Empty);
-        }
+        //    return (ImmutableArray<(string, string)>.Empty, string.Empty);
+        //}
 
-        private (string dotnetExe, string sdkPath) FindNetCore()
-        {
-            if (_dotnetExe != null && _sdkPath != null)
-            {
+        private (string dotnetExe, string sdkPath) FindNetCore() {
+            if (_dotnetExe != null && _sdkPath != null) {
                 return (_dotnetExe, _sdkPath);
             }
 
             string[] dotnetPaths;
             string dotnetExe;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                 dotnetPaths = new[] { Path.Combine(Environment.GetEnvironmentVariable("ProgramW6432")!, "dotnet") };
                 dotnetExe = "dotnet.exe";
-            }
-            else
-            {
-                dotnetPaths = new[] { "/usr/share/dotnet", "/usr/local/share/dotnet" };
-                dotnetExe = "dotnet";
-            }
+            //} else {
+            //    dotnetPaths = new[] { "/usr/share/dotnet", "/usr/local/share/dotnet" };
+            //    dotnetExe = "dotnet";
+            //}
 
             var sdkPath = (from path in dotnetPaths
                            let fullPath = Path.Combine(path, "sdk")
                            where Directory.Exists(fullPath)
                            select fullPath).FirstOrDefault();
 
-            if (sdkPath != null)
-            {
+            if (sdkPath != null) {
                 dotnetExe = Path.GetFullPath(Path.Combine(sdkPath, "..", dotnetExe));
-                if (File.Exists(dotnetExe))
-                {
+                if (File.Exists(dotnetExe)) {
                     _dotnetExe = dotnetExe;
                     _sdkPath = sdkPath;
                     return (dotnetExe, sdkPath);

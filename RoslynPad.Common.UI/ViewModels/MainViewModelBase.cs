@@ -116,7 +116,7 @@ namespace RoslynPad.UI {
                     _executionHost.Platform = value;
                     UpdatePackages();
                 }
-                RunCommand.RaiseCanExecuteChanged();
+                //RunCommand.RaiseCanExecuteChanged();
                 RestartHostCommand.RaiseCanExecuteChanged();
 
                 if (_isDocInitialized) {
@@ -128,7 +128,7 @@ namespace RoslynPad.UI {
             get => _isRunning;
             private set {
                 if (SetProperty(ref _isRunning, value)) {
-                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                    //_dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace RoslynPad.UI {
 
         #region Commands
         public IDelegateCommand OpenBuildPathCommand { get; }
-        public IDelegateCommand RunCommand { get; }
+        //public IDelegateCommand RunCommand { get; }
         public IDelegateCommand RestartHostCommand { get; }
         public IDelegateCommand NewDocumentCommand { get; }
         public IDelegateCommand OpenFileCommand { get; }
@@ -223,7 +223,7 @@ namespace RoslynPad.UI {
             NuGet = nugetViewModel;
 
             DocumentRootFolder = CreateDocumentRoot();
-            RunCommand = commands.CreateAsync(Run, () => !IsRunning && RestoreSuccessful && Platform != null);
+            //RunCommand = commands.CreateAsync(Run, () => !IsRunning && RestoreSuccessful && Platform != null);
             RestartHostCommand = commands.CreateAsync(RestartHost, () => Platform != null);
             NewDocumentCommand = _commands.Create(CreateNewDocument);
             OpenFileCommand = _commands.CreateAsync(OpenFile);
@@ -234,7 +234,7 @@ namespace RoslynPad.UI {
             CommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Comment));
             UncommentSelectionCommand = _commands.CreateAsync(() => CommentUncommentSelection(CommentAction.Uncomment));
             RenameSymbolCommand = _commands.CreateAsync(RenameSymbol);
-            ToggleLiveModeCommand = commands.Create(() => IsLiveMode = !IsLiveMode);
+            //ToggleLiveModeCommand = commands.Create(() => IsLiveMode = !IsLiveMode);
 
             _editorFontSize = Settings.EditorFontSize;
         }
@@ -492,23 +492,23 @@ namespace RoslynPad.UI {
             }
             _runCts = new CancellationTokenSource();
         }
-        public bool IsLiveMode {
-            get => _isLiveMode;
-            private set {
-                if (!SetProperty(ref _isLiveMode, value)) return;
-                //RunCommand.RaiseCanExecuteChanged();
-                if (value) {
-                    // ReSharper disable once UnusedVariable
-                    _ = Run();
-                    if (_liveModeTimer == null) {
-                        _liveModeTimer = new Timer(o => _dispatcher.InvokeAsync(() => {
-                            // ReSharper disable once UnusedVariable
-                            var runTask = Run();
-                        }), null, Timeout.Infinite, Timeout.Infinite);
-                    }
-                }
-            }
-        }
+        //public bool IsLiveMode {
+        //    get => _isLiveMode;
+        //    private set {
+        //        if (!SetProperty(ref _isLiveMode, value)) return;
+        //        //RunCommand.RaiseCanExecuteChanged();
+        //        if (value) {
+        //            // ReSharper disable once UnusedVariable
+        //            _ = Run();
+        //            if (_liveModeTimer == null) {
+        //                _liveModeTimer = new Timer(o => _dispatcher.InvokeAsync(() => {
+        //                    // ReSharper disable once UnusedVariable
+        //                    var runTask = Run();
+        //                }), null, Timeout.Infinite, Timeout.Infinite);
+        //            }
+        //        }
+        //    }
+        //}
 
         private IEnumerable<string> GetReferencePaths(IEnumerable<MetadataReference> references) {
             return references.OfType<PortableExecutableReference>().Select(x => x.FilePath).Where(x => x != null)!;
@@ -617,34 +617,34 @@ namespace RoslynPad.UI {
             _executionHost?.SendInputAsync(input);
         }
 
-        private async Task Run() {
-            if (IsRunning) return;
-            ReportedProgress = null;
-            Reset();
-            SetIsRunning(true);
-            StartExec();
-            var cancellationToken = _runCts!.Token;
-            try {
-                var code = await GetCode(cancellationToken).ConfigureAwait(true);
-                if (_executionHost != null) {
-                    // Make sure the execution working directory matches the current script path
-                    // which may have changed since we loaded.
-                    if (_executionHostParameters.WorkingDirectory != WorkingDirectory)
-                        _executionHostParameters.WorkingDirectory = WorkingDirectory;
+        //private async Task Run() {
+        //    if (IsRunning) return;
+        //    ReportedProgress = null;
+        //    Reset();
+        //    SetIsRunning(true);
+        //    StartExec();
+        //    var cancellationToken = _runCts!.Token;
+        //    try {
+        //        var code = await GetCode(cancellationToken).ConfigureAwait(true);
+        //        if (_executionHost != null) {
+        //            // Make sure the execution working directory matches the current script path
+        //            // which may have changed since we loaded.
+        //            if (_executionHostParameters.WorkingDirectory != WorkingDirectory)
+        //                _executionHostParameters.WorkingDirectory = WorkingDirectory;
 
-                    await _executionHost.ExecuteAsync(code, false, OptimizationLevel).ConfigureAwait(true);
-                }
-            } catch (CompilationErrorException ex) {
-                foreach (var diagnostic in ex.Diagnostics) {
-                    _results.Add(ResultObject.Create(diagnostic, DumpQuotas.Default));
-                }
-            } catch (Exception ex) {
-                AddResult(ex);
-            } finally {
-                SetIsRunning(false);
-                ReportedProgress = null;
-            }
-        }
+        //            await _executionHost.ExecuteAsync(code, false, OptimizationLevel).ConfigureAwait(true);
+        //        }
+        //    } catch (CompilationErrorException ex) {
+        //        foreach (var diagnostic in ex.Diagnostics) {
+        //            _results.Add(ResultObject.Create(diagnostic, DumpQuotas.Default));
+        //        }
+        //    } catch (Exception ex) {
+        //        AddResult(ex);
+        //    } finally {
+        //        SetIsRunning(false);
+        //        ReportedProgress = null;
+        //    }
+        //}
         private async Task RestartHost() {
             Reset();
             try {
@@ -670,11 +670,11 @@ namespace RoslynPad.UI {
             AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
             _executionHost.DotNetExecutable = _platformsFactory.DotNetExecutable;
         }
-        private void StartExec() {
-            ClearResults(t => !(t is RestoreResultObject));
+        //private void StartExec() {
+        //    ClearResults(t => !(t is RestoreResultObject));
 
-            _onError?.Invoke(null);
-        }
+        //    _onError?.Invoke(null);
+        //}
         private void UpdatePackages() {
             _restoreCts?.Cancel();
             _restoreCts = new CancellationTokenSource();
@@ -717,7 +717,7 @@ namespace RoslynPad.UI {
             get => _restoreSuccessful;
             private set {
                 if (SetProperty(ref _restoreSuccessful, value)) {
-                    _dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
+                    //_dispatcher.InvokeAsync(() => RunCommand.RaiseCanExecuteChanged());
                 }
             }
         }
@@ -750,6 +750,7 @@ namespace RoslynPad.UI {
 
         #endregion
 
+        #region DocumentActions
         public enum CommentAction {
             Comment,
             Uncomment
@@ -824,6 +825,7 @@ namespace RoslynPad.UI {
             }
             OnEditorFocus();
         }
+        #endregion
 
         #region Document Watcher
 

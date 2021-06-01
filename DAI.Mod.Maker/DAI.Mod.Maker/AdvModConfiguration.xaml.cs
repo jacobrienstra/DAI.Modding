@@ -10,7 +10,7 @@ using Microsoft.Win32;
 
 using AssetLibUtilUtil = DAI.AssetLibrary.Utilities.Utilities;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class AdvModConfiguration : Window, IComponentConnector {
         public ModJob CurrentMod;
 

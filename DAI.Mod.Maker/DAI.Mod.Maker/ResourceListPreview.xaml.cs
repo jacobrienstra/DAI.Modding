@@ -12,7 +12,7 @@ using DAI.AssetLibrary.Utilities;
 
 using Microsoft.Win32;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class ResourceListPreview : Window, IComponentConnector {
         public ResourceListPreview() {
             InitializeComponent();

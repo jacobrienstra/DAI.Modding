@@ -4,7 +4,7 @@ using System.Windows.Markup;
 
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class PrefabBlueprintPreviewWindow : Window, IComponentConnector {
         public PrefabBlueprintPreviewWindow(PrefabBlueprint InBlueprint) {
             InitializeComponent();

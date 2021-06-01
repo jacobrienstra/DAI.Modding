@@ -1,6 +1,6 @@
 using SlimDX.Direct3D11;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public abstract class RenderScene {
         public Device Device { get; set; }
 

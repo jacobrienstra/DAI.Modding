@@ -13,7 +13,7 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities.Extensions;
 
-namespace DAI.ModMaker.Controls {
+namespace DAI.Mod.Maker.Controls {
     public partial class HexEditor : UserControl, IComponentConnector {
         private HexBox ResourceHexControl;
 

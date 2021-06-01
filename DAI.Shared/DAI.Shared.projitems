@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModScript.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\ResModResourceEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\Scripting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vectors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\DQWord.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\EbxRefWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\EqualityComparer.cs" />
@@ -43,11 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Sha1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\String.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Utilities.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector2.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector4.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\YamlFlowDocumentWriter.cs" />
   </ItemGroup>
   <ItemGroup>

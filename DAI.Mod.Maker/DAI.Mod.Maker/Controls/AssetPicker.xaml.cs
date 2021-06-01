@@ -3,9 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 
 using DAI.AssetLibrary.Assets.References;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker.Controls {
+namespace DAI.Mod.Maker.Controls {
     public partial class AssetPicker : UserControl, IComponentConnector {
         private EbxRef IntAssignedAsset;
 

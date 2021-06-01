@@ -4,7 +4,7 @@ using System.Windows.Markup;
 
 using Microsoft.Win32;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class ScaleformPreviewWindow : Window, IComponentConnector {
         public ScaleformPreviewWindow(byte[] InData) {
             InitializeComponent();

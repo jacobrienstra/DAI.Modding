@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class BoolField : DAIField {
         public bool BoolValue;
 

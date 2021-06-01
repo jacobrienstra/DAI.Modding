@@ -10,9 +10,9 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class LootTablePreviewWindow : Window, IComponentConnector {
         private LootTableObject LootTable;
 

@@ -4,9 +4,9 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Properties;
+using DAI.Mod.Maker.Properties;
 
-namespace DAI.ModMaker.DAIModules.Export {
+namespace DAI.Mod.Maker.DAIModules.Export {
     public class StaticMeshExport : DAIBaseExporter {
         public string[] GetAssetTypes() {
             return new string[1] { "RigidMeshAsset" };

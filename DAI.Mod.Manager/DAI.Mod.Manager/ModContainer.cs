@@ -1,7 +1,7 @@
 using DAI.Mod;
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public class ModContainer {
         public string Path { get; set; }
 

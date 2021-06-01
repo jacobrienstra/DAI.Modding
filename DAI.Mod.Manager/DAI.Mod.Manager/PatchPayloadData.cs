@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public class PatchPayloadData {
         public string OutputPath { get; set; }
 

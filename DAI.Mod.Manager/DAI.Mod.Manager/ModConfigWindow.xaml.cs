@@ -5,10 +5,10 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-using DAI.ModMaker.Controls;
+using DAI.Mod.Maker.Controls;
 using DAI.Mod;
 
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public partial class ModConfigWindow : Window, IComponentConnector {
         public Dictionary<string, object> ConfigValues;
 

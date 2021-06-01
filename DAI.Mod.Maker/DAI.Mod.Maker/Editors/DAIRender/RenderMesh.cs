@@ -1,7 +1,7 @@
 using SlimDX;
 using SlimDX.Direct3D11;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class RenderMesh {
         public Buffer VertexBuffer;
 

@@ -1,4 +1,4 @@
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public class WorkerState {
         public WorkerStateType Type;
 

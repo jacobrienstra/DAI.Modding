@@ -1,6 +1,6 @@
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     internal struct QuadVertex {
         public const int Stride = 20;
 

@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-using DAI.ModMaker.DAIRender;
+using DAI.Mod.Maker.DAIRender;
 
 using SlimDX.Direct3D11;
 

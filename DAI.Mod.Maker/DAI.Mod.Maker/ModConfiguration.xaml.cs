@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Markup;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class ModConfiguration : Window, IComponentConnector {
         public bool Cancelled { get; set; }
 

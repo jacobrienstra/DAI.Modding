@@ -9,7 +9,7 @@ using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules.Preview {
+namespace DAI.Mod.Maker.DAIModules.Preview {
     public class HeadMorphPreview : DAIBasePreviewer {
         public string[] GetAssetTypes() {
             return new string[1] { "MorphStatic" };

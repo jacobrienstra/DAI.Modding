@@ -5,9 +5,9 @@ using System.Windows.Markup;
 
 using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.References;
-using DAI.ModMaker.Properties;
+using DAI.Mod.Maker.Properties;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class MeshExportConfig : Window, IComponentConnector {
         public bool Cancelled { get; set; }
 

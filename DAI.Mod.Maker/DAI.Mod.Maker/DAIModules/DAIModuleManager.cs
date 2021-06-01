@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace DAI.ModMaker.DAIModules {
+namespace DAI.Mod.Maker.DAIModules {
     public static class DAIModuleManager {
         public static Dictionary<string, DAIBaseImporter> Importers;
 
@@ -53,7 +53,7 @@ namespace DAI.ModMaker.DAIModules {
         public static void LoadModules() {
             try {
                 (from t in Assembly.GetExecutingAssembly().GetTypes()
-                 where t.Namespace == "DAI.ModMaker.DAIModules.Import"
+                 where t.Namespace == "DAI.Mod.Maker.DAIModules.Import"
                  select t).ToList().ForEach(delegate (Type A) {
                      ConstructorInfo constructor3 = A.GetConstructor(Type.EmptyTypes);
                      if (constructor3 != null && constructor3.IsPublic) {
@@ -67,7 +67,7 @@ namespace DAI.ModMaker.DAIModules {
                      }
                  });
                 (from t in Assembly.GetExecutingAssembly().GetTypes()
-                 where t.Namespace == "DAI.ModMaker.DAIModules.Export"
+                 where t.Namespace == "DAI.Mod.Maker.DAIModules.Export"
                  select t).ToList().ForEach(delegate (Type A) {
                      ConstructorInfo constructor2 = A.GetConstructor(Type.EmptyTypes);
                      if (constructor2 != null && constructor2.IsPublic) {
@@ -81,7 +81,7 @@ namespace DAI.ModMaker.DAIModules {
                      }
                  });
                 (from t in Assembly.GetExecutingAssembly().GetTypes()
-                 where t.Namespace == "DAI.ModMaker.DAIModules.Preview"
+                 where t.Namespace == "DAI.Mod.Maker.DAIModules.Preview"
                  select t).ToList().ForEach(delegate (Type A) {
                      ConstructorInfo constructor = A.GetConstructor(Type.EmptyTypes);
                      if (constructor != null && constructor.IsPublic) {

@@ -7,4 +7,4 @@ using System.Windows;
 )]
 
 [assembly: InternalsVisibleTo("RoslynPad")]
-[assembly: InternalsVisibleTo("DAI.ModMaker")]
+[assembly: InternalsVisibleTo("DAI.Mod.Maker")]

@@ -124,6 +124,9 @@
     </Compile>
     <Compile Include="DAI.Mod.Maker\ModParser.cs" />
     <Compile Include="DAI.Mod.Maker\PatchPayloadData.cs" />
+    <Compile Include="DAI.Mod.Maker\Utilities\EbxRefWrapper.cs" />
+    <Compile Include="DAI.Mod.Maker\Utilities\Utilities.cs" />
+    <Compile Include="DAI.Mod.Maker\Utilities\YamlFlowDocumentWriter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -359,7 +362,6 @@
     </Compile>
     <Compile Include="DAI.Mod.Maker\LevelLayer.cs" />
     <Compile Include="DAI.Mod.Maker\LevelObject.cs" />
-    <Compile Include="DAI.Mod.Maker\LoadingProgressState.cs" />
     <Compile Include="DAI.Mod.Maker\LootTablePreviewWindow.xaml.cs">
       <DependentUpon>LootTablePreviewWindow.xaml</DependentUpon>
     </Compile>
@@ -501,6 +503,10 @@
     <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj">
       <Project>{41c653ca-5795-4144-b7a4-8c8d3c732470}</Project>
       <Name>DAI.AssetLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAI.Common\DAI.Common.csproj">
+      <Project>{8fbcdc67-5054-4c80-9021-800bc9391538}</Project>
+      <Name>DAI.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAI.FrostbiteAssets\DAI.FrostbiteAssets.csproj">
       <Project>{2556553e-1461-49ea-8a0b-4df654f2bd98}</Project>

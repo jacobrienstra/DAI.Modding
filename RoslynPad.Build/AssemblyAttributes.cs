@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RoslynPad")]
-[assembly: InternalsVisibleTo("DAI.ModMaker")]
+[assembly: InternalsVisibleTo("DAI.Mod.Maker")]
 [assembly: InternalsVisibleTo("RoslynPad.Common.UI")]
 [assembly: InternalsVisibleTo("RoslynPad.Host32")]
 [assembly: InternalsVisibleTo("RoslynPad.Host64")]

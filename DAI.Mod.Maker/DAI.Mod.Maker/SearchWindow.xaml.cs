@@ -11,7 +11,7 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 
-namespace DAI.ModMaker.Utilities {
+namespace DAI.Mod.Maker {
     public partial class SearchWindow : Window, IComponentConnector {
         private int LastFoundIndex;
 

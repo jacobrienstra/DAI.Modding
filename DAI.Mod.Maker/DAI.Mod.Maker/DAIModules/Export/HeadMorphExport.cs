@@ -5,9 +5,9 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Properties;
+using DAI.Mod.Maker.Properties;
 
-namespace DAI.ModMaker.DAIModules.Export {
+namespace DAI.Mod.Maker.DAIModules.Export {
     public class HeadMorphExport : DAIBaseExporter {
         public string[] GetAssetTypes() {
             return new string[1] { "MorphStatic" };
@@ -23,7 +23,7 @@ namespace DAI.ModMaker.DAIModules.Export {
                 MessageBox.Show($"Could not find related Res [{res.ResRid}]");
                 return null;
             }
-            return Mesh.FromRes(Library.GetResByResRid(DAI.ModMaker.Utilities.Utilities.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(MorphAsset.RuntimeHeadBase.Id.FileGuid)).MeshSetResource));
+            return Mesh.FromRes(Library.GetResByResRid(DAI.Mod.Maker.Utilities.Utilities.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(MorphAsset.RuntimeHeadBase.Id.FileGuid)).MeshSetResource));
         }
 
         public bool Run(AssetContainer InContainer, string OutPath, out string Errors) {

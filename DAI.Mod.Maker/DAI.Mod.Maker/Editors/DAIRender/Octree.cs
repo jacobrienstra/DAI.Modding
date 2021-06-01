@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class Octree {
         public List<OctreeBranch> Branches;
 

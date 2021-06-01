@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.SoundPreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Sound Preview" Height="264" Width="500" Background="#FFF0F0F0" WindowStyle="ToolWindow" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker" Closing="Window_Closing">
+﻿<Window x:Class="DAI.Mod.Maker.SoundPreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Sound Preview" Height="264" Width="500" Background="#FFF0F0F0" WindowStyle="ToolWindow" xmlns:modmaker="clr-namespace:DAI.Mod.Maker;assembly=DAI.Mod.Maker" Closing="Window_Closing">
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="37*" />

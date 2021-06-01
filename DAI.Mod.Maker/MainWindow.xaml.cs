@@ -20,11 +20,11 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
 using DAI.Mod;
-using DAI.ModMaker.DAIModules;
-using DAI.ModMaker.Properties;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.DAIModules;
+using DAI.Mod.Maker.Properties;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class MainWindow : Window, IComponentConnector {
         private BackgroundWorker _BGWorker;
 
@@ -760,7 +760,7 @@ namespace DAI.ModMaker {
             if (File.Exists("Templates\\BlankTemplate.cs")) {
                 return;
             }
-            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("DAI.ModMaker.Resources.BlankTemplate.cs")) {
+            using (Stream input = Assembly.GetExecutingAssembly().GetManifestResourceStream("DAI.Mod.Maker.Resources.BlankTemplate.cs")) {
                 using (Stream output = File.Create("Templates\\BlankTemplate.cs")) {
                     byte[] buffer = new byte[8192];
                     int bytesRead;

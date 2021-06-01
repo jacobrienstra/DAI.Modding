@@ -9,7 +9,7 @@ using System.Windows.Threading;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 
-namespace DAI.ModMaker.Utilities {
+namespace DAI.Mod.Maker {
     public partial class ReferenceSearchWindow : Window, IComponentConnector {
         public ReferenceSearchWindow() {
             InitializeComponent();

@@ -6,9 +6,9 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 using DAI.Mod;
-using DAI.ModMaker.Controls;
+using DAI.Mod.Maker.Controls;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class TestModConfigWindow : Window, IComponentConnector {
         public Dictionary<string, object> ConfigValues;
 

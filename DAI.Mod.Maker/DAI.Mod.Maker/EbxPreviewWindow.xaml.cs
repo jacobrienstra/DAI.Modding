@@ -9,13 +9,13 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
-using DAI.ModMaker.DAIModules;
-using DAI.ModMaker.Properties;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.DAIModules;
+using DAI.Mod.Maker.Properties;
+using DAI.Mod.Maker.Utilities;
 
 using Microsoft.Win32;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class EbxPreviewWindow : Window, IComponentConnector {
         private EbxBase Ebx;
 

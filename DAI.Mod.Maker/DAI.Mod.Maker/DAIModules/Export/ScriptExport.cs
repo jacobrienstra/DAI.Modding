@@ -6,9 +6,9 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker.DAIModules.Export {
+namespace DAI.Mod.Maker.DAIModules.Export {
     public class ScriptExport : DAIBaseExporter {
         public string[] GetAssetTypes() {
             return new string[1] { "Script" };

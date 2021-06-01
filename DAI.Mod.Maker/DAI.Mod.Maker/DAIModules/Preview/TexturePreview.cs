@@ -5,7 +5,7 @@ using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules.Preview {
+namespace DAI.Mod.Maker.DAIModules.Preview {
     public class TexturePreview : DAIBasePreviewer {
         public string[] GetAssetTypes() {
             return new string[1] { "TextureAsset" };

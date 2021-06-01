@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Threading;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class App : Application {
 
         private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {

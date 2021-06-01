@@ -4,7 +4,7 @@ using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.Utilities {
+namespace DAI.Utilities {
     public static class Extensions {
         public static string GetDisplayFullName(this EbxRef ebx) {
             string ebxName = ebx.Name;

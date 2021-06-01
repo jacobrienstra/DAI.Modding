@@ -18,7 +18,7 @@ using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class SoundPreviewWindow : Window, IComponentConnector {
         private MediaPlayer SoundPlayer;
 

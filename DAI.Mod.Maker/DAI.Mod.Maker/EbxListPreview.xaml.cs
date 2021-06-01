@@ -7,7 +7,7 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class EbxListPreview : Window, IComponentConnector {
         public EbxListPreview() {
             InitializeComponent();

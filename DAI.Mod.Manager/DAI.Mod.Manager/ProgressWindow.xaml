@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Window x:Class="DAI.ModManager.ProgressWindow" 
+<Window x:Class="DAI.Mod.Manager.ProgressWindow" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Merging..." 

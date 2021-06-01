@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class AssetFolder {
         public string Name;
 

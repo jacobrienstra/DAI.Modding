@@ -1,4 +1,4 @@
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public enum WorkerStateType {
         WorkerState_InitialImport,
         WorkerState_ExportAllEbx,

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class RenderLayer {
         public string Name;
 

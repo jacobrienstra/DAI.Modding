@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Markup;
 
-using DAI.ModMaker.Properties;
+using DAI.Mod.Maker.Properties;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class MeshImportConfig : Window, IComponentConnector {
         public bool Cancelled { get; set; }
 

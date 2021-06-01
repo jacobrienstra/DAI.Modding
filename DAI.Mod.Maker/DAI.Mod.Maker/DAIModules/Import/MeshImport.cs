@@ -8,12 +8,12 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Properties;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Properties;
+using DAI.Mod.Maker.Utilities;
 
 using AssetUtils = DAI.AssetLibrary.Utilities.Utilities;
 
-namespace DAI.ModMaker.DAIModules.Import {
+namespace DAI.Mod.Maker.DAIModules.Import {
     public class MeshImport : DAIBaseImporter {
         private void ComputeTangentBasis(ref MeshBuffer MeshBuffer) {
             List<SlimDX.Vector3> vector3s = new List<SlimDX.Vector3>();

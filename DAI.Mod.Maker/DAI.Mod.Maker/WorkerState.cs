@@ -1,4 +1,4 @@
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class WorkerState {
         public WorkerStateType Type;
 

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     public static class ReaderHelpers {
         public static Sha1 ReadSha1(this BinaryReader Reader) {
             Sha1 sha = new Sha1();

@@ -1,4 +1,4 @@
-namespace DAI.ModMaker.DAIModules {
+namespace DAI.Mod.Maker.DAIModules {
     public enum DDS_Flags {
         DDSD_CAPS = 1,
         DDSD_HEIGHT = 2,

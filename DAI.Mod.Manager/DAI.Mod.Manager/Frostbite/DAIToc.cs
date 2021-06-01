@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class DAIToc {
         private static readonly byte[] TocHeader = new byte[556]
         {

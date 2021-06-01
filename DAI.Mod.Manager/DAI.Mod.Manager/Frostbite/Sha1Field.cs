@@ -1,8 +1,8 @@
 using System.IO;
 
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class Sha1Field : DAIField {
         public Sha1 Sha1Value;
 

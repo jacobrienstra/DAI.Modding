@@ -1,6 +1,6 @@
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules {
+namespace DAI.Mod.Maker.DAIModules {
     public interface DAIBaseExporter {
         string[] GetAssetTypes();
 

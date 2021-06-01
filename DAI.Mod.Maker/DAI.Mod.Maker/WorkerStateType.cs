@@ -1,4 +1,4 @@
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public enum WorkerStateType {
         WorkerState_InitialImport,
         WorkerState_ExportAllEbx,

@@ -1,4 +1,4 @@
-namespace DAI.ModMaker.DAIModules {
+namespace DAI.Mod.Maker.DAIModules {
     public enum DDS_CAPS {
         DDSCAPS_COMPLEX = 8,
         DDSCAPS_MIPMAP = 0x400000,

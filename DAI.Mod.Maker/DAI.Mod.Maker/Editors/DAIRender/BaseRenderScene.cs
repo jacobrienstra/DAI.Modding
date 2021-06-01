@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 
 using DAI.AssetLibrary.Assets.Bases;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Utilities;
 
 using SlimDX;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class BaseRenderScene : RenderScene {
         protected VertexShader DefaultVertexShader;
 

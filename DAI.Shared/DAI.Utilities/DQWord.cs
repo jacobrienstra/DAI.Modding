@@ -1,4 +1,4 @@
-namespace DAI.ModManager.Utils {
+namespace DAI.Utilities {
     public class DQWord {
         public static DQWord ZeroDQWord = new DQWord(0uL, 0uL);
 

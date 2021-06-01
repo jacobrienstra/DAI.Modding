@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.TexturePreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:flaxon="clr-namespace:Flaxen.SlimDXControlLib" Title="Texture Preview" Height="512" Width="512" ShowInTaskbar="True" WindowStyle="ToolWindow" Topmost="False" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker" Closing="Window_Closing">
+﻿<Window x:Class="DAI.Mod.Maker.TexturePreviewWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:flaxon="clr-namespace:Flaxen.SlimDXControlLib" Title="Texture Preview" Height="512" Width="512" ShowInTaskbar="True" WindowStyle="ToolWindow" Topmost="False" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.Mod.Maker" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="23" />

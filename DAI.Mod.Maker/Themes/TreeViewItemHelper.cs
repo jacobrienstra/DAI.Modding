@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace DAI.ModMaker.Themes {
+namespace DAI.Mod.Maker.Themes {
 
     public static class TreeViewItemHelper {
 

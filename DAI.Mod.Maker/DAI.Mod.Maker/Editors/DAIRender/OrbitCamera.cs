@@ -2,7 +2,7 @@ using System;
 
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class OrbitCamera : Camera {
         private Vector3 eye;
 

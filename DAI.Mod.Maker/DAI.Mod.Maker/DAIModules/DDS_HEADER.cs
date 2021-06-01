@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace DAI.ModMaker.DAIModules {
+namespace DAI.Mod.Maker.DAIModules {
     public struct DDS_HEADER {
         public struct DDS_PIXELFORMAT {
             public int dwSize;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     public class IndexedMultiMap<TKey, TValue> {
         private Dictionary<TKey, List<Tuple<int, TValue>>> map = new Dictionary<TKey, List<Tuple<int, TValue>>>();
 

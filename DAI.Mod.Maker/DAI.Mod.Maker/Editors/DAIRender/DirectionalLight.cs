@@ -1,6 +1,6 @@
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public struct DirectionalLight {
         public Color4 Ambient;
 

@@ -116,6 +116,7 @@
     <Compile Include="DAI.AssetLibrary\Parsers\TocParser.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\Extensions\BinaryReaderExt.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\Extensions\BinaryWriterExt.cs" />
+    <Compile Include="DAI.AssetLibrary\Utilities\Extensions\EbxRefExt.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\Extensions\GuidExt.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\Extensions\StringExt.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\FieldTypes.cs" />

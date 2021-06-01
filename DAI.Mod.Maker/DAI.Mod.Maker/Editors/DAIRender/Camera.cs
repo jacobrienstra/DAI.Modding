@@ -1,6 +1,6 @@
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class Camera {
         public Matrix Proj { get; protected set; }
 

@@ -5,7 +5,7 @@ using Flaxen.SlimDXControlLib;
 using SlimDX;
 using SlimDX.Direct3D11;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class MyRenderEngine : SimpleRenderEngine {
         private Color4 ClearColor;
 

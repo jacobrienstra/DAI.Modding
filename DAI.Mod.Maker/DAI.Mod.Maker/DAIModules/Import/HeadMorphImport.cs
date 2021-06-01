@@ -8,9 +8,9 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.Properties;
+using DAI.Mod.Maker.Properties;
 
-namespace DAI.ModMaker.DAIModules.Import {
+namespace DAI.Mod.Maker.DAIModules.Import {
     public class HeadMorphImport : DAIBaseImporter {
         public string[] GetAssetTypes() {
             return new string[1] { "MorphStatic" };
@@ -28,7 +28,7 @@ namespace DAI.ModMaker.DAIModules.Import {
                 return false;
             }
             byte[] assetPayload = PayloadProvider.GetAssetPayload(res);
-            ResRef resAsset = Library.GetResByResRid(DAI.ModMaker.Utilities.Utilities.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(rootObject.RuntimeHeadBase.Id.FileGuid)).MeshSetResource);
+            ResRef resAsset = Library.GetResByResRid(DAI.Mod.Maker.Utilities.Utilities.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(rootObject.RuntimeHeadBase.Id.FileGuid)).MeshSetResource);
             try {
                 Mesh dAIMesh = Mesh.FromRes(resAsset);
                 if (dAIMesh == null) {

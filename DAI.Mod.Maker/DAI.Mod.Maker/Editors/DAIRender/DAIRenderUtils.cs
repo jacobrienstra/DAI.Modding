@@ -2,7 +2,7 @@ using DAI.AssetLibrary.Assets.Bases;
 
 using SlimDX.DXGI;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public static class DAIRenderUtils {
         public static Format GetPixelFormat(TextureFormat PixelFormat) {
             switch (PixelFormat) {

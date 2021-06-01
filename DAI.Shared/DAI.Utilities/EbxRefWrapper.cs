@@ -1,6 +1,6 @@
 using DAI.AssetLibrary.Assets.References;
 
-namespace DAI.ModMaker.Utilities {
+namespace DAI.Utilities {
     public class EbxRefWrapper {
         public EbxRef Ebx { get; set; }
 

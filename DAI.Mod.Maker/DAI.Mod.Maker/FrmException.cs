@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class FrmException : Form {
         private IContainer components;
 

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class ListField : DAIField {
         public List<DAIEntry> ChildEntries;
 

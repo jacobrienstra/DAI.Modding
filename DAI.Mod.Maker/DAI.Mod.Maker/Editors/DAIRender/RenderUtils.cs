@@ -8,7 +8,7 @@ using SlimDX;
 using SlimDX.D3DCompiler;
 using SlimDX.Direct3D11;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class RenderUtils {
         public static Matrix LinearTransformToMatrix(LinearTransform Transform) {
             Matrix matrix2 = Matrix.RotationQuaternion(LinearTransformToQuat(Transform));
@@ -75,7 +75,7 @@ namespace DAI.ModMaker.DAIRender {
         }
 
         public static void LoadShader(Device Device, string ShaderName, string VSEntry, string PSEntry, out VertexShader OutVS, out PixelShader OutPS, out ShaderSignature OutSignature) {
-            Stream manifestResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DAI.ModMaker.Resources.Shaders." + ShaderName);
+            Stream manifestResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DAI.Mod.Maker.Resources.Shaders." + ShaderName);
             byte[] numArray = new byte[manifestResourceStream.Length - 4];
             manifestResourceStream.Read(numArray, 0, 4);
             manifestResourceStream.Read(numArray, 0, (int)manifestResourceStream.Length - 4);

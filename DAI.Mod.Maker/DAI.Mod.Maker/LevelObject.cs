@@ -1,6 +1,6 @@
 using SlimDX;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class LevelObject {
         public string Name;
 

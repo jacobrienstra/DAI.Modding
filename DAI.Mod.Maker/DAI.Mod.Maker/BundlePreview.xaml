@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.BundlePreview" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="BundlePreview" Height="420" Width="600" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker" Loaded="Window_Loaded">
+﻿<Window x:Class="DAI.Mod.Maker.BundlePreview" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="BundlePreview" Height="420" Width="600" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.Mod.Maker;assembly=DAI.Mod.Maker" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="13*" />

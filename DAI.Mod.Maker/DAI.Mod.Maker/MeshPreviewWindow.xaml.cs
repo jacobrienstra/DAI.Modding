@@ -12,10 +12,10 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
-using DAI.ModMaker.DAIRender;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.DAIRender;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class MeshPreviewWindow : Window, IComponentConnector {
         private MeshRenderScene RenderScene;
 

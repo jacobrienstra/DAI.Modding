@@ -1,6 +1,6 @@
 ﻿using DAI.Mod;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class PatchPayloadData {
         public ModJob Mod { get; set; }
 

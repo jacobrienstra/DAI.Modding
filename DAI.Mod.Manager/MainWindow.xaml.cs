@@ -12,10 +12,10 @@ using System.Windows.Shell;
 using System.Windows.Threading;
 
 using DAI.Mod;
-using DAI.ModManager.Frostbite;
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Frostbite;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager {
+namespace DAI.Mod.Manager {
     public partial class MainWindow : Window, IComponentConnector {
         public BackgroundWorker BGWorker;
 

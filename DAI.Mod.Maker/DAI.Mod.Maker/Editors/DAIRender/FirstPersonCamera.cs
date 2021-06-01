@@ -2,7 +2,7 @@ using System;
 
 using SlimDX;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class FirstPersonCamera : Camera {
         private Frustum CameraFrustum;
 

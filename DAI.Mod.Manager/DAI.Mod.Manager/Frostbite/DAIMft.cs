@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class DAIMft {
         private Dictionary<string, object> KeyValues;
 

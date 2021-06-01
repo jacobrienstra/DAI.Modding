@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class DAIEntry {
         public byte EntryType;
 

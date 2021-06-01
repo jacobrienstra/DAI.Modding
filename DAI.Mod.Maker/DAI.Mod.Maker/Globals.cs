@@ -6,7 +6,7 @@ using System.Threading;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     internal static class Globals {
         internal static EbxRef SelectedAsset;
 

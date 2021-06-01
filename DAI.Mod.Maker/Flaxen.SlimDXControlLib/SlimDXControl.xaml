@@ -1,3 +1,3 @@
-﻿<ContentControl x:Class="Flaxen.SlimDXControlLib.SlimDXControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:slimdxcontrollib="clr-namespace:Flaxen.SlimDXControlLib;assembly=DAI.ModMaker">
+﻿<ContentControl x:Class="Flaxen.SlimDXControlLib.SlimDXControl" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:slimdxcontrollib="clr-namespace:Flaxen.SlimDXControlLib;assembly=DAI.Mod.Maker">
     <Image Name="x_image" Stretch="None" />
 </ContentControl>

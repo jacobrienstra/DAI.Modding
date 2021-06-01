@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     public class EqualityComparer<T> : IEqualityComparer<T> {
         public Func<T, T, bool> cmp { get; set; }
 

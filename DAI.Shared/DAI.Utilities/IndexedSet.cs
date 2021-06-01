@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     internal class IndexedSet<T> {
         private Dictionary<T, int> set = new Dictionary<T, int>();
 

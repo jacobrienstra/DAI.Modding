@@ -7,7 +7,7 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules.Export {
+namespace DAI.Mod.Maker.DAIModules.Export {
     public class TextureExport : DAIBaseExporter {
         public Dictionary<TextureFormat, int> PixelFormatTypes = new Dictionary<TextureFormat, int>
         {

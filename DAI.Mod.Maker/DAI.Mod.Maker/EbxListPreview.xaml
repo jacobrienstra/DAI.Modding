@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.EbxListPreview" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EbxListPreview" Height="300" Width="300" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+﻿<Window x:Class="DAI.Mod.Maker.EbxListPreview" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EbxListPreview" Height="300" Width="300" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.Mod.Maker;assembly=DAI.Mod.Maker">
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="227*" />

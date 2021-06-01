@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class DAITreeViewItem : TreeViewItem {
         public object UserData;
 

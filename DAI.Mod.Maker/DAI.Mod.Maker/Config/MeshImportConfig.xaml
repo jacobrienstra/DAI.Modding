@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.MeshImportConfig" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Import Config" Height="181" Width="300" Background="#FFF0F0F0" WindowStyle="ToolWindow" ResizeMode="NoResize" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+﻿<Window x:Class="DAI.Mod.Maker.MeshImportConfig" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Import Config" Height="181" Width="300" Background="#FFF0F0F0" WindowStyle="ToolWindow" ResizeMode="NoResize" xmlns:modmaker="clr-namespace:DAI.Mod.Maker;assembly=DAI.Mod.Maker">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

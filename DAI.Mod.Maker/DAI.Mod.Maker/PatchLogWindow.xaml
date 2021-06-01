@@ -1,4 +1,4 @@
-﻿<Window x:Class="DAI.ModMaker.PatchLogWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="PatchLog" Height="500" Width="420" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.ModMaker;assembly=DAI.ModMaker">
+﻿<Window x:Class="DAI.Mod.Maker.PatchLogWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="PatchLog" Height="500" Width="420" Background="#FFF0F0F0" xmlns:modmaker="clr-namespace:DAI.Mod.Maker;assembly=DAI.Mod.Maker">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

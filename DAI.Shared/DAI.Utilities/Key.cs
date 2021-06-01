@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Security.Cryptography;
+﻿using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace DAI.Utilities {
     class Key {

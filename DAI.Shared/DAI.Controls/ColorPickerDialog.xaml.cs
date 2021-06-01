@@ -2,7 +2,7 @@
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace DAI.ModMaker.Controls {
+namespace DAI.Mod.Maker.Controls {
     public partial class ColorPickerDialog : Window, IComponentConnector {
 
         public Color SelectedColor => Color.FromArgb((byte)AlphaSlider.Value, (byte)RedSlider.Value, (byte)GreenSlider.Value, (byte)BlueSlider.Value);

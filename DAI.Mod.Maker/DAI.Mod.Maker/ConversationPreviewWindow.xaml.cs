@@ -7,10 +7,10 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
 using DAI.FrostbiteAssets.Enums;
-using DAI.ModMaker.Properties;
-using DAI.ModMaker.Utilities;
+using DAI.Mod.Maker.Properties;
+using DAI.Mod.Maker.Utilities;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class ConversationPreviewWindow : Window, IComponentConnector {
         private AssetContainer _Container;
 

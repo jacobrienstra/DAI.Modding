@@ -1,4 +1,4 @@
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     public class LoadingProgressState {
         public bool UpdateStatus;
 

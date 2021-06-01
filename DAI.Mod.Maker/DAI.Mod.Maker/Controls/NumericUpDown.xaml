@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" xmlns:ctl="clr-namespace:DAI.ModMaker.Controls">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase" xmlns:ctl="clr-namespace:DAI.Mod.Maker.Controls">
     <SolidColorBrush x:Key="BorderBrushHover" Color="#CCCCCC" />
     <SolidColorBrush x:Key="BorderBrushClick" Color="#999999" />
     <Style x:Key="UpButton" TargetType="{x:Type RepeatButton}">

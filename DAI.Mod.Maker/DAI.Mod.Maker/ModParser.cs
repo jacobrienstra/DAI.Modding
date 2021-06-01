@@ -13,7 +13,7 @@ using DAI.AssetLibrary.Parsers;
 using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 
-namespace DAI.Mod {
+namespace DAI.Mod.Maker {
     internal static class ModParser {
         internal static ModJob DoOpenPatch(string patchPath, bool isImport, out List<string> errors) {
             ModJob job = null;
@@ -347,7 +347,7 @@ namespace DAI.Mod {
                             LogicalSize = chunkAsset.LogicalSize,
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             ChunkH32 = (chunkAsset.H32.HasValue ? chunkAsset.H32.Value : 0),
-                            Meta = DAI.ModMaker.Utilities.Utilities.MetaToString(chunkAsset.Meta),
+                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(chunkAsset.Meta),
                             PatchType = (byte)((chunkAsset.CasPatchType == 0) ? 1 : ((byte)chunkAsset.CasPatchType)),
                             OriginalSha1 = mod.Data[mod.Data.Count - 1].ToSha1()
                         };
@@ -385,7 +385,7 @@ namespace DAI.Mod {
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.ModMaker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
+                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
                             PatchType = (byte)((resAsset1.CasPatchType == 0) ? 1 : ((byte)resAsset1.CasPatchType))
                         };
                         if (resAsset1.IsDelta) {
@@ -406,7 +406,7 @@ namespace DAI.Mod {
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.ModMaker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
+                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
                             PatchType = 1
                         };
                         foreach (SubBundleRef sb2 in resAsset1.ParentSbs) {

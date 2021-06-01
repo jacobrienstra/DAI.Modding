@@ -5,7 +5,7 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules.Export {
+namespace DAI.Mod.Maker.DAIModules.Export {
     public class ScaleformExport : DAIBaseExporter {
         public string[] GetAssetTypes() {
             return new string[2] { "UIAsset", "UIWidgetAsset" };

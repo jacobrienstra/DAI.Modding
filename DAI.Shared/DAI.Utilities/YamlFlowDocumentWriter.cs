@@ -6,9 +6,9 @@ using System.Windows.Media;
 
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Utilities;
-using DAI.ModMaker.Controls;
+using DAI.Mod.Maker.Controls;
 
-namespace DAI.ModMaker.Utilities {
+namespace DAI.Utilities {
     public class YamlFlowDocumentWriter : IStructuredWriter, IDisposable {
         private FlowDocument _document;
 

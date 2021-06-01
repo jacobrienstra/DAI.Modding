@@ -1,6 +1,6 @@
 using System;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Mod.Manager.Utils {
     public class LazyDisposable<T> : IDisposable where T : IDisposable {
         private Lazy<T> _value;
 

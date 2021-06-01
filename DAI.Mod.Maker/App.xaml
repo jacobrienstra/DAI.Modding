@@ -1,7 +1,7 @@
-﻿<Application x:Class="DAI.ModMaker.App"
+﻿<Application x:Class="DAI.Mod.Maker.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:DAI.ModMaker"
+             xmlns:local="clr-namespace:DAI.Mod.Maker"
              StartupUri="RoslynPad/ScriptEditor.xaml">
     <Application.Resources>
         <ResourceDictionary>

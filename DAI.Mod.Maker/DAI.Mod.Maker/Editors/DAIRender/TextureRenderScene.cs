@@ -7,7 +7,7 @@ using SlimDX;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class TextureRenderScene : RenderScene {
         private Texture TextureToDraw;
 

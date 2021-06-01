@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public class LevelLayer {
         public string Name;
 

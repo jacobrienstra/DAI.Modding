@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class PatchLogWindow : Window, IComponentConnector {
         public PatchLogWindow(List<string> InLogEntries) {
             InitializeComponent();

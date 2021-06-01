@@ -5,7 +5,7 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
 
-namespace DAI.ModMaker.DAIModules.Import {
+namespace DAI.Mod.Maker.DAIModules.Import {
     public class ScaleformImport : DAIBaseImporter {
         public string[] GetAssetTypes() {
             return new string[2] { "UIAsset", "UIWidgetAsset" };

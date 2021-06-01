@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace DAI.ModMaker.DAIRender {
+namespace DAI.Mod.Maker.DAIRender {
     public class GameTimer {
         private readonly double _secondsPerCount;
 

@@ -1,8 +1,8 @@
 using System.IO;
 
-using DAI.ModManager.Utils;
+using DAI.Mod.Manager.Utils;
 
-namespace DAI.ModManager.Frostbite {
+namespace DAI.Mod.Manager.Frostbite {
     public class StringField : DAIField {
         public string StringValue;
 

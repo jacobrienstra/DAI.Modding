@@ -5,9 +5,9 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 using DAI.AssetLibrary.Assets.Bases;
-using DAI.ModMaker.DAIRender;
+using DAI.Mod.Maker.DAIRender;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class TexturePreviewWindow : Window, IComponentConnector {
         private Dictionary<TextureFormat, string> TextureFormatNames = new Dictionary<TextureFormat, string>
         {

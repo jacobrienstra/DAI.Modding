@@ -1,6 +1,8 @@
 using System;
+using System.Security.Cryptography;
 
-namespace DAI.ModManager.Utils {
+namespace DAI.Utilities {
+
     public class Sha1 {
         public static Sha1 ZeroSha1 = new Sha1();
 
@@ -65,6 +67,18 @@ namespace DAI.ModManager.Utils {
                 num = num2;
             }
             return text;
+        }
+
+        public static Sha1 CalculateSha1(byte[] InData) {
+            byte[] values;
+            using (SHA1CryptoServiceProvider sHA1CryptoServiceProvider = new SHA1CryptoServiceProvider()) {
+                values = sHA1CryptoServiceProvider.ComputeHash(InData);
+            }
+            return new Sha1(values);
+        }
+
+        public static Sha1 CalculateStringSha1(string InData) {
+            return CalculateSha1(Encoding.UTF8.GetBytes(InData));
         }
     }
 }

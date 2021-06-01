@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 using DAI.AssetLibrary.Assets.Bases;
 
-namespace DAI.ModMaker.Controls {
+namespace DAI.Mod.Maker.Controls {
     public class NumericUpDown : Control {
         private EbxField _backingField;
 

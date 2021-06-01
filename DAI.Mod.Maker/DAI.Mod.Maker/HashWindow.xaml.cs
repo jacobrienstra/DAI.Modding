@@ -4,7 +4,7 @@ using System.Windows.Markup;
 
 using DAI.AssetLibrary.Utilities.Extensions;
 
-namespace DAI.ModMaker {
+namespace DAI.Mod.Maker {
     public partial class HashWindow : Window, IComponentConnector {
         public HashWindow() {
             InitializeComponent();

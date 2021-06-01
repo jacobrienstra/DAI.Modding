@@ -1,0 +1,585 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BA384A90-349B-405C-882E-A3CAAED5A7DF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>DAI.Mod.Maker</RootNamespace>
+    <AssemblyName>DAI.Mod.Maker</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <NoWarn>CS8632;</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <EmbeddedResource Include="Resources\BlankTemplate.cs" />
+    <Compile Include="DAI.Mod.Maker\Controls\AssetPicker.xaml.cs">
+      <DependentUpon>AssetPicker.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Controls\HexEditor.xaml.cs">
+      <DependentUpon>HexEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Controls\NumericUpDown.xaml.cs">
+      <DependentUpon>NumericUpDown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ModParser.cs" />
+    <Compile Include="DAI.Mod.Maker\PatchPayloadData.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RoslynPad\AppDispatcher.cs" />
+    <Compile Include="RoslynPad\Controls\TreeListView.cs" />
+    <Compile Include="RoslynPad\Converters\DoubleToPercentageTextConverter.cs" />
+    <Compile Include="RoslynPad\FolderBrowserDialogAdapter.cs" />
+    <Compile Include="RoslynPad\Formatting\BooleanToVisibilityConverter.cs" />
+    <Compile Include="RoslynPad\Formatting\CodeActionsConverter.cs" />
+    <Compile Include="RoslynPad\Formatting\CodeActionToGlyphConverter.cs" />
+    <Compile Include="RoslynPad\Formatting\DocumentCollectionViewConverter.cs" />
+    <Compile Include="RoslynPad\GlobalSuppressions.cs" />
+    <Compile Include="RoslynPad\MainViewModel.cs" />
+    <Compile Include="RoslynPad\ScriptEditor.xaml.cs">
+      <DependentUpon>ScriptEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RoslynPad\OpenFileDialogAdapter.cs" />
+    <Compile Include="RoslynPad\RenameSymbolDialog.xaml.cs">
+      <DependentUpon>RenameSymbolDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RoslynPad\RoslynDocumentTrackingServiceFactory.cs" />
+    <Compile Include="RoslynPad\SaveDocumentDialog.xaml.cs">
+      <DependentUpon>SaveDocumentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RoslynPad\SaveFileDialogAdapter.cs" />
+    <Compile Include="RoslynPad\TelemetryProvider.cs" />
+    <Compile Include="RoslynPad\XamlTypes.cs" />
+    <Compile Include="Themes\PressHelper.cs" />
+    <Compile Include="Themes\TreeViewItemHelper.cs" />
+    <Page Include="DAI.Mod.Maker\AdvModConfiguration.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\BundlePreview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ChunkListPreview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Config\MeshExportConfig.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Config\MeshImportConfig.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Controls\AssetPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Controls\HexEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Controls\NumericUpDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ConversationPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\EbxListPreview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\EbxPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\Editors\TalktableEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\HashWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\LevelDataPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\LootTablePreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\MeshPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ModConfiguration.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\PatchLogWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\PrefabBlueprintPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ReferenceSearchWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ResourceListPreview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\ScaleformPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\SearchWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\SoundPreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\TestModConfigWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Mod.Maker\TexturePreviewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Flaxen.SlimDXControlLib\SlimDXControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\AdvModConfiguration.xaml.cs">
+      <DependentUpon>AdvModConfiguration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\AssetFolder.cs" />
+    <Compile Include="DAI.Mod.Maker\BundlePreview.xaml.cs">
+      <DependentUpon>BundlePreview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ChunkListPreview.xaml.cs">
+      <DependentUpon>ChunkListPreview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Config\MeshExportConfig.xaml.cs">
+      <DependentUpon>MeshExportConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Config\MeshImportConfig.xaml.cs">
+      <DependentUpon>MeshImportConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ConversationPreviewWindow.xaml.cs">
+      <DependentUpon>ConversationPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\DAIModules\DAIBaseExporter.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DAIBaseImporter.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DAIBasePreviewer.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DAIModuleManager.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DDS_CAPS.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DDS_Flags.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\DDS_HEADER.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\HeadMorphExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\ScaleformExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\ScriptExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\SkinnedMeshExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\StaticMeshExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Export\TextureExport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Import\HeadMorphImport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Import\MeshImport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Import\ScaleformImport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Import\ScriptImporter.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Import\TextureImport.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\ConversationPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\HeadMorphPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\LevelDataPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\LootTablePreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\MeshPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\PrefabBlueprintPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\ScaleformPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\SoundPreview.cs" />
+    <Compile Include="DAI.Mod.Maker\DAIModules\Preview\TexturePreview.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\BaseRenderScene.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Camera.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\DAIRenderUtils.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\DirectionalLight.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\FirstPersonCamera.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Frustum.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\GameTimer.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\GridVertex.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\LevelRenderScene.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Material.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\MeshRenderScene.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\MyRenderEngine.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Octree.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\OctreeBranch.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\OrbitCamera.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\QuadVertex.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\RenderLayer.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\RenderMesh.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\RenderScene.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\RenderSubLayer.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\RenderUtils.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\TextureRenderScene.cs" />
+    <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Vertex.cs" />
+    <Compile Include="DAI.Mod.Maker\DAITreeViewItem.cs" />
+    <Compile Include="DAI.Mod.Maker\EbxListPreview.xaml.cs">
+      <DependentUpon>EbxListPreview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\EbxPreviewWindow.xaml.cs">
+      <DependentUpon>EbxPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Editors\TalktableEditor.xaml.cs">
+      <DependentUpon>TalktableEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\FrmException.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\FrmException.Designer.cs">
+      <DependentUpon>FrmException.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\Globals.cs" />
+    <Compile Include="DAI.Mod.Maker\HashWindow.xaml.cs">
+      <DependentUpon>HashWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\LevelDataPreviewWindow.xaml.cs">
+      <DependentUpon>LevelDataPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\LevelLayer.cs" />
+    <Compile Include="DAI.Mod.Maker\LevelObject.cs" />
+    <Compile Include="DAI.Mod.Maker\LoadingProgressState.cs" />
+    <Compile Include="DAI.Mod.Maker\LootTablePreviewWindow.xaml.cs">
+      <DependentUpon>LootTablePreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\MeshPreviewWindow.xaml.cs">
+      <DependentUpon>MeshPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ModConfiguration.xaml.cs">
+      <DependentUpon>ModConfiguration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\PatchLogWindow.xaml.cs">
+      <DependentUpon>PatchLogWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\PrefabBlueprintPreviewWindow.xaml.cs">
+      <DependentUpon>PrefabBlueprintPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ReferenceSearchWindow.xaml.cs">
+      <DependentUpon>ReferenceSearchWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ResourceListPreview.xaml.cs">
+      <DependentUpon>ResourceListPreview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\ScaleformPreviewWindow.xaml.cs">
+      <DependentUpon>ScaleformPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\SearchWindow.xaml.cs">
+      <DependentUpon>SearchWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\SoundPreviewWindow.xaml.cs">
+      <DependentUpon>SoundPreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\TestModConfigWindow.xaml.cs">
+      <DependentUpon>TestModConfigWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\TexturePreviewWindow.xaml.cs">
+      <DependentUpon>TexturePreviewWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAI.Mod.Maker\WorkerState.cs" />
+    <Compile Include="DAI.Mod.Maker\WorkerStateType.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\ColorRamp.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\D3DDeviceManager.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\D3DImageSlimDX.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\RenderEngine.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\SimpleRenderEngine.cs" />
+    <Compile Include="Flaxen.SlimDXControlLib\SlimDXControl.xaml.cs">
+      <DependentUpon>SlimDXControl.xaml</DependentUpon>
+    </Compile>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RoslynPad\ScriptEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RoslynPad\RenameSymbolDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RoslynPad\SaveDocumentDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Button.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Icons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Modern.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\TabControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\TreeView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="DAI.Mod.Maker\FrmException.resx">
+      <DependentUpon>FrmException.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="App.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ealayer3.exe" />
+    <EmbeddedResource Include="Resources\libmpg123.dll" />
+    <EmbeddedResource Include="Resources\Shaders.Grid.fx" />
+    <EmbeddedResource Include="Resources\Shaders.MiniTri.fx" />
+    <EmbeddedResource Include="Resources\Shaders.Texture.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DAI.AssetLibrary\DAI.AssetLibrary.csproj">
+      <Project>{41c653ca-5795-4144-b7a4-8c8d3c732470}</Project>
+      <Name>DAI.AssetLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAI.FrostbiteAssets\DAI.FrostbiteAssets.csproj">
+      <Project>{2556553e-1461-49ea-8a0b-4df654f2bd98}</Project>
+      <Name>DAI.FrostbiteAssets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{7208e169-0496-4b89-b7c9-2ac5ae553e77}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Build\RoslynPad.Build.csproj">
+      <Project>{f08fae8e-9243-403a-8aef-0459ea179ea6}</Project>
+      <Name>RoslynPad.Build</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Common.UI\RoslynPad.Common.UI.csproj">
+      <Project>{806b451f-7ae9-4420-81e5-4f6e39dc2373}</Project>
+      <Name>RoslynPad.Common.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Editor.Windows\RoslynPad.Editor.Windows.csproj">
+      <Project>{9dc5b868-5412-40ff-b956-7d65c794c423}</Project>
+      <Name>RoslynPad.Editor.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Roslyn.Windows\RoslynPad.Roslyn.Windows.csproj">
+      <Project>{b1fa28e5-a94d-4a8e-ba15-cbea91ed8ef4}</Project>
+      <Name>RoslynPad.Roslyn.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime.Compat50\RoslynPad.Runtime.Compat50.csproj">
+      <Project>{62b68d5e-4bee-4bbd-b940-d23f52d8471e}</Project>
+      <Name>RoslynPad.Runtime.Compat50</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPad.Runtime\RoslynPad.Runtime.csproj">
+      <Project>{22ce2efc-3069-41a8-aead-116b99287303}</Project>
+      <Name>RoslynPad.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RoslynPan.Roslyn\RoslynPad.Roslyn.csproj">
+      <Project>{af8e31d3-fa5c-4be9-ac29-e161120d8583}</Project>
+      <Name>RoslynPad.Roslyn</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonLibrary">
+      <Version>2.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="Be.Windows.Forms.HexBox">
+      <Version>1.6.1</Version>
+    </PackageReference>
+    <PackageReference Include="Dirkster.AvalonDock">
+      <Version>4.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="ICSharpCode.SharpZipLib.dll">
+      <Version>0.85.4.369</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.ApplicationInsights">
+      <Version>2.8.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.DiaSymReader.Native">
+      <Version>1.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json">
+      <Version>3.1.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.Platforms">
+      <Version>5.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Mono.Cecil">
+      <Version>0.10.1</Version>
+    </PackageReference>
+    <PackageReference Include="NETStandard.Library">
+      <Version>2.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="SlimDX">
+      <Version>4.0.13.44</Version>
+    </PackageReference>
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="zlib.net">
+      <Version>1.0.4</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

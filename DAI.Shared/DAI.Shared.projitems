@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f69f5ae7-bfb8-43c9-81d7-a11b4176be07</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>DAI.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Controls\ColorPickerDialog.xaml.cs">
+      <DependentUpon>ColorPickerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\ChunkModResourceEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\Color.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\EbxModResourceEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModBundle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModBundleEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\UI\ModConfigElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\UI\ModConfigElementsList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModDetail.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModJob.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModMetaData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModReq.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\ModResourceEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ModScript.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\ResModResourceEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Mod\Scripting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\DQWord.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\EbxRefWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\EqualityComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\File.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\ImportCompressData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\IndexedMultiMap.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\IndexedSet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Key.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\LazyDisposable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\LoadingProgressState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\NumericExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\ReaderHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Sha1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\String.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Util.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Utilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\Vector4.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAI.Utilities\YamlFlowDocumentWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)DAI.Mod\" />
+    <Folder Include="$(MSBuildThisFileDirectory)DAI.Mod\UI\" />
+    <Folder Include="$(MSBuildThisFileDirectory)DAI.Mod\ResourceEntry\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)DAI.Controls\ColorPickerDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+</Project>

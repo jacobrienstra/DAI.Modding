@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="DAI.ModManager.ProgressWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Merging..." 
+        Height="410" 
+        Width="564" 
+        WindowStyle="ToolWindow" 
+        Background="#FFF0F0F0" 
+        WindowStartupLocation="CenterScreen" 
+        Closing="Window_Closing">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo />
+    </Window.TaskbarItemInfo>
+    <Grid>
+        <TextBox Name="StatusTextBox" Margin="10,10,10,58" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" />
+        <ProgressBar Name="StatusProgressBar" Margin="10,0,10,30" Height="23" VerticalAlignment="Bottom" />
+        <Button Name="CloseWindowButton" Content="Close" Margin="189,0,192,5" Height="20" VerticalAlignment="Bottom" IsEnabled="False" Click="CloseWindowButton_Click" />
+        <TextBlock Name="StatusTextBlock" Margin="10,0,10,35" TextWrapping="NoWrap" VerticalAlignment="Bottom" TextAlignment="Center" />
+    </Grid>
+</Window>

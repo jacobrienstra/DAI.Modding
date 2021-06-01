@@ -1,0 +1,26 @@
+using System.IO;
+
+using DAI.ModManager.Utils;
+
+namespace DAI.ModManager.Frostbite {
+    public class Sha1Field : DAIField {
+        public Sha1 Sha1Value;
+
+        public Sha1Field() {
+            DataType = 16;
+        }
+
+        public override int GetSize() {
+            return base.GetSize() + 20;
+        }
+
+        public override void Write(BinaryWriter Writer) {
+            base.Write(Writer);
+            Writer.Write(Sha1Value);
+        }
+
+        public override string ToString() {
+            return "{" + Sha1Value.ToString() + "}";
+        }
+    }
+}

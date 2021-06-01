@@ -1,6 +1,6 @@
 using System.IO;
 
-using DAI.Mod.Manager.Utils;
+using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
     public class StringField : DAIField {

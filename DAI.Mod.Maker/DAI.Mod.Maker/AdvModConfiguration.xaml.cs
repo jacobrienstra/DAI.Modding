@@ -8,7 +8,7 @@ using DAI.Mod;
 
 using Microsoft.Win32;
 
-using AssetLibUtilUtil = DAI.AssetLibrary.Utilities.Utilities;
+using DAI.AssetLibrary.Utilities;
 
 namespace DAI.Mod.Maker {
     public partial class AdvModConfiguration : Window, IComponentConnector {

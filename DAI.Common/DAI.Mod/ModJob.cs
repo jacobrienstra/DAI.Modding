@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Web;
 using System.Xml;
 
 using DAI.AssetLibrary.Utilities.Extensions;
-// TODO: Reconcile with OG manager
+
 namespace DAI.Mod {
     public class ModJob {
         public string Name { get; set; }
@@ -27,8 +27,8 @@ namespace DAI.Mod {
 
         public ModJob(string InName, string InXml, string InScript) {
             Name = InName;
-            Script = InScript;
             Xml = InXml;
+            Script = InScript;
             Data = new List<byte[]>();
         }
 
@@ -49,12 +49,11 @@ namespace DAI.Mod {
                     modJob.Xml = binaryReader.ReadNullTerminatedString();
                     modJob.Script = binaryReader.ReadNullTerminatedString();
                     modJob.ScriptObject = Scripting.GetModScriptObject(modJob.Script);
-
-                    int num1 = binaryReader.ReadInt32();
-                    for (int i = 0; i < num1; i++) {
-                        int num2 = binaryReader.ReadInt32();
-                        byte[] numArray = new byte[num2];
-                        binaryReader.BaseStream.Read(numArray, 0, num2);
+                    int num = binaryReader.ReadInt32();
+                    for (int i = 0; i < num; i++) {
+                        int num1 = binaryReader.ReadInt32();
+                        byte[] numArray = new byte[num1];
+                        binaryReader.BaseStream.Read(numArray, 0, num1);
                         modJob.Data.Add(numArray);
                     }
                 }
@@ -106,12 +105,12 @@ namespace DAI.Mod {
                         }
                         break;
                     case "bundles":
-                        foreach (XmlNode xmlNodes2 in childNode.ChildNodes) {
-                            if (xmlNodes2.Name != "bundle") {
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
+                            if (xmlNodes.Name != "bundle") {
                                 continue;
                             }
                             ModBundle modBundle = new ModBundle();
-                            foreach (XmlAttribute xmlAttribute in xmlNodes2.Attributes) {
+                            foreach (XmlAttribute xmlAttribute in xmlNodes.Attributes) {
                                 string attributeName = xmlAttribute.Name;
                                 if (attributeName != null) {
                                     switch (attributeName.ToLower()) {
@@ -139,7 +138,7 @@ namespace DAI.Mod {
                                     }
                                 }
                             }
-                            foreach (XmlNode item in xmlNodes2.ChildNodes[0]) {
+                            foreach (XmlNode item in xmlNodes.ChildNodes[0]) {
                                 ModBundleEntry modBundleEntry = new ModBundleEntry();
                                 foreach (XmlAttribute attribute1 in item.Attributes) {
                                     string name4 = attribute1.Name;
@@ -152,21 +151,35 @@ namespace DAI.Mod {
                             Meta.Bundles.Add(modBundle);
                         }
                         break;
+                    case "copyfiles":
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
+                            string name = xmlNodes.Name;
+                            if (name != "file") {
+                                continue;
+                            }
+                            foreach (XmlAttribute attribute in xmlNodes.Attributes) {
+                                string name2 = attribute.Name;
+                                if (name2 == "name") {
+                                    Meta.CopyFiles.Add(attribute.Value);
+                                }
+                            }
+                        }
+                        break;
                 }
             }
-            foreach (XmlAttribute xmlAttribute2 in xmlDocument.ChildNodes[0].Attributes) {
-                switch (xmlAttribute2.Name) {
+            foreach (XmlAttribute xmlAttribute in xmlDocument.ChildNodes[0].Attributes) {
+                switch (xmlAttribute.Name) {
                     case "version":
-                        Meta.FormatVersion = Convert.ToByte(xmlAttribute2.Value);
+                        Meta.FormatVersion = Convert.ToByte(xmlAttribute.Value);
                         break;
                     case "id":
-                        Meta.ID = xmlAttribute2.Value;
+                        Meta.ID = xmlAttribute.Value;
                         break;
                     case "minPatchVersion":
-                        Meta.MinPatchVersion = Convert.ToByte(xmlAttribute2.Value);
+                        Meta.MinPatchVersion = Convert.ToByte(xmlAttribute.Value);
                         break;
                     case "toolSet":
-                        Meta.ToolSetVersion = Convert.ToInt32(xmlAttribute2.Value);
+                        Meta.ToolSetVersion = Convert.ToInt32(xmlAttribute.Value);
                         break;
                 }
             }

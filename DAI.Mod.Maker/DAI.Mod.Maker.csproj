@@ -125,7 +125,7 @@
     <Compile Include="DAI.Mod.Maker\ModParser.cs" />
     <Compile Include="DAI.Mod.Maker\PatchPayloadData.cs" />
     <Compile Include="DAI.Mod.Maker\Utilities\EbxRefWrapper.cs" />
-    <Compile Include="DAI.Mod.Maker\Utilities\Utilities.cs" />
+    <Compile Include="DAI.Mod.Maker\Utilities\Utils.cs" />
     <Compile Include="DAI.Mod.Maker\Utilities\YamlFlowDocumentWriter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -160,11 +160,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\BundlePreview.xaml">
+    <Page Include="DAI.Mod.Maker\Preview\BundlePreview.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\ChunkListPreview.xaml">
+    <Page Include="DAI.Mod.Maker\Preview\ChunkListPreview.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -188,15 +188,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\ConversationPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\ConversationPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\EbxListPreview.xaml">
+    <Page Include="DAI.Mod.Maker\Preview\EbxListPreview.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\EbxPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\EbxPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -204,19 +204,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\HashWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\HashWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\LevelDataPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\LevelDataPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\LootTablePreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\LootTablePreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\MeshPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\MeshPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -224,39 +224,39 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\PatchLogWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\PatchLogWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\PrefabBlueprintPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\PrefabBlueprintPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\ReferenceSearchWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\ReferenceSearchWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\ResourceListPreview.xaml">
+    <Page Include="DAI.Mod.Maker\Preview\ResourceListPreview.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\ScaleformPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\ScaleformPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\SearchWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\SearchWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\SoundPreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\SoundPreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\TestModConfigWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\TestModConfigWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DAI.Mod.Maker\TexturePreviewWindow.xaml">
+    <Page Include="DAI.Mod.Maker\Windows\TexturePreviewWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -272,10 +272,10 @@
       <DependentUpon>AdvModConfiguration.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\AssetFolder.cs" />
-    <Compile Include="DAI.Mod.Maker\BundlePreview.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Preview\BundlePreview.xaml.cs">
       <DependentUpon>BundlePreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\ChunkListPreview.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Preview\ChunkListPreview.xaml.cs">
       <DependentUpon>ChunkListPreview.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\Config\MeshExportConfig.xaml.cs">
@@ -284,7 +284,7 @@
     <Compile Include="DAI.Mod.Maker\Config\MeshImportConfig.xaml.cs">
       <DependentUpon>MeshImportConfig.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\ConversationPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\ConversationPreviewWindow.xaml.cs">
       <DependentUpon>ConversationPreviewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\DAIModules\DAIBaseExporter.cs" />
@@ -338,10 +338,10 @@
     <Compile Include="DAI.Mod.Maker\Editors\DAIRender\TextureRenderScene.cs" />
     <Compile Include="DAI.Mod.Maker\Editors\DAIRender\Vertex.cs" />
     <Compile Include="DAI.Mod.Maker\DAITreeViewItem.cs" />
-    <Compile Include="DAI.Mod.Maker\EbxListPreview.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Preview\EbxListPreview.xaml.cs">
       <DependentUpon>EbxListPreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\EbxPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\EbxPreviewWindow.xaml.cs">
       <DependentUpon>EbxPreviewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\Editors\TalktableEditor.xaml.cs">
@@ -354,48 +354,48 @@
       <DependentUpon>FrmException.cs</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\Globals.cs" />
-    <Compile Include="DAI.Mod.Maker\HashWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\HashWindow.xaml.cs">
       <DependentUpon>HashWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\LevelDataPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\LevelDataPreviewWindow.xaml.cs">
       <DependentUpon>LevelDataPreviewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\LevelLayer.cs" />
     <Compile Include="DAI.Mod.Maker\LevelObject.cs" />
-    <Compile Include="DAI.Mod.Maker\LootTablePreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\LootTablePreviewWindow.xaml.cs">
       <DependentUpon>LootTablePreviewWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\MeshPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\MeshPreviewWindow.xaml.cs">
       <DependentUpon>MeshPreviewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\ModConfiguration.xaml.cs">
       <DependentUpon>ModConfiguration.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\PatchLogWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\PatchLogWindow.xaml.cs">
       <DependentUpon>PatchLogWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\PrefabBlueprintPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\PrefabBlueprintPreviewWindow.xaml.cs">
       <DependentUpon>PrefabBlueprintPreviewWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\ReferenceSearchWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\ReferenceSearchWindow.xaml.cs">
       <DependentUpon>ReferenceSearchWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\ResourceListPreview.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Preview\ResourceListPreview.xaml.cs">
       <DependentUpon>ResourceListPreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\ScaleformPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\ScaleformPreviewWindow.xaml.cs">
       <DependentUpon>ScaleformPreviewWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\SearchWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\SearchWindow.xaml.cs">
       <DependentUpon>SearchWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\SoundPreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\SoundPreviewWindow.xaml.cs">
       <DependentUpon>SoundPreviewWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\TestModConfigWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\TestModConfigWindow.xaml.cs">
       <DependentUpon>TestModConfigWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DAI.Mod.Maker\TexturePreviewWindow.xaml.cs">
+    <Compile Include="DAI.Mod.Maker\Windows\TexturePreviewWindow.xaml.cs">
       <DependentUpon>TexturePreviewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Maker\WorkerState.cs" />

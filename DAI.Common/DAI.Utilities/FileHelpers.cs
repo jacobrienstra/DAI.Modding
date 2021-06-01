@@ -2,7 +2,7 @@
 using System.IO;
 
 namespace DAI.Utilities {
-    public static class File {
+    public static class FileHelpers {
 
         public static Dictionary<string, string> ReadMftFromFile(string Filename) {
             StreamReader streamReader = new StreamReader(Filename);

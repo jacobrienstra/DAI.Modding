@@ -275,7 +275,7 @@ namespace DAI.Mod.Maker {
                         if (oldEbx != null) {
                             LibraryManager.AddToBundle(oldEbx, sb);
                             byte[] data3 = PayloadProvider.GetPayloadFromCas(ebx.Sha1);
-                            data3 = DAI.AssetLibrary.Utilities.Utilities.CompressData(data3);
+                            data3 = Utils.CompressData(data3);
                             LibraryManager.ModifyEbx(oldEbx, data3, true);
                         }
                     }
@@ -288,7 +288,7 @@ namespace DAI.Mod.Maker {
                         if (oldRes != null) {
                             LibraryManager.AddToBundle(oldRes, sb);
                             byte[] data2 = PayloadProvider.GetPayloadFromCas(res.Sha1);
-                            data2 = DAI.AssetLibrary.Utilities.Utilities.CompressData(data2);
+                            data2 = Utils.CompressData(data2);
                             LibraryManager.ModifyRes(oldRes, data2, true);
                         }
                     }
@@ -301,7 +301,7 @@ namespace DAI.Mod.Maker {
                         if (oldChunk == null) {
                             LibraryManager.AddToBundle(chunk, sb);
                             byte[] data = PayloadProvider.GetPayloadFromCas(chunk.Sha1);
-                            data = DAI.AssetLibrary.Utilities.Utilities.CompressData(data);
+                            data = Utils.CompressData(data);
                             LibraryManager.AddChunk(chunk, data, true);
                         } else {
                             LibraryManager.AddToBundle(oldChunk, sb);
@@ -347,7 +347,7 @@ namespace DAI.Mod.Maker {
                             LogicalSize = chunkAsset.LogicalSize,
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             ChunkH32 = (chunkAsset.H32.HasValue ? chunkAsset.H32.Value : 0),
-                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(chunkAsset.Meta),
+                            Meta = DAI.Utilities.Meta.MetaToString(chunkAsset.Meta),
                             PatchType = (byte)((chunkAsset.CasPatchType == 0) ? 1 : ((byte)chunkAsset.CasPatchType)),
                             OriginalSha1 = mod.Data[mod.Data.Count - 1].ToSha1()
                         };
@@ -385,7 +385,7 @@ namespace DAI.Mod.Maker {
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
+                            Meta = DAI.Utilities.Meta.MetaToString(resAsset1.ResMeta),
                             PatchType = (byte)((resAsset1.CasPatchType == 0) ? 1 : ((byte)resAsset1.CasPatchType))
                         };
                         if (resAsset1.IsDelta) {
@@ -406,7 +406,7 @@ namespace DAI.Mod.Maker {
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.Mod.Maker.Utilities.Utilities.MetaToString(resAsset1.ResMeta),
+                            Meta = DAI.Utilities.Meta.MetaToString(resAsset1.ResMeta),
                             PatchType = 1
                         };
                         foreach (SubBundleRef sb2 in resAsset1.ParentSbs) {

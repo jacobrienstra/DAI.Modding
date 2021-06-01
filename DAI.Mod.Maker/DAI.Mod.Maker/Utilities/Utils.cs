@@ -13,7 +13,7 @@ using DAI.Mod.Maker.Properties;
 
 
 namespace DAI.Mod.Maker.Utilities {
-    public static class Util {
+    public static class Utils {
 
         public static AssetContainer GetContainer(this EbxBase ebx) {
             try {

@@ -1,6 +1,7 @@
 using System.IO;
 
-namespace DAI.Mod.Manager.Utils {
+namespace DAI.Mod.Manager {
+    //TODO: use real settings
     public class Settings {
         public const string ApplicationVersion = "v0.49 alpha";
 

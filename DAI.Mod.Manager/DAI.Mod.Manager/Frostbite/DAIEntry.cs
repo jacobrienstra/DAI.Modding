@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using DAI.Mod.Manager.Utils;
+using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
     public class DAIEntry {

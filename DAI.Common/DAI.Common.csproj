@@ -30,6 +30,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -52,11 +70,12 @@
     <Compile Include="DAI.Controls\ColorPickerDialog.xaml.cs">
       <DependentUpon>ColorPickerDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DAI.Mod\ModJob.cs" />
+    <Compile Include="DAI.Mod\Scripting.cs" />
     <Compile Include="DAI.Mod\Color.cs" />
     <Compile Include="DAI.Mod\ModBundle.cs" />
     <Compile Include="DAI.Mod\ModBundleEntry.cs" />
     <Compile Include="DAI.Mod\ModDetail.cs" />
-    <Compile Include="DAI.Mod\ModJob.cs" />
     <Compile Include="DAI.Mod\ModMetaData.cs" />
     <Compile Include="DAI.Mod\ModReq.cs" />
     <Compile Include="DAI.Mod\ModScript.cs" />
@@ -64,11 +83,10 @@
     <Compile Include="DAI.Mod\ResourceEntry\EbxModResourceEntry.cs" />
     <Compile Include="DAI.Mod\ResourceEntry\ModResourceEntry.cs" />
     <Compile Include="DAI.Mod\ResourceEntry\ResModResourceEntry.cs" />
-    <Compile Include="DAI.Mod\Scripting.cs" />
     <Compile Include="DAI.Mod\UI\ModConfigElement.cs" />
     <Compile Include="DAI.Mod\UI\ModConfigElementsList.cs" />
     <Compile Include="DAI.Utilities\EqualityComparer.cs" />
-    <Compile Include="DAI.Utilities\File.cs" />
+    <Compile Include="DAI.Utilities\FileHelpers.cs" />
     <Compile Include="DAI.Utilities\IndexedMultiMap.cs" />
     <Compile Include="DAI.Utilities\IndexedSet.cs" />
     <Compile Include="DAI.Utilities\Key.cs" />

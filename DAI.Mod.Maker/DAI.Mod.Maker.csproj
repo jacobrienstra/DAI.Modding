@@ -154,7 +154,6 @@
     <Compile Include="RoslynPad\SaveFileDialogAdapter.cs" />
     <Compile Include="RoslynPad\TelemetryProvider.cs" />
     <Compile Include="RoslynPad\XamlTypes.cs" />
-    <Compile Include="Themes\PressHelper.cs" />
     <Compile Include="Themes\TreeViewItemHelper.cs" />
     <Page Include="DAI.Mod.Maker\AdvModConfiguration.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -424,27 +423,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Button.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Icons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Menu.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Themes\Modern.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\TabControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

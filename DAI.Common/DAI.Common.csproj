@@ -85,6 +85,7 @@
     <Compile Include="DAI.Mod\ResourceEntry\ResModResourceEntry.cs" />
     <Compile Include="DAI.Mod\UI\ModConfigElement.cs" />
     <Compile Include="DAI.Mod\UI\ModConfigElementsList.cs" />
+    <Compile Include="DAI.Styles\PressHelper.cs" />
     <Compile Include="DAI.Utilities\EqualityComparer.cs" />
     <Compile Include="DAI.Utilities\FileHelpers.cs" />
     <Compile Include="DAI.Utilities\IndexedMultiMap.cs" />
@@ -97,6 +98,30 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="DAI.Controls\ColorPickerDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\GridSplitter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\Button.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\Icons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\Menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DAI.Styles\TabControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

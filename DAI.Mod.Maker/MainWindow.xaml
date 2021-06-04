@@ -1,17 +1,9 @@
 ﻿<Window x:Class="DAI.Mod.Maker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="httd:\alice\documents\dai\dai tools\daimodd:\alice\documents\dai\dai tools\daimodmaker\dai.modmaker\mainwindow.xaml.cs
-        d:\alice\documents\dai\dai tools\daimodmaker\dai.modmaker\mainwindow.xaml
-        maker\dai.modmaker\mainwindow.xaml.cs
-        d:\alice\documents\dai\dai tools\daimodmaker\dai.modmaker\mainwindow.xaml
-        p://schemas.microsoft.com/expression/blend/2008"        
-        xmlns:flaxon="clr-namespace:Flaxen.SlimDXControlLib"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DAI.Mod.Maker"
-        xmlns:th="clr-namespace:DAI.Mod.Maker.Themes"
         xmlns:av="http://schemas.microsoft.com/expression/blend/2008" 
-        mc:Ignorable="d av"
+        mc:Ignorable="av"
         Title="DAI Mod Maker [version]" Height="720" Width="1280" Loaded="Window_Loaded">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo />

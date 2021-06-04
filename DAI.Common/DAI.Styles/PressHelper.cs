@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace DAI.Mod.Maker.Themes {
+namespace DAI.Styles {
     public static class PressHelper {
         #region IsEnabled
 

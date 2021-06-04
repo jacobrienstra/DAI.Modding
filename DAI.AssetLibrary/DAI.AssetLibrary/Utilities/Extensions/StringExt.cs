@@ -7,6 +7,10 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
             return Encoding.UTF8.GetBytes(str).ToSha1();
         }
 
+        public static byte[] ToSha1Bytes(this string str) {
+            return Encoding.UTF8.GetBytes(str).ToSha1Bytes();
+        }
+
         public static int Hash(this string StrToHash) {
             int num = 5381;
             for (int i = 0; i < StrToHash.Length; i++) {
@@ -22,6 +26,14 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
                 retArray = provider.ComputeHash(strArray);
             }
             return retArray.ToHex();
+        }
+
+        public static byte[] ToSha1Bytes(this byte[] strArray) {
+            byte[] retArray;
+            using (SHA1CryptoServiceProvider provider = new SHA1CryptoServiceProvider()) {
+                retArray = provider.ComputeHash(strArray);
+            }
+            return retArray;
         }
     }
 }

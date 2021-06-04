@@ -10,21 +10,15 @@ using DAI.AssetLibrary.Utilities.Extensions;
 namespace DAI.Mod {
     public class ModJob {
         public string Name { get; set; }
-
         public string Xml { get; set; }
-
         public string Script { get; set; }
-
         public List<byte[]> Data { get; set; }
-
         public ModMetaData Meta { get; set; }
 
-        public ModScript ScriptObject;
+        public IModScript ScriptObject;
 
         public Dictionary<string, object> ConfigValues;
-
         public string FileName { get; set; }
-
         public ModJob(string InName, string InXml, string InScript) {
             Name = InName;
             Xml = InXml;

@@ -14,22 +14,525 @@ using System.Windows.Threading;
 using DAI.Utilities;
 using DAI.Mod.Manager.Frostbite;
 using DAI.Mod.Manager.Utilities;
+using DAI.AssetLibrary.Utilities.Extensions;
+using DAI.AssetLibrary.Utilities;
 
 namespace DAI.Mod.Manager {
-    public class MainViewModel {
+    public class ManagerViewModel {
+        private readonly BackgroundWorker _bgWorker;
 
-        private ModJob GenerateModJobFromPatch(string version) {
+        public bool Cancelled { get; set; }
+        public ProgressWindow ProgressWin { get; private set; }
+        public List<ModContainer> ModList { get; private set; }
+        public bool ModManagerGridEnabled { get; private set; }
+        public bool MergeReady { get; private set; }
+        public ManagerViewModel(BackgroundWorker bgWorker) {
+            Cancelled = true;
+            ModManagerGridEnabled = false;
+            ModList = new List<ModContainer>();
+            MergeReady = false;
+            _bgWorker = bgWorker;
+            _bgWorker.WorkerReportsProgress = true;
+            _bgWorker.WorkerSupportsCancellation = true;
+            _bgWorker.DoWork += BGWorker_DoWork;
+            _bgWorker.RunWorkerCompleted += BGWorker_RunWorkerCompleted;
+            _bgWorker.ProgressChanged += BGWorker_ProgressChanged;
+        }
+
+        public void LoadMods() {
+            ModList.Clear();
+            // Initialize Check
+            if (!File.Exists(Settings.BasePath + "DragonAgeInquisition.exe")) {
+                MessageBox.Show("Dragon Age path has not been setup correctly. Please click on Browse and locate.", "Warning");
+                return;
+            }
+            if (Settings.PatchVersion == -1) {
+                MessageBox.Show("You *MUST* have a version of the Official Patch to be able to use mods.", "Error");
+                return;
+            }
+            if (!CheckBasePatch()) {
+                MessageBox.Show("The official patch folder contains a merged mod manager patch. Please restore the official patch to the correct location, or use 'Repair Game' in Origin to correct it.");
+                return;
+            }
+            ModManagerGridEnabled = false;
+            if (Settings.ModPath == "") {
+                return;
+            }
+
+            // Add official Patch
+            ModList.Add(new ModContainer(Settings.BasePath + "Update\\Patch\\", "Official Patch", "Bioware", "", "") {
+                IsOfficialPatch = true,
+                Version = Settings.PatchVersion.ToString()
+            });
+
+            // Add mft user mods
+            int i = 1;
+            foreach (string item in Directory.EnumerateDirectories(Settings.ModPath)) {
+                if (File.Exists(item + "\\package.mft")) {
+                    DAIMft dAIMft = DAIMft.SerializeFromFile(item + "\\package.mft");
+                    if (dAIMft.HasKey("ModTitle")) {
+                        ModList.Add(new ModContainer(item, dAIMft.GetValue("ModTitle"), dAIMft.GetValue("ModAuthor"), dAIMft.GetValue("ModVersion"), dAIMft.GetValue("ModDescription")) {
+                            Index = i++
+                        });
+                    }
+                }
+            }
+
+            // Add daimod user mods
+            string[] files = Directory.GetFiles(Settings.ModPath, "*.daimod", SearchOption.AllDirectories);
+            foreach (string file in files) {
+                ModJob modJob = ModJob.CreateFromFile(file);
+                ModList.Add(new ModContainer(file, modJob.Meta.Details.Name, modJob.Meta.Details.Author, modJob.Meta.Details.Version, modJob.Meta.Details.Description, modJob.Meta.MinPatchVersion) {
+                    Mod = modJob,
+                    Index = i++
+                });
+                // setup UI, set configvalues
+                if (modJob.ScriptObject != null) {
+                    ModConfigElementsList modConfigElementsList = new ModConfigElementsList();
+                    modJob.ScriptObject.ConstructUI(modConfigElementsList);
+                    modJob.ConfigValues = new Dictionary<string, object>();
+                    foreach (ModConfigElement uIElement in modConfigElementsList.UIElements) {
+                        modJob.ConfigValues.Add(uIElement.ParameterName, uIElement.ParameterDefaultValue);
+                    }
+                }
+                // version check
+                if (modJob.Meta.ToolSetVersion >= 1000 && modJob.Meta.ToolSetVersion < 1016) {
+                    System.Windows.MessageBox.Show("Warning: Mod " + modJob.Meta.Details.Name + " was created with an unstable toolset version and may not function correctly");
+                }
+            }
+            MergeReady = true;
+        }
+
+        private void BGWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
+            LoadingProgressState loadingProgressState = e.UserState as LoadingProgressState;
+            if (loadingProgressState.UpdateStatus) {
+                ProgressWin.StatusTextBlock.Text = loadingProgressState.StatusText;
+            }
+            if (loadingProgressState.UpdateProgress) {
+                ProgressWin.StatusProgressBar.Visibility = Visibility.Visible;
+                ProgressWin.StatusProgressBar.Value = e.ProgressPercentage;
+                ProgressWin.TaskbarItemInfo.ProgressValue = (double)e.ProgressPercentage / 100.0;
+                ProgressWin.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+            }
+            if (loadingProgressState.UpdateLog) {
+                WriteLogEntry(loadingProgressState.LogText);
+            }
+        }
+
+        private void BGWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+            if (e.Error != null) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("Task failed. Error reported was: ");
+                stringBuilder.AppendLine("");
+                stringBuilder.AppendLine($"Exception message:      {e.Error.Message}");
+                stringBuilder.AppendLine($"Source:                 {e.Error.Source}");
+                stringBuilder.AppendLine($"Target:                 {e.Error.TargetSite.ToString()}");
+                stringBuilder.AppendLine("");
+                stringBuilder.AppendLine("StrackTrace:");
+                stringBuilder.AppendLine(e.Error.StackTrace);
+                WriteLogEntry(stringBuilder.ToString());
+                ProgressWin.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
+            } else {
+                WriteLogEntry("Task completed sucessfully");
+                ProgressWin.StatusProgressBar.Value = 0.0;
+                ProgressWin.StatusTextBlock.Text = "";
+                ProgressWin.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
+            }
+            ProgressWin.CloseWindowButton.IsEnabled = true;
+        }
+
+        private void BGWorker_DoWork(object sender, DoWorkEventArgs e) {
+            PatchPayloadData patchPayloadData = (PatchPayloadData)((WorkerState)e.Argument).Payload;
+            string patchDirectory = Path.GetDirectoryName(patchPayloadData.OutputPath);
+            ModJob basePatchModJob = GetBasePatchModJob(patchPayloadData);
+            patchPayloadData.ModList.RemoveAt(0);
+
+            List<ModJob> modJobList = ProcessModList(patchPayloadData).ToList(); //list
+
+            Dictionary<Sha1, byte[]> modifiedRes = new Dictionary<Sha1, byte[]>(); //dictionary
+            Dictionary<int, List<ChunkModResourceEntry>> modifiedBundles = new Dictionary<int, List<ChunkModResourceEntry>>(); //dictionary2
+
+            List<int> bundlesToRemove = new List<int>(); //list2
+
+            // get modified or deleted bundles from base patch
+            foreach (ModBundle bundle in basePatchModJob.Meta.Bundles) {
+                if (bundle.Action == "modify") {
+                    int bundleKey = Utils.Hasher(bundle.Name.ToLower());
+                    // get all bundle entries
+                    List<ChunkModResourceEntry> bundleEntries = bundle.Entries.Select((ModBundleEntry modBundleEntry) => basePatchModJob.Meta.Resources[modBundleEntry.ResourceId]).ToList();
+                    bundleEntries.Sort((ChunkModResourceEntry A, ChunkModResourceEntry B) => B.ChunkH32.CompareTo(A.ChunkH32));
+                    modifiedBundles.Add(bundleKey, bundleEntries);
+                } else if (bundle.Action == "remove") {
+                    bundlesToRemove.Add(Utils.Hasher(bundle.Name.ToLower()));
+                }
+            }
+
+            // process user mods
+            foreach (ModJob modJob in modJobList) {
+
+                // add modified resources from user mods
+                foreach (ChunkModResourceEntry item in modJob.Meta.Resources.Where((ChunkModResourceEntry mre) => mre.ResourceID != -1 && mre.IsEnabled && mre.Action != "remove")) {
+                    modifiedRes[new Sha1(item.OriginalSha1.ToSha1Bytes())] = modJob.Data[item.ResourceID];
+                }
+                // add modified bundles from user mods
+                foreach (ModBundle mjBundle in modJob.Meta.Bundles) {
+                    int mjBundleKey = Utils.Hasher(mjBundle.Name);
+                    // if newly mentioned bundle,
+                    // get only enabled resources
+                    if (!modifiedBundles.ContainsKey(mjBundleKey)) {
+                        modifiedBundles.Add(mjBundleKey, (from entry in mjBundle.Entries
+                                               where modJob.Meta.Resources[entry.ResourceId].IsEnabled
+                                               select entry into ent
+                                               select modJob.Meta.Resources[ent.ResourceId]).ToList());
+                        continue; 
+                    }
+                    // else, we already have bundle
+                    foreach (ModBundleEntry entry in mjBundle.Entries) {
+                        ChunkModResourceEntry modResourceEntry = modJob.Meta.Resources[entry.ResourceId];
+                        if (!modResourceEntry.IsEnabled) {
+                            continue;
+                        }
+                        int Hash = Utils.Hasher(modResourceEntry.Name + "_" + modResourceEntry.Action);
+                        // check if we already have this resource action listen for this bundle, and warn if so
+                        int index = modifiedBundles[mjBundleKey].FindIndex((ChunkModResourceEntry A) => Utils.Hasher(A.Name + "_" + A.Action) == Hash);
+                        if (index != -1) {
+                            // TODO: only returns first one found...
+                            ModJob prevModJob = ModJobForResource(modJobList, modifiedBundles[mjBundleKey][index]);
+                            if (prevModJob != null) {
+                                WriteLogEntry_Threaded("*** Warning: " + modResourceEntry.Name + "from mod " + prevModJob.Name + " overridden by " + modJob.Name);
+                            }
+                            // reset to new version
+                            modifiedBundles[mjBundleKey][index] = modResourceEntry;
+                        } else {
+                            // add modified version
+                            modifiedBundles[mjBundleKey].Add(modResourceEntry);
+                        }
+                    }
+                }
+            }
+            string basePatchDataPath = Settings.BasePath + "Update\\Patch\\Data\\";
+            PrepareDirectory(patchDirectory, basePatchModJob, modifiedRes, basePatchDataPath, out var layoutToc);
+            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Creating merged patch."));
+
+            string win32PatchPath = basePatchDataPath + "Win32\\";
+            DAIToc dAIToc;
+            // Toc = Table of Contents
+            if (File.Exists(win32PatchPath + "chunks0.toc")) {
+                dAIToc = DAIToc.ReadFromFile(win32PatchPath + "chunks0.toc", 0L);
+                if (!Directory.Exists(patchDirectory + "\\Data\\Win32")) {
+                    Directory.CreateDirectory(patchDirectory + "\\Data\\Win32");
+                }
+                File.Copy(win32PatchPath + "chunks0.sb", patchDirectory + "\\Data\\Win32\\chunks0.sb");
+            } else {
+                dAIToc = new DAIToc();
+                DAIEntry dAIEntry = new DAIEntry();
+                dAIEntry.AddListValue("bundles", new List<DAIEntry>());
+                dAIEntry.AddListValue("chunks", new List<DAIEntry>());
+                dAIEntry.AddBoolValue("cas", Value: true);
+                dAIToc.SetRootEntry(dAIEntry);
+                DAIToc dAIToc2 = new DAIToc();
+                DAIEntry dAIEntry2 = new DAIEntry();
+                dAIEntry2.AddListValue("bundles", new List<DAIEntry>());
+                dAIToc2.SetRootEntry(dAIEntry2);
+                dAIToc2.WriteToFile(patchDirectory + "\\Data\\Win32\\chunks0.sb");
+            }
+            // add toc files if needed from base patch
+            List<string> NewTocFileNames = new List<string>();
+            basePatchModJob.Meta.Bundles.ForEach(delegate (ModBundle A) {
+                if (!NewTocFileNames.Contains(A.TocFilename) && (A.Action == "add") && !File.Exists(Settings.BasePath + "\\Data\\Win32\\" + A.TocFilename)) {
+                    NewTocFileNames.Add(A.TocFilename);
+                }
+            });
+
+            foreach (string newTocFileName in NewTocFileNames) {
+                int newFileHash = Utils.Hasher(newTocFileName.ToLower());
+                // toc files contain many bundles
+                List<ModBundle> bundlesInToc = basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.TocFilename != null && Utils.Hasher(A.TocFilename.ToLower()) == newFileHash);
+                DAIEntry tocBundlesMeta = new DAIEntry();
+                tocBundlesMeta.AddListValue("bundles", new List<DAIEntry>());
+                DAIEntry tocBundlesContent = new DAIEntry();
+                tocBundlesContent.AddListValue("bundles", new List<DAIEntry>());
+                foreach (ModBundle bundleInToc in bundlesInToc) {
+                    DAIEntry bundleInTocContent = new DAIEntry();
+                    bundleInTocContent.AddStringValue("path", bundleInToc.Name);
+                    bundleInTocContent.AddDWordValue("magicSalt", (uint)bundleInToc.MagicSalt);
+                    bundleInTocContent.AddListValue("ebx", new List<DAIEntry>());
+                    bundleInTocContent.AddListValue("res", new List<DAIEntry>());
+                    bundleInTocContent.AddBoolValue("alignMembers", bundleInToc.AlignMembers == 1);
+                    bundleInTocContent.AddBoolValue("ridSupport", bundleInToc.RidSupport == 1);
+                    bundleInTocContent.AddBoolValue("storeCompressedSizes", bundleInToc.StoreCompressedSizes == 1);
+                    bundleInTocContent.AddQWordValue("totalSize", 0L);
+                    bundleInTocContent.AddQWordValue("dbxTotalSize", 0L);
+
+                    DAIEntry bundleInTocMeta = new DAIEntry();
+                    bundleInTocMeta.AddStringValue("id", bundleInToc.Name);
+                    bundleInTocMeta.AddQWordValue("offset", 0L);
+                    bundleInTocMeta.AddDWordValue("size", 0u);
+
+                    tocBundlesContent.GetListValue("bundles").Add(bundleInTocContent);
+                    tocBundlesMeta.GetListValue("bundles").Add(bundleInTocMeta);
+
+                    foreach (ModBundleEntry entry in bundleInToc.Entries) {
+                        ChunkModResourceEntry entryMre = basePatchModJob.Meta.Resources[entry.ResourceId];
+                        ChunkModResourceEntry.BuildDAIEntry(bundleInTocContent, entryMre);
+                    }
+                    int bundleInTocKey = Utils.Hasher(bundleInTocMeta.GetStringValue("id").ToLower());
+                    // if already have bundle, move on
+                    if (!modifiedBundles.ContainsKey(bundleInTocKey)) {
+                        continue;
+                    }
+                    // 
+                    foreach (ChunkModResourceEntry entryInBundleInToc in modifiedBundles[bundleInTocKey]) {
+                        ChunkModResourceEntry EntryInBundleInToc = entryInBundleInToc;
+                        if (EntryInBundleInToc.Action != "modify") {
+                            continue;
+                        }
+                        DAIEntry prevDAIEntry = bundleInTocContent.GetListValue(EntryInBundleInToc.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == EntryInBundleInToc.OriginalSha1);
+                        if (prevDAIEntry != null) {
+                            ChunkModResourceEntry.ModifyResourceEntry(EntryInBundleInToc, prevDAIEntry);
+                            continue;
+                        }
+                        ModJob prevModJob = ModJobForResource(modJobList, entryInBundleInToc);
+                        if (prevModJob != null) {
+                            WriteLogEntry_Threaded("*** Warning: " + entryInBundleInToc.Name + " not found for " + prevModJob.Name);
+                        }
+                    }
+                }
+                tocBundlesMeta.AddListValue("chunks", new List<DAIEntry>());
+                tocBundlesMeta.AddBoolValue("cas", Value: true);
+                tocBundlesMeta.AddStringValue("name", "Win32/" + newTocFileName.Replace(".toc", ""));
+                tocBundlesMeta.AddBoolValue("alwaysEmitSuperbundle", Value: true);
+                DAIToc newTocBundleContent = new DAIToc();
+                newTocBundleContent.SetRootEntry(tocBundlesContent);
+                newTocBundleContent.WriteToFile(patchDirectory + "\\Data\\Win32\\" + newTocFileName.Replace(".toc", ".sb"));
+                DAIToc newTocBundleMeta = new DAIToc();
+                newTocBundleMeta.SetRootEntry(tocBundlesMeta);
+                for (int i = 0; i < tocBundlesMeta.GetListValue("bundles").Count; i++) {
+                    DAIEntry tocBundlesMetaBundles = tocBundlesMeta.GetListValue("bundles")[i];
+                    DAIEntry tocBundlesContentBundles = tocBundlesContent.GetListValue("bundles")[i];
+                    tocBundlesMetaBundles.SetQWordValue("offset", tocBundlesContentBundles.EntryOffset);
+                    tocBundlesMetaBundles.SetDWordValue("size", (uint)tocBundlesContentBundles.GetSize());
+                }
+                newTocBundleMeta.WriteToFile(patchDirectory + "\\Data\\Win32\\" + newTocFileName, bWriteTocHeader: true);
+            }
+
+            List<string> tocFiles = new List<string>();
+            string win32Path = Settings.BasePath + "Data\\Win32";
+            tocFiles.AddRange(Directory.GetFiles(win32Path, "*.toc", SearchOption.AllDirectories));
+
+            int tocFileCount = 0;
+            foreach (string tocFilename in tocFiles) {
+                if (Settings.VerboseScan) {
+                    WriteLogEntry_Threaded("[0] Merging " + tocFilename);
+                }
+                Dictionary<DAIEntry, DAIEntry> entryMap = new Dictionary<DAIEntry, DAIEntry>();
+
+                _bgWorker.ReportProgress((int)((double)tocFileCount / (double)tocFiles.Count * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, tocFilename.Replace(win32Path + "\\", ""), ""));
+
+                DAIToc tocFile = DAIToc.ReadFromFile(tocFilename, 0L);
+                bool flag = false;
+                using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(tocFilename.Replace(".toc", ".sb"))))) {
+                    foreach (DAIEntry tocFileBundle in tocFile.GetBundles()) {
+                        tocFileBundle.AddBoolValue("base", Value: true);
+                        DAIEntry value = null;
+                        int tocFileBundleKey = Utils.Hasher(tocFileBundle.GetStringValue("id").ToLower());
+                        if (bundlesToRemove.Contains(tocFileBundleKey)) {
+                            flag = true;
+                            continue;
+                        }
+                        if (modifiedBundles.ContainsKey(tocFileBundleKey)) {
+                            tocFileBundle.RemoveField("base");
+                            tocFileBundle.AddBoolValue("delta", Value: true);
+                            value = DAIToc.ReadFromStream(lazyDisposable.Value, tocFileBundle.GetQWordValue("offset")).GetRootEntry();
+                            flag = true;
+                        }
+                        entryMap.Add(tocFileBundle, value);
+                    }
+                }
+                string actualFilename = tocFilename.Replace(Settings.BasePath + "Data\\Win32\\", "");
+                foreach (ModBundle basePatchBundleAdded in basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.Action == "add" && A.TocFilename.ToLower() == actualFilename.ToLower())) {
+                    if (Settings.VerboseScan) {
+                        WriteLogEntry_Threaded("[1] Adding bundle " + basePatchBundleAdded.Name);
+                    }
+                    DAIEntry bundleContent = new DAIEntry();
+                    bundleContent.AddStringValue("path", basePatchBundleAdded.Name.ToLower());
+                    bundleContent.AddDWordValue("magicSalt", (uint)basePatchBundleAdded.MagicSalt);
+                    bundleContent.AddListValue("ebx", new List<DAIEntry>());
+                    bundleContent.AddListValue("res", new List<DAIEntry>());
+                    DAIEntry bundleMeta = new DAIEntry();
+                    bundleMeta.AddStringValue("id", basePatchBundleAdded.Name.ToLower());
+                    bundleMeta.AddQWordValue("offset", 0L);
+                    bundleMeta.AddDWordValue("size", 0u);
+                    bundleMeta.AddBoolValue("delta", Value: true);
+                    entryMap.Add(bundleMeta, bundleContent);
+                    foreach (ModBundleEntry basePatchBundleAddedEntry in basePatchBundleAdded.Entries) {
+                        ModResourceEntry modResourceEntry3 = basePatchModJob.Meta.Resources[basePatchBundleAddedEntry.ResourceId];
+                        ModResourceEntry.BuildDAIEntry(bundleContent, modResourceEntry3);
+                        flag = true;
+                    }
+                    bundleContent.AddBoolValue("alignMembers", basePatchBundleAdded.AlignMembers == 1);
+                    bundleContent.AddBoolValue("ridSupport", basePatchBundleAdded.RidSupport == 1);
+                    bundleContent.AddBoolValue("storeCompressedSizes", basePatchBundleAdded.StoreCompressedSizes == 1);
+                    bundleContent.AddQWordValue("totalSize", 0L);
+                    bundleContent.AddQWordValue("dbxTotalSize", 0L);
+                }
+                foreach (DAIEntry bundleMeta in entryMap.Values) {
+                    if (bundleMeta == null) {
+                        continue;
+                    }
+                    if (Settings.VerboseScan) {
+                        WriteLogEntry_Threaded("[1] Merging " + bundleMeta.GetStringValue("path"));
+                    }
+                    int bundleMetaKey = Utils.Hasher(bundleMeta.GetStringValue("path").ToLower());
+                    if (!modifiedBundles.ContainsKey(bundleMetaKey)) {
+                        continue;
+                    }
+                    foreach (ModResourceEntry bundleMetaRes in modifiedBundles[bundleMetaKey]) {
+                        ModResourceEntry ResourceEntry = bundleMetaRes;
+                        if (ResourceEntry.Action == "modify") {
+                            DAIEntry dAIEntry12 = bundleMeta.GetListValue(ResourceEntry.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == ResourceEntry.OriginalSha1);
+                            if (dAIEntry12 != null) {
+                                ModResourceEntry.ModifyResourceEntry(bundleMetaRes, dAIEntry12);
+                                continue;
+                            }
+                            ModJob prevModJob = ModJobForResource(modJobList, bundleMetaRes);
+                            if (prevModJob != null) {
+                                WriteLogEntry_Threaded("*** Warning: " + bundleMetaRes.Name + " not found for " + prevModJob.Name);
+                            }
+                        } else if (ResourceEntry.Action == "remove") {
+                            string mreType = ((ResourceEntry.Type == "chunk") ? "chunks" : ResourceEntry.Type);
+                            int index = bundleMeta.GetListValue(mreType).FindIndex((DAIEntry A) => A.GetSha1Value("sha1") == ResourceEntry.OriginalSha1);
+                            if (index != -1) {
+                                bundleMeta.GetListValue(mreType).RemoveAt(index);
+                                if (mreType == "chunks") {
+                                    bundleMeta.GetListValue("chunkMeta").RemoveAt(index);
+                                }
+                            }
+                        } else {
+                            ModResourceEntry.BuildDAIEntry(bundleMeta, ResourceEntry);
+                        }
+                    }
+                }
+                int num4;
+                if (flag) {
+                    foreach (KeyValuePair<DAIEntry, DAIEntry> entryMapPair in entryMap) {
+                        DAIEntry bundleContent = entryMapPair.Value;
+                        DAIEntry bundleMeta = entryMapPair.Key;
+                        if (bundleContent != null) {
+                            bundleContent.GetListValue("ebx").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
+                            bundleContent.GetListValue("res").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
+                            foreach (DAIEntry ebx in bundleContent.GetListValue("ebx")) {
+                                if (ebx.HasField("idata")) {
+                                    ebx.RemoveField("idata");
+                                }
+                            }
+                            foreach (DAIEntry res in bundleContent.GetListValue("res")) {
+                                if (res.HasField("idata")) {
+                                    res.RemoveField("idata");
+                                }
+                            }
+                            if (bundleContent.HasField("chunks")) {
+                                foreach (DAIEntry chunk in bundleContent.GetListValue("chunks")) {
+                                    if (chunk.HasField("idata")) {
+                                        chunk.RemoveField("idata");
+                                    }
+                                }
+                            }
+                            if (bundleContent.HasField("chunkMeta")) {
+                                foreach (DAIEntry chunkMeta in from A in bundleContent.GetListValue("chunkMeta")
+                                                            where A.GetDWordValue("h32") == -1
+                                                            select A) {
+                                    bundleContent.GetListValue("chunkMeta").Remove(chunkMeta);
+                                }
+                            }
+                            if (bundleContent.HasField("dbx")) {
+                                bundleContent.RemoveField("dbx");
+                            }
+                            bundleContent.SetStringValue("path", bundleContent.GetStringValue("path").ToLower());
+                        }
+                        bundleMeta.SetStringValue("id", bundleMeta.GetStringValue("id").ToLower());
+                    }
+                    string tocActualFileName = tocFilename.Replace(Settings.BasePath, patchDirectory + "\\");
+                    string filename = tocActualFileName.Replace(".toc", ".sb");
+                    DAIEntry allBundleContents = new DAIEntry();
+                    allBundleContents.AddListValue("bundles", new List<DAIEntry>());
+                    foreach (DAIEntry bundleContent in entryMap.Values) {
+                        if (bundleContent != null) {
+                            allBundleContents.GetListValue("bundles").Add(bundleContent);
+                        }
+                    }
+                    allBundleContents.GetListValue("bundles").Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("path"), B.GetStringValue("path")));
+                    DAIToc allBundleContentsToc = new DAIToc();
+                    allBundleContentsToc.SetRootEntry(allBundleContents);
+                    allBundleContentsToc.WriteToFile(filename);
+                    DAIToc baseBundlesToc = new DAIToc();
+                    DAIEntry baseBundles = new DAIEntry();
+                    List<DAIEntry> bundleMetas = entryMap.Keys.Where((DAIEntry A) => A.HasField("base")).ToList();
+                    List<DAIEntry> bundleMetaDeltas = entryMap.Keys.Where((DAIEntry A) => A.HasField("delta")).ToList();
+                    bundleMetas.Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("id"), B.GetStringValue("id")));
+                    bundleMetaDeltas.Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("id"), B.GetStringValue("id")));
+                    bundleMetas.AddRange(bundleMetaDeltas);
+                    baseBundles.AddListValue("bundles", bundleMetas);
+                    baseBundles.AddListValue("chunks", new List<DAIEntry>());
+                    baseBundles.AddBoolValue("cas", tocFile.GetRootEntry().GetBoolValue("cas"));
+                    baseBundlesToc.SetRootEntry(baseBundles);
+                    int index = 0;
+                    for (int j = 0; j < entryMap.Count; j++) {
+                        DAIEntry baseBundle = baseBundlesToc.GetBundles()[j];
+                        if (baseBundle.HasField("delta")) {
+                            DAIEntry dAIEntry16 = allBundleContentsToc.GetBundles()[index];
+                            baseBundle.SetQWordValue("offset", dAIEntry16.EntryOffset);
+                            baseBundle.SetDWordValue("size", (uint)dAIEntry16.GetSize());
+                            index++;
+                        }
+                    }
+                    baseBundlesToc.WriteToFile(tocActualFileName, bWriteTocHeader: true);
+                }
+                tocFileCount++;
+                Sha1 LayoutNameHash = new Sha1(tocFilename.Replace(Settings.BasePath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
+                    .ToLower().ToSha1Bytes());
+                DAIEntry superBundle = layoutToc.GetRootEntry().GetListValue("superBundles").Find((DAIEntry A) => A.GetStringHashValue("name") == LayoutNameHash);
+                if (superBundle?.HasField("same") ?? false) {
+                    superBundle.RemoveField("same");
+                    superBundle.AddBoolValue("delta", Value: true);
+                }
+            }
+            layoutToc.GetRootEntry().RemoveField("fs");
+            layoutToc.GetRootEntry().AddListValue("fs", new List<DAIEntry>());
+            layoutToc.GetRootEntry().AddListStringChild("fs", "initfs_Win32");
+            layoutToc.WriteToFile(patchDirectory + "\\Data\\layout.toc", bWriteTocHeader: true);
+            dAIToc.WriteToFile(patchDirectory + "\\Data\\Win32\\chunks0.toc", bWriteTocHeader: true);
+            StreamWriter streamWriter = new StreamWriter(patchDirectory + "\\package.mft");
+            streamWriter.WriteLine("Name patch");
+            streamWriter.WriteLine("Authoritative");
+            streamWriter.WriteLine("Version " + (Settings.PatchVersion + 1));
+            streamWriter.WriteLine("ModManager v0.60 alpha");
+            streamWriter.Close();
+        }
+
+        private void WriteLogEntry(string LogText) {
+            ProgressWin.StatusTextBox.AppendText("[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + LogText + "\n");
+            ProgressWin.StatusTextBox.ScrollToEnd();
+        }
+
+        private void WriteLogEntry_Threaded(string LogText) {
+            ProgressWin.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action)delegate {
+                WriteLogEntry(LogText);
+            });
+        }
+
+        public ModJob GenerateModJobFromPatch(string version) {
             IndexedMultiMap<Sha1, ModResourceEntry> indexedMultiMap = new IndexedMultiMap<Sha1, ModResourceEntry>();
             List<ModBundle> list = new List<ModBundle>();
             List<string> list2 = new List<string>();
             if (File.Exists(Settings.BasePath + "Update\\Patch\\package.mft")) {
-                BGWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing official patch."));
+                _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing official patch."));
                 string text = Settings.BasePath + "Update\\Patch\\Data\\Win32";
                 string[] files = Directory.GetFiles(text, "*.toc", SearchOption.AllDirectories);
                 int num = 0;
                 string[] array = files;
                 foreach (string patchTocFileName in array) {
-                    BGWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(Settings.BasePath, ""), ""));
+                    _bgWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(Settings.BasePath, ""), ""));
                     num++;
                     if (Settings.VerboseScan) {
                         WriteLogEntry_Threaded("[0] Processing " + patchTocFileName);
@@ -45,8 +548,8 @@ namespace DAI.Mod.Manager {
                             list.Add(new ModBundle(item.GetStringValue("id"), "remove"));
                         }
                     }
-                    using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(Util.UnXorFile(patchTocFileName.Replace(".toc", ".sb"))))) {
-                        using (LazyDisposable<BinaryReader> lazyDisposable2 = new LazyDisposable<BinaryReader>(() => new BinaryReader(Util.UnXorFile(baseTocFileName.Replace(".toc", ".sb"))))) {
+                    using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(patchTocFileName.Replace(".toc", ".sb"))))) {
+                        using (LazyDisposable<BinaryReader> lazyDisposable2 = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(baseTocFileName.Replace(".toc", ".sb"))))) {
                             if (lazyDisposable.Value.ReadByte() != 130) {
                                 list2.Add(patchTocFileName.Replace(text + "\\", ""));
                                 continue;
@@ -267,16 +770,16 @@ namespace DAI.Mod.Manager {
             return modJob;
         }
 
-        private ModJob GenerateModJobFromDistPatch(ModContainer ModCont) {
+        public ModJob GenerateModJobFromDistPatch(ModContainer ModCont) {
             ModJob modJob = new ModJob(ModCont.Name, "", "");
             modJob.Meta = new ModMetaData(1, "", 0, new ModDetail(ModCont.Name, "", "", ""));
-            BGWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing distributable patch \"" + ModCont.Name + "\""));
+            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing distributable patch \"" + ModCont.Name + "\""));
             Dictionary<Sha1, DAICatEntry> dictionary = DAICat.SerializeLocal(ModCont.Path + "\\Data\\cas.cat");
             string[] files = Directory.GetFiles(ModCont.Path + "\\Data\\Win32", "*.toc", SearchOption.AllDirectories);
             int num = 0;
             string[] array = files;
             foreach (string Filename1 in array) {
-                BGWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, Filename1.Replace(ModCont.Path + "\\Data\\Win32\\", ""), ""));
+                _bgWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, Filename1.Replace(ModCont.Path + "\\Data\\Win32\\", ""), ""));
                 DAIToc dAIToc = DAIToc.ReadFromFile(Filename1, 0L);
                 string Filename2 = Filename1.Replace(ModCont.Path + "\\", Settings.BasePath);
                 if (dAIToc.HasBundles()) {
@@ -403,12 +906,12 @@ namespace DAI.Mod.Manager {
             return modJob;
         }
 
-        private IEnumerable<ModJob> ProcessModList(PatchPayloadData patchPayloadData) {
+        public IEnumerable<ModJob> ProcessModList(PatchPayloadData patchPayloadData) {
             return patchPayloadData.ModList.Select(delegate (ModContainer ModCont) {
                 if (!ModCont.IsDAIMod()) {
                     return GenerateModJobFromDistPatch(ModCont);
                 }
-                BGWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing DAI mod \"" + ModCont.Name + "\""));
+                _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing DAI mod \"" + ModCont.Name + "\""));
                 if (ModCont.Mod.ScriptObject != null) {
                     Scripting.CurrentMod = ModCont.Mod;
                     ModCont.Mod.ScriptObject.RunScript();
@@ -417,19 +920,19 @@ namespace DAI.Mod.Manager {
             });
         }
 
-        private ModJob GetBasePatchModJob(PatchPayloadData patchPayloadData) {
+        public ModJob GetBasePatchModJob(PatchPayloadData patchPayloadData) {
             if (!File.Exists(Directory.GetCurrentDirectory() + "\\patch.daimod") || Settings.RescanPatch) {
                 return GenerateModJobFromPatch(patchPayloadData.ModList[0].Version);
             }
-            BGWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Loading official patch."));
+            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Loading official patch."));
             return ModJob.CreateFromFile(Directory.GetCurrentDirectory() + "\\patch.daimod");
         }
 
-        private void PrepareDirectory(string directoryName, ModJob basePatchModJob, Dictionary<Sha1, byte[]> modResources, string patchDataPath, out DAIToc layoutToc) {
+        public void PrepareDirectory(string directoryName, ModJob basePatchModJob, Dictionary<Sha1, byte[]> modResources, string patchDataPath, out DAIToc layoutToc) {
             if (Directory.Exists(directoryName + "\\Data")) {
                 Directory.Delete(directoryName + "\\Data", recursive: true);
             }
-            BGWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Creating cas files."));
+            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Creating cas files."));
             string text = "";
             if (File.Exists(patchDataPath + "cas.cat")) {
                 Directory.CreateDirectory(directoryName + "\\Data");
@@ -485,7 +988,7 @@ namespace DAI.Mod.Manager {
             binaryWriter.Close();
         }
 
-        private ModJob ModJobForResource(IEnumerable<ModJob> modJobs, ModResourceEntry entry) {
+        public ModJob ModJobForResource(IEnumerable<ModJob> modJobs, ModResourceEntry entry) {
             foreach (ModJob modJob in modJobs) {
                 if (modJob.Meta.Resources.Contains(entry)) {
                     return modJob;
@@ -494,7 +997,7 @@ namespace DAI.Mod.Manager {
             return null;
         }
 
-        private bool CheckBasePatch() {
+        public bool CheckBasePatch() {
             if (DAIMft.SerializeFromFile(Settings.BasePath + "Update\\Patch\\package.mft").HasKey("ModManager")) {
                 return false;
             }

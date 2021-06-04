@@ -142,7 +142,7 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
                     _ = new byte[num3];
                     byte[] inData = Reader.ReadBytes((int)num3);
                     byte[] numArray1 = new byte[num];
-                    Utilities.DecompressZlib(inData, out numArray1);
+                    Utils.DecompressZlib(inData, out numArray1);
                     nums.AddRange(numArray1);
                 } else if (num2 == 28672) {
                     nums.AddRange(Reader.ReadBytes((int)num3));

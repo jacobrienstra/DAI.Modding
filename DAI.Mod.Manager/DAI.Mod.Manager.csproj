@@ -110,7 +110,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DAI.Mod.Manager\MainViewModel.cs" />
+    <Compile Include="DAI.Mod.Manager\ManagerViewModel.cs" />
     <Compile Include="DAI.Mod.Manager\ModConfigWindow.xaml.cs">
       <DependentUpon>ModConfigWindow.xaml</DependentUpon>
     </Compile>

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-using DAI.Mod.Manager.Utils;
+using DAI.Utilities;
+using DAI.AssetLibrary.Utilities.Extensions;
+using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
     public class DAIToc {
@@ -140,7 +142,7 @@ namespace DAI.Mod.Manager.Frostbite {
 
         public static DAIToc ReadFromFile(string Filename, long Offset = 0L) {
             DAIToc dAIToc = new DAIToc();
-            BinaryReader binaryReader = new BinaryReader(Util.UnXorFile(Filename));
+            BinaryReader binaryReader = new BinaryReader(FileHelpers.UnXorFile(Filename));
             binaryReader.BaseStream.Seek(Offset, SeekOrigin.Begin);
             dAIToc.Read(binaryReader);
             binaryReader.Close();

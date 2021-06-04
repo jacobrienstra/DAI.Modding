@@ -14,7 +14,7 @@ namespace DAI.Mod {
 
         public List<ModReq> Requirements;
 
-        public List<ModResourceEntry> Resources;
+        public List<ChunkModResourceEntry> Resources;
 
         public List<ModBundle> Bundles;
 
@@ -24,7 +24,7 @@ namespace DAI.Mod {
             Details = new ModDetail();
             Requirements = new List<ModReq>();
             Bundles = new List<ModBundle>();
-            Resources = new List<ModResourceEntry>();
+            Resources = new List<ChunkModResourceEntry>();
             CopyFiles = new List<string>();
         }
 
@@ -36,7 +36,7 @@ namespace DAI.Mod {
             Details = InDetails;
             Requirements = new List<ModReq>();
             Bundles = new List<ModBundle>();
-            Resources = new List<ModResourceEntry>();
+            Resources = new List<ChunkModResourceEntry>();
             CopyFiles = new List<string>();
         }
     }

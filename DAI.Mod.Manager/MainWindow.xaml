@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Window x:Class="DAI.Mod.Manager.MainWindow" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:DAI.Mod.Manager;assembly="
+        d:DataContext="{d:DesignInstance local:ManagerViewModel}"
         Title="Mod Manager [version]" 
         Height="650" 
         Width="500" 
@@ -31,7 +34,7 @@
             <Button Name="ModPathBrowseButton" Content="Browse" Click="ModPathBrowseButton_Click" Grid.Column="2" Grid.Row="0" Margin="10,4" />
             <Button Name="BasePathBrowseButton" Content="Browse" Margin="10,4" Click="BasePathBrowseButton_Click" Grid.Column="2" Grid.Row="1"/>
         </Grid>
-        <Grid Name="ModManagerGrid" Grid.Row="1">
+        <Grid Name="ModManagerGrid" Grid.Row="1" IsEnabled="{Binding ModManagerGridEnabled}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto"/>
@@ -43,7 +46,7 @@
                     <Button Name="MoveModUpButton" Content="▲" IsEnabled="False" Click="MoveModUpButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0,0,5,0"/>
                     <Button Name="MoveModDownButton" Content="▼" IsEnabled="False" Click="MoveModDownButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0"/>
                 </DockPanel>
-                <ListBox Grid.Column="0" Name="ModListBox" FontFamily="Consolas" SelectionChanged="ModListBox_SelectionChanged" MouseDoubleClick="ModListBox_MouseDoubleClick" />
+                <ListBox Grid.Column="0" Name="ModListBox" FontFamily="Consolas" SelectionChanged="ModListBox_SelectionChanged" MouseDoubleClick="ModListBox_MouseDoubleClick" ItemsSource="{Binding ModList}" />
             </DockPanel>
             
             <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
@@ -90,7 +93,7 @@
             </DockPanel>
         </Grid>
         <DockPanel Grid.Row="2" Margin="10" LastChildFill="False">
-            <Button Name="MergeButton" Style="{StaticResource AccentButtonStyle}" Content="Merge" IsEnabled="False" Click="MergeButton_Click" DockPanel.Dock="Right"/>
+            <Button Name="MergeButton" Style="{StaticResource AccentButtonStyle}" Content="Merge" IsEnabled="False" Click="MergeButton_Click" DockPanel.Dock="Right" IsEnabled="{Binding MergeReady}"/>
             <Button Name="CancelButton" Content="Cancel" DockPanel.Dock="Left" Click="CancelButton_Click" />
         </DockPanel>
     </Grid>

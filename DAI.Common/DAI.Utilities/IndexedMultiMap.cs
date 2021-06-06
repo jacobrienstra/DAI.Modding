@@ -12,7 +12,7 @@ namespace DAI.Utilities {
             int result = count;
             List<Tuple<int, TValue>> list3;
             if (!map.ContainsKey(key)) {
-                List<Tuple<int, TValue>> list2 = (map[key] = new List<Tuple<int, TValue>>());
+                List<Tuple<int, TValue>> list2 = map[key] = new List<Tuple<int, TValue>>();
                 list3 = list2;
             } else {
                 list3 = map[key];

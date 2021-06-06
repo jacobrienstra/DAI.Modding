@@ -5,7 +5,7 @@ using System.IO;
 
 namespace DAI.Mod.Manager.Utilities {
 
-    public static class Extensions {
+    public static class DQWordExt {
         public static DQWord ReadDQWord(this BinaryReader Reader) {
             DQWord dQWord = new DQWord(0uL, 0uL);
             dQWord.Value1 = Reader.ReadUInt64();

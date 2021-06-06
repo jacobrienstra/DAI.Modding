@@ -8,13 +8,14 @@ namespace DAI.Mod {
 
         public byte MinPatchVersion;
 
+        // 0 for manager created mod object
         public int ToolSetVersion;
 
         public ModDetail Details;
 
         public List<ModReq> Requirements;
 
-        public List<ChunkModResourceEntry> Resources;
+        public List<ModResourceEntry> Resources;
 
         public List<ModBundle> Bundles;
 
@@ -24,7 +25,7 @@ namespace DAI.Mod {
             Details = new ModDetail();
             Requirements = new List<ModReq>();
             Bundles = new List<ModBundle>();
-            Resources = new List<ChunkModResourceEntry>();
+            Resources = new List<ModResourceEntry>();
             CopyFiles = new List<string>();
         }
 
@@ -36,7 +37,7 @@ namespace DAI.Mod {
             Details = InDetails;
             Requirements = new List<ModReq>();
             Bundles = new List<ModBundle>();
-            Resources = new List<ChunkModResourceEntry>();
+            Resources = new List<ModResourceEntry>();
             CopyFiles = new List<string>();
         }
     }

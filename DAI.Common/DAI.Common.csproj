@@ -94,6 +94,7 @@
     <Compile Include="DAI.Utilities\LoadingProgressState.cs" />
     <Compile Include="DAI.Utilities\NumericExtensions.cs" />
     <Compile Include="DAI.Utilities\Meta.cs" />
+    <Compile Include="DAI.Utilities\Sha1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

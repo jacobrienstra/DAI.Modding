@@ -18,5 +18,9 @@ namespace DAI.Mod {
         public EbxModResourceEntry(EbxRef ebx, string action)
             : base(ebx.Name, "ebx", action) {
         }
+
+        public EbxModResourceEntry(string ebxName, string action)
+            : base(ebxName, "ebx", action) {
+        }
     }
 }

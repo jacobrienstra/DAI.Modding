@@ -5,7 +5,7 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities.Extensions;
 
 namespace DAI.Mod {
-    public class ChunkModResourceEntry : ModResourceEntry {
+    public partial class ChunkModResourceEntry : ModResourceEntry {
         public int RangeStart;
 
         public int RangeEnd;
@@ -53,6 +53,10 @@ namespace DAI.Mod {
 
         public ChunkModResourceEntry(ChunkRef chunk, string action)
             : base(chunk.ChunkId.ToSha1(), "chunk", action) {
+        }
+
+        public ChunkModResourceEntry(string chunkIDSha1HexString, string action)
+            : base(chunkIDSha1HexString, "chunk", action) {
         }
     }
 }

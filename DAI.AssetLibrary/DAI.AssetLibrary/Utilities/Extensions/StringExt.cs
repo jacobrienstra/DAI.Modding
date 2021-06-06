@@ -21,11 +21,7 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
         }
 
         public static string ToSha1(this byte[] strArray) {
-            byte[] retArray;
-            using (SHA1CryptoServiceProvider provider = new SHA1CryptoServiceProvider()) {
-                retArray = provider.ComputeHash(strArray);
-            }
-            return retArray.ToHex();
+            return ToSha1Bytes(strArray).ToHex();
         }
 
         public static byte[] ToSha1Bytes(this byte[] strArray) {

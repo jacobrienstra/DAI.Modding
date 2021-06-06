@@ -1,5 +1,6 @@
 using System.IO;
 
+using DAI.Utilities;
 using DAI.Mod.Manager.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 
@@ -9,7 +10,7 @@ namespace DAI.Mod.Manager.Frostbite {
 
         private Sha1 _stringHash = null;
 
-        public Sha1 StringHash => _stringHash ?? (_stringHash = new Sha1(StringValue.ToLower().ToSha1Bytes()));
+        public Sha1 StringHash => _stringHash ?? (_stringHash = new Sha1(StringValue.ToLower()));
 
         public StringField() {
             DataType = 7;

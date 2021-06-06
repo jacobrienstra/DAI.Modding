@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using DAI.Utilities;
 using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {

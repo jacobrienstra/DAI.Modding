@@ -1,5 +1,6 @@
 using System.IO;
 
+using DAI.Utilities;
 using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
@@ -16,7 +17,7 @@ namespace DAI.Mod.Manager.Frostbite {
 
         public override void Write(BinaryWriter Writer) {
             base.Write(Writer);
-            Writer.Write(Sha1Value.Sha1Value);
+            Writer.Write(Sha1Value.BytesValue);
         }
 
         public override string ToString() {

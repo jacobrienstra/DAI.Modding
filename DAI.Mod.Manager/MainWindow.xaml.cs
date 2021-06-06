@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
-using System.Windows.Shell;
-using System.Windows.Threading;
+using System.Windows.Forms;
+using System.Reflection;
 
-using DAI.Utilities;
 using DAI.Mod.Manager.Frostbite;
 using DAI.Mod.Manager.Utilities;
-using DAI.AssetLibrary.Utilities;
-using DAI.AssetLibrary.Utilities.Extensions;
-using System.Reflection;
+
+// TODO: inotify for 2 way bindings ugh
 
 namespace DAI.Mod.Manager {
     public partial class MainWindow : Window, IComponentConnector {
@@ -24,7 +19,7 @@ namespace DAI.Mod.Manager {
 
         private const string PatchBasePath = "Update\\Patch\\";
 
-        private ManagerViewModel _viewModel;
+        private readonly ManagerViewModel _viewModel;
 
         public MainWindow() {
             InitializeComponent();
@@ -44,46 +39,12 @@ namespace DAI.Mod.Manager {
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e) {
-            Cancelled = true;
+            _viewModel.Cancelled = true;
             Close();
         }
 
         private void MergeButton_Click(object sender, RoutedEventArgs e) {
-            Cancelled = false;
-            if (Cancelled) {
-                return;
-            }
-            Settings.VerboseScan = VerboseLoggingCheckBox.IsChecked.GetValueOrDefault();
-            Settings.RescanPatch |= ForceRescanCheckBox.IsChecked.GetValueOrDefault();
-            List<ModContainer> modList = (from ModContainer modContainer in ModListBox.Items
-                                          where modContainer.IsEnabled
-                                          select modContainer).ToList();
-            string text;
-            if (MergeDestinationCheckBox.IsChecked.GetValueOrDefault()) {
-                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-                saveFileDialog.Title = "Save merged patch";
-                saveFileDialog.FileName = "package.mft";
-                saveFileDialog.Filter = "package.mft|*.mft";
-                if (!saveFileDialog.ShowDialog().Value) {
-                    return;
-                }
-                text = saveFileDialog.FileName.Remove(saveFileDialog.FileName.LastIndexOf('\\') + 1).ToLower();
-            } else {
-                text = Settings.BasePath + "Update\\Patch_ModManagerMerge\\";
-            }
-            if (text == Settings.BasePath.ToLower() || text == Settings.BasePath.ToLower() + "update\\" || text == Settings.BasePath.ToLower() + "Update\\Patch\\") {
-                System.Windows.MessageBox.Show("You tried to save the merged patch to an invalid location. Please read usage instructions carefully and try again.", "Error");
-                return;
-            }
-            ProgressWin = new ProgressWindow();
-            Scripting.ProgressWindow = ProgressWin;
-            ProgressWin.Show();
-            BGWorker.RunWorkerAsync(new WorkerState(WorkerStateType.WorkerState_SavePatch, new PatchPayloadData {
-                CreateDistPatch = false,
-                IncludeProjectData = false,
-                OutputPath = text,
-                ModList = modList
-            }));
+            _viewModel.MergeMods(VerboseLoggingCheckBox.IsChecked.GetValueOrDefault(), ForceRescanCheckBox.IsChecked.GetValueOrDefault());
         }
 
         private void ModPathBrowseButton_Click(object sender, RoutedEventArgs e) {
@@ -122,21 +83,21 @@ namespace DAI.Mod.Manager {
         }
 
         private void ModListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (ModListBox.SelectedItem == null) {
-                ModTitleTextBlock.Text = "";
-                ModAuthorTextBlock.Text = "";
-                ModVersionTextBlock.Text = "";
-                ModDescriptionTextBox.Text = "";
-                ModMinPatchVersionTextBlock.Text = "";
-                ModConfigureButton.IsEnabled = false;
-                return;
-            }
+            //if (ModListBox.SelectedItem == null) {
+            //    ModTitleTextBlock.Text = "";
+            //    ModAuthorTextBlock.Text = "";
+            //    ModVersionTextBlock.Text = "";
+            //    ModDescriptionTextBox.Text = "";
+            //    ModMinPatchVersionTextBlock.Text = "";
+            //    ModConfigureButton.IsEnabled = false;
+            //    return;
+            //}
             ModContainer modContainer = (ModContainer)ModListBox.SelectedItem;
-            ModTitleTextBlock.Text = modContainer.Name;
-            ModAuthorTextBlock.Text = modContainer.Author;
-            ModVersionTextBlock.Text = modContainer.Version;
-            ModDescriptionTextBox.Text = modContainer.Description;
-            ModMinPatchVersionTextBlock.Text = ((modContainer.MinPatchVersion != -1) ? modContainer.MinPatchVersion.ToString() : "None");
+            //ModTitleTextBlock.Text = modContainer.Name;
+            //ModAuthorTextBlock.Text = modContainer.Author;
+            //ModVersionTextBlock.Text = modContainer.Version;
+            //ModDescriptionTextBox.Text = modContainer.Description;
+            ModMinPatchVersionTextBlock.Text = (modContainer.MinPatchVersion != -1) ? modContainer.MinPatchVersion.ToString() : "None";
             MoveModUpButton.IsEnabled = !modContainer.IsOfficialPatch;
             MoveModDownButton.IsEnabled = !modContainer.IsOfficialPatch;
             if (ModListBox.SelectedIndex != 0) {
@@ -147,8 +108,25 @@ namespace DAI.Mod.Manager {
             }
             ModConfigureButton.IsEnabled = modContainer.IsDAIMod() && modContainer.Mod.ScriptObject != null;
             ChangeStatusModButton.IsEnabled = !modContainer.IsOfficialPatch && (modContainer.MinPatchVersion == -1 || Settings.PatchVersion >= modContainer.MinPatchVersion);
-            ChangeStatusModButton.Content = (modContainer.IsEnabled ? "Disable" : "Enable");
-            ModMessageTextBlock.Text = ((Settings.PatchVersion < modContainer.MinPatchVersion) ? "(This mod is incompatible with your patch.)" : "");
+            //ModMessageTextBlock.Text = (Settings.PatchVersion < modContainer.MinPatchVersion) ? "(This mod is incompatible with your patch.)" : "";
+        }
+
+        private void ModListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+            SwitchSelectedModStatus();
+        }
+
+        private void ChangeStatusModButton_Click(object sender, RoutedEventArgs e) {
+            SwitchSelectedModStatus();
+        }
+
+        private void SwitchSelectedModStatus() {
+            ModContainer selectedMod = _viewModel.SelectedMod;
+            if (selectedMod != null) {
+                if (!selectedMod.IsOfficialPatch && Settings.PatchVersion >= selectedMod.MinPatchVersion) {
+                    selectedMod.IsEnabled = !selectedMod.IsEnabled;
+                    ModListBox.GetBindingExpression(ModListBox.SelectedItem as DependencyProperty).UpdateTarget();
+                }
+            }
         }
 
         private void MoveModUpButton_Click(object sender, RoutedEventArgs e) {
@@ -175,13 +153,6 @@ namespace DAI.Mod.Manager {
             ModListBox.Items.Insert(modContainer2.Index, modContainer2);
             ModListBox.Items.Insert(modContainer.Index, modContainer);
             ModListBox.SelectedItem = modContainer;
-        }
-
-        private void ChangeStatusModButton_Click(object sender, RoutedEventArgs e) {
-            ModContainer modContainer = (ModContainer)ModListBox.SelectedItem;
-            modContainer.IsEnabled = !modContainer.IsEnabled;
-            ChangeStatusModButton.Content = (modContainer.IsEnabled ? "Disable" : "Enable");
-            ModListBox.Items.Refresh();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -218,17 +189,6 @@ namespace DAI.Mod.Manager {
         private void Window_Closing(object sender, CancelEventArgs e) {
             if (ProgressWin != null && ProgressWin.IsActive) {
                 ProgressWin.Close();
-            }
-        }
-
-        private void ModListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
-            if (ModListBox.SelectedItem != null) {
-                ModContainer modContainer = (ModContainer)ModListBox.SelectedItem;
-                if (!modContainer.IsOfficialPatch && Settings.PatchVersion >= modContainer.MinPatchVersion) {
-                    modContainer.IsEnabled = !modContainer.IsEnabled;
-                    ChangeStatusModButton.Content = (modContainer.IsEnabled ? "Disable" : "Enable");
-                    ModListBox.Items.Refresh();
-                }
             }
         }
 

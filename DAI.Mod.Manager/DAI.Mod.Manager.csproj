@@ -115,6 +115,8 @@
       <DependentUpon>ModConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DAI.Mod.Manager\ModContainer.cs" />
+    <Compile Include="DAI.Mod.Manager\Utilities\Converters.cs" />
+    <Compile Include="DAI.Mod.Manager\Utilities\ModResourceEntryExt.cs" />
     <Compile Include="DAI.Mod.Manager\PatchPayloadData.cs" />
     <Compile Include="DAI.Mod.Manager\ProgressWindow.xaml.cs">
       <DependentUpon>ProgressWindow.xaml</DependentUpon>
@@ -122,7 +124,6 @@
     <Compile Include="DAI.Mod.Manager\Settings.cs" />
     <Compile Include="DAI.Mod.Manager\Utilities\DQWord.cs" />
     <Compile Include="DAI.Mod.Manager\Utilities\LazyDisposable.cs" />
-    <Compile Include="DAI.Mod.Manager\Utilities\Sha1.cs" />
     <Compile Include="DAI.Mod.Manager\WorkerState.cs" />
     <Compile Include="DAI.Mod.Manager\WorkerStateType.cs" />
     <Compile Include="DAI.Mod.Manager\Frostbite\BoolField.cs" />

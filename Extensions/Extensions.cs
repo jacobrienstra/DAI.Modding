@@ -17,8 +17,6 @@ namespace Extensions
     }
 
 
-
-
     public static class FileExtensions
     {
         /// <summary>

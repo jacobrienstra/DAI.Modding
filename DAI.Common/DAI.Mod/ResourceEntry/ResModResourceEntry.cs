@@ -38,5 +38,9 @@ namespace DAI.Mod {
         public ResModResourceEntry(ResRef res, string action)
             : base(res.Name, "res", action) {
         }
+
+        public ResModResourceEntry(string resName, string action)
+            : base(resName, "res", action) {
+        }
     }
 }

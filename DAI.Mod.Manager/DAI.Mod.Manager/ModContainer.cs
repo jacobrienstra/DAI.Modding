@@ -1,5 +1,5 @@
 using DAI.Mod;
-using DAI.Mod.Manager.Utils;
+using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager {
     public class ModContainer {
@@ -41,7 +41,7 @@ namespace DAI.Mod.Manager {
         }
 
         public override string ToString() {
-            return "[" + (IsEnabled ? "X" : " ") + "] " + Name;
+            return Name;
         }
     }
 }

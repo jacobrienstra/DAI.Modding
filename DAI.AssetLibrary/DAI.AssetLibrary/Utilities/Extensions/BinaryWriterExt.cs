@@ -15,5 +15,7 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
         public static void Write(this BinaryWriter Writer, Guid Value) {
             Writer.Write(Value.ToByteArray());
         }
+
+
     }
 }

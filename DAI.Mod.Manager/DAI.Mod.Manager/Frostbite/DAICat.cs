@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-using DAI.Mod.Manager.Utils;
+using DAI.Utilities;
+using DAI.AssetLibrary.Utilities.Extensions;
+using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
     public class DAICat {
@@ -19,11 +21,11 @@ namespace DAI.Mod.Manager.Frostbite {
         }
 
         public void Serialize(string CatPath) {
-            BinaryReader binaryReader = new BinaryReader(Util.UnXorFile(CatPath));
+            BinaryReader binaryReader = new BinaryReader(FileHelpers.UnXorFile(CatPath));
             binaryReader.BaseStream.Seek(16L, SeekOrigin.Begin);
             while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) {
                 DAICatEntry dAICatEntry = new DAICatEntry();
-                Sha1 key = binaryReader.ReadSha1();
+                Sha1 key = new Sha1(binaryReader.ReadSha1());
                 dAICatEntry.Offset = binaryReader.ReadInt32();
                 dAICatEntry.Size = binaryReader.ReadInt32();
                 int num = binaryReader.ReadInt32();
@@ -39,11 +41,11 @@ namespace DAI.Mod.Manager.Frostbite {
 
         public static Dictionary<Sha1, DAICatEntry> SerializeLocal(string CatPath) {
             Dictionary<Sha1, DAICatEntry> dictionary = new Dictionary<Sha1, DAICatEntry>();
-            BinaryReader binaryReader = new BinaryReader(Util.UnXorFile(CatPath));
+            BinaryReader binaryReader = new BinaryReader(FileHelpers.UnXorFile(CatPath));
             binaryReader.BaseStream.Seek(16L, SeekOrigin.Begin);
             while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) {
                 DAICatEntry dAICatEntry = new DAICatEntry();
-                Sha1 key = binaryReader.ReadSha1();
+                Sha1 key = new Sha1(binaryReader.ReadSha1());
                 dAICatEntry.Offset = binaryReader.ReadInt32();
                 dAICatEntry.Size = binaryReader.ReadInt32();
                 int num = binaryReader.ReadInt32();

@@ -5,9 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Shell;
 using System.Windows.Threading;
 
@@ -20,12 +17,14 @@ using DAI.AssetLibrary.Utilities;
 namespace DAI.Mod.Manager {
     public class ManagerViewModel {
         private readonly BackgroundWorker _bgWorker;
-
         public bool Cancelled { get; set; }
         public ProgressWindow ProgressWin { get; private set; }
         public List<ModContainer> ModList { get; private set; }
+        public ModContainer SelectedMod { get; set; }
         public bool ModManagerGridEnabled { get; private set; }
         public bool MergeReady { get; private set; }
+        public string ModPath { get; set; }
+        public string DAIPath { get; set; }
         public ManagerViewModel(BackgroundWorker bgWorker) {
             Cancelled = true;
             ModManagerGridEnabled = false;
@@ -39,6 +38,43 @@ namespace DAI.Mod.Manager {
             _bgWorker.ProgressChanged += BGWorker_ProgressChanged;
         }
 
+        public void MergeMods(bool verboseLogging, bool forceRescan) {
+            Cancelled = false;
+            if (Cancelled) {
+                return;
+            }
+            Settings.VerboseScan = verboseLogging;
+            Settings.RescanPatch |= forceRescan;
+            List <ModContainer> modList = (from ModContainer modContainer in ModList
+                                          where modContainer.IsEnabled
+                                          select modContainer).ToList();
+            string text;
+            if (MergeDestinationCheckBox.IsChecked.GetValueOrDefault()) {
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+                saveFileDialog.Title = "Save merged patch";
+                saveFileDialog.FileName = "package.mft";
+                saveFileDialog.Filter = "package.mft|*.mft";
+                if (!saveFileDialog.ShowDialog().Value) {
+                    return;
+                }
+                text = saveFileDialog.FileName.Remove(saveFileDialog.FileName.LastIndexOf('\\') + 1).ToLower();
+            } else {
+                text = Settings.BasePath + "Update\\Patch_ModManagerMerge\\";
+            }
+            if (text == Settings.BasePath.ToLower() || text == Settings.BasePath.ToLower() + "update\\" || text == Settings.BasePath.ToLower() + "Update\\Patch\\") {
+                System.Windows.MessageBox.Show("You tried to save the merged patch to an invalid location. Please read usage instructions carefully and try again.", "Error");
+                return;
+            }
+            _viewModel.ProgressWin = new ProgressWindow();
+            Scripting.ProgressWindow = ProgressWin;
+            ProgressWin.Show();
+            BGWorker.RunWorkerAsync(new WorkerState(WorkerStateType.WorkerState_SavePatch, new PatchPayloadData {
+                CreateDistPatch = false,
+                IncludeProjectData = false,
+                OutputPath = text,
+                ModList = modList
+            }));
+        }
         public void LoadMods() {
             ModList.Clear();
             // Initialize Check
@@ -143,25 +179,24 @@ namespace DAI.Mod.Manager {
 
         private void BGWorker_DoWork(object sender, DoWorkEventArgs e) {
             PatchPayloadData patchPayloadData = (PatchPayloadData)((WorkerState)e.Argument).Payload;
-            string patchDirectory = Path.GetDirectoryName(patchPayloadData.OutputPath);
+            string patchPayloadDirectory = Path.GetDirectoryName(patchPayloadData.OutputPath);
             ModJob basePatchModJob = GetBasePatchModJob(patchPayloadData);
-            patchPayloadData.ModList.RemoveAt(0);
+            patchPayloadData.ModList.RemoveAt(0);//TODO make this more explicitly the base patch
 
-            List<ModJob> modJobList = ProcessModList(patchPayloadData).ToList(); //list
+            List<ModJob> modJobList = ProcessModList(patchPayloadData).ToList(); 
 
-            Dictionary<Sha1, byte[]> modifiedRes = new Dictionary<Sha1, byte[]>(); //dictionary
-            Dictionary<int, List<ChunkModResourceEntry>> modifiedBundles = new Dictionary<int, List<ChunkModResourceEntry>>(); //dictionary2
-
-            List<int> bundlesToRemove = new List<int>(); //list2
+            Dictionary<Sha1, byte[]> modifiedResOGSha1ToData = new Dictionary<Sha1, byte[]>(); 
+            Dictionary<int, List<ModResourceEntry>> modifiedBundleEntriesDict = new Dictionary<int, List<ModResourceEntry>>(); 
+            List<int> bundlesToRemove = new List<int>();
 
             // get modified or deleted bundles from base patch
             foreach (ModBundle bundle in basePatchModJob.Meta.Bundles) {
                 if (bundle.Action == "modify") {
                     int bundleKey = Utils.Hasher(bundle.Name.ToLower());
                     // get all bundle entries
-                    List<ChunkModResourceEntry> bundleEntries = bundle.Entries.Select((ModBundleEntry modBundleEntry) => basePatchModJob.Meta.Resources[modBundleEntry.ResourceId]).ToList();
-                    bundleEntries.Sort((ChunkModResourceEntry A, ChunkModResourceEntry B) => B.ChunkH32.CompareTo(A.ChunkH32));
-                    modifiedBundles.Add(bundleKey, bundleEntries);
+                    List<ModResourceEntry> bundleEntries = bundle.Entries.Select((ModBundleEntry modBundleEntry) => basePatchModJob.Meta.Resources[modBundleEntry.ResourceId]).ToList();
+                    bundleEntries.Sort((ModResourceEntry A, ModResourceEntry B) => (B as ChunkModResourceEntry).ChunkH32.CompareTo((A as ChunkModResourceEntry).ChunkH32));
+                    modifiedBundleEntriesDict.Add(bundleKey, bundleEntries);
                 } else if (bundle.Action == "remove") {
                     bundlesToRemove.Add(Utils.Hasher(bundle.Name.ToLower()));
                 }
@@ -170,73 +205,75 @@ namespace DAI.Mod.Manager {
             // process user mods
             foreach (ModJob modJob in modJobList) {
 
-                // add modified resources from user mods
-                foreach (ChunkModResourceEntry item in modJob.Meta.Resources.Where((ChunkModResourceEntry mre) => mre.ResourceID != -1 && mre.IsEnabled && mre.Action != "remove")) {
-                    modifiedRes[new Sha1(item.OriginalSha1.ToSha1Bytes())] = modJob.Data[item.ResourceID];
+                // add modified resources from user mod
+                foreach (ModResourceEntry resource in modJob.Meta.Resources.Where((ModResourceEntry mre) => mre.ResourceID != -1 && mre.IsEnabled && mre.Action != "remove")) {
+                    modifiedResOGSha1ToData[resource.OriginalSha1] = modJob.Data[resource.ResourceID];
                 }
-                // add modified bundles from user mods
+                // add modified bundles from user mod
                 foreach (ModBundle mjBundle in modJob.Meta.Bundles) {
                     int mjBundleKey = Utils.Hasher(mjBundle.Name);
-                    // if newly mentioned bundle,
-                    // get only enabled resources
-                    if (!modifiedBundles.ContainsKey(mjBundleKey)) {
-                        modifiedBundles.Add(mjBundleKey, (from entry in mjBundle.Entries
-                                               where modJob.Meta.Resources[entry.ResourceId].IsEnabled
-                                               select entry into ent
-                                               select modJob.Meta.Resources[ent.ResourceId]).ToList());
-                        continue; 
-                    }
-                    // else, we already have bundle
-                    foreach (ModBundleEntry entry in mjBundle.Entries) {
-                        ChunkModResourceEntry modResourceEntry = modJob.Meta.Resources[entry.ResourceId];
-                        if (!modResourceEntry.IsEnabled) {
-                            continue;
-                        }
-                        int Hash = Utils.Hasher(modResourceEntry.Name + "_" + modResourceEntry.Action);
-                        // check if we already have this resource action listen for this bundle, and warn if so
-                        int index = modifiedBundles[mjBundleKey].FindIndex((ChunkModResourceEntry A) => Utils.Hasher(A.Name + "_" + A.Action) == Hash);
-                        if (index != -1) {
-                            // TODO: only returns first one found...
-                            ModJob prevModJob = ModJobForResource(modJobList, modifiedBundles[mjBundleKey][index]);
-                            if (prevModJob != null) {
-                                WriteLogEntry_Threaded("*** Warning: " + modResourceEntry.Name + "from mod " + prevModJob.Name + " overridden by " + modJob.Name);
+                    // if newly mentioned bundle, get enabled resources and then move on to next
+                    if (!modifiedBundleEntriesDict.ContainsKey(mjBundleKey)) {
+                        modifiedBundleEntriesDict.Add(mjBundleKey, (from entry in mjBundle.Entries
+                                                                    where modJob.Meta.Resources[entry.ResourceId].IsEnabled
+                                                                    select entry into ent
+                                                                    select modJob.Meta.Resources[ent.ResourceId]).ToList());
+                    } else {
+                        // else, we already have bundle, so process its entries
+                        foreach (ModBundleEntry entry in mjBundle.Entries) {
+                            ModResourceEntry modResourceEntry = modJob.Meta.Resources[entry.ResourceId];
+                            if (modResourceEntry.IsEnabled) {
+
+                                int Hash = Utils.Hasher(modResourceEntry.Name + "_" + modResourceEntry.Action);
+                                // check if we already have this resource-action for this bundle, and warn if so
+                                int index = modifiedBundleEntriesDict[mjBundleKey].FindIndex((ModResourceEntry A) => Utils.Hasher(A.Name + "_" + A.Action) == Hash);
+                                if (index != -1) {
+                                    // TODO: returns first one found, not most recent
+                                    ModJob prevModJob = ModJobForResource(modJobList, modifiedBundleEntriesDict[mjBundleKey][index]);
+                                    if (prevModJob != null) {
+                                        WriteLogEntry_Threaded("*** Warning: " + modResourceEntry.Name + "from mod " + prevModJob.Name + " overridden by " + modJob.Name);
+                                    }
+                                    // reset to new version
+                                    modifiedBundleEntriesDict[mjBundleKey][index] = modResourceEntry;
+                                } else {
+                                    // or add modified version
+                                    modifiedBundleEntriesDict[mjBundleKey].Add(modResourceEntry);
+                                }
                             }
-                            // reset to new version
-                            modifiedBundles[mjBundleKey][index] = modResourceEntry;
-                        } else {
-                            // add modified version
-                            modifiedBundles[mjBundleKey].Add(modResourceEntry);
                         }
                     }
                 }
             }
             string basePatchDataPath = Settings.BasePath + "Update\\Patch\\Data\\";
-            PrepareDirectory(patchDirectory, basePatchModJob, modifiedRes, basePatchDataPath, out var layoutToc);
+            PrepareDirectory(patchPayloadDirectory, basePatchModJob, modifiedResOGSha1ToData, basePatchDataPath, out var layoutToc);
             _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Creating merged patch."));
 
             string win32PatchPath = basePatchDataPath + "Win32\\";
-            DAIToc dAIToc;
+            DAIToc chunks0Toc;
             // Toc = Table of Contents
             if (File.Exists(win32PatchPath + "chunks0.toc")) {
-                dAIToc = DAIToc.ReadFromFile(win32PatchPath + "chunks0.toc", 0L);
-                if (!Directory.Exists(patchDirectory + "\\Data\\Win32")) {
-                    Directory.CreateDirectory(patchDirectory + "\\Data\\Win32");
+                chunks0Toc = DAIToc.ReadFromFile(win32PatchPath + "chunks0.toc", 0L);
+                if (!Directory.Exists(patchPayloadDirectory + "\\Data\\Win32")) {
+                    Directory.CreateDirectory(patchPayloadDirectory + "\\Data\\Win32");
                 }
-                File.Copy(win32PatchPath + "chunks0.sb", patchDirectory + "\\Data\\Win32\\chunks0.sb");
+                // copy chunks0 to modmanager patch dir
+                File.Copy(win32PatchPath + "chunks0.sb", patchPayloadDirectory + "\\Data\\Win32\\chunks0.sb");
             } else {
-                dAIToc = new DAIToc();
-                DAIEntry dAIEntry = new DAIEntry();
-                dAIEntry.AddListValue("bundles", new List<DAIEntry>());
-                dAIEntry.AddListValue("chunks", new List<DAIEntry>());
-                dAIEntry.AddBoolValue("cas", Value: true);
-                dAIToc.SetRootEntry(dAIEntry);
-                DAIToc dAIToc2 = new DAIToc();
-                DAIEntry dAIEntry2 = new DAIEntry();
-                dAIEntry2.AddListValue("bundles", new List<DAIEntry>());
-                dAIToc2.SetRootEntry(dAIEntry2);
-                dAIToc2.WriteToFile(patchDirectory + "\\Data\\Win32\\chunks0.sb");
+                // else create new chunks0 file(s) I guess
+                chunks0Toc = new DAIToc();
+                DAIEntry chunks0TocRootEntry = new DAIEntry();
+                chunks0TocRootEntry.AddListValue("bundles", new List<DAIEntry>());
+                chunks0TocRootEntry.AddListValue("chunks", new List<DAIEntry>());
+                chunks0TocRootEntry.AddBoolValue("cas", Value: true);
+                chunks0Toc.SetRootEntry(chunks0TocRootEntry);
+                DAIToc emptyChunks0Toc = new DAIToc();
+                DAIEntry emptyChunks0TocRootEntry = new DAIEntry();
+                emptyChunks0TocRootEntry.AddListValue("bundles", new List<DAIEntry>());
+                emptyChunks0Toc.SetRootEntry(emptyChunks0TocRootEntry);
+                emptyChunks0Toc.WriteToFile(patchPayloadDirectory + "\\Data\\Win32\\chunks0.sb");
             }
-            // add toc files if needed from base patch
+            // list added toc files from base patch
+            // toc files contain many bundles, bundles can be referenced by multiple tocs as well i think
             List<string> NewTocFileNames = new List<string>();
             basePatchModJob.Meta.Bundles.ForEach(delegate (ModBundle A) {
                 if (!NewTocFileNames.Contains(A.TocFilename) && (A.Action == "add") && !File.Exists(Settings.BasePath + "\\Data\\Win32\\" + A.TocFilename)) {
@@ -244,221 +281,247 @@ namespace DAI.Mod.Manager {
                 }
             });
 
+            // process new TocFiles
             foreach (string newTocFileName in NewTocFileNames) {
-                int newFileHash = Utils.Hasher(newTocFileName.ToLower());
-                // toc files contain many bundles
-                List<ModBundle> bundlesInToc = basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.TocFilename != null && Utils.Hasher(A.TocFilename.ToLower()) == newFileHash);
-                DAIEntry tocBundlesMeta = new DAIEntry();
-                tocBundlesMeta.AddListValue("bundles", new List<DAIEntry>());
-                DAIEntry tocBundlesContent = new DAIEntry();
-                tocBundlesContent.AddListValue("bundles", new List<DAIEntry>());
-                foreach (ModBundle bundleInToc in bundlesInToc) {
-                    DAIEntry bundleInTocContent = new DAIEntry();
-                    bundleInTocContent.AddStringValue("path", bundleInToc.Name);
-                    bundleInTocContent.AddDWordValue("magicSalt", (uint)bundleInToc.MagicSalt);
-                    bundleInTocContent.AddListValue("ebx", new List<DAIEntry>());
-                    bundleInTocContent.AddListValue("res", new List<DAIEntry>());
-                    bundleInTocContent.AddBoolValue("alignMembers", bundleInToc.AlignMembers == 1);
-                    bundleInTocContent.AddBoolValue("ridSupport", bundleInToc.RidSupport == 1);
-                    bundleInTocContent.AddBoolValue("storeCompressedSizes", bundleInToc.StoreCompressedSizes == 1);
-                    bundleInTocContent.AddQWordValue("totalSize", 0L);
-                    bundleInTocContent.AddQWordValue("dbxTotalSize", 0L);
+                int newFileNameHash = Utils.Hasher(newTocFileName.ToLower());
+                
+                List<ModBundle> bundlesInNewToc = basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.TocFilename != null && Utils.Hasher(A.TocFilename.ToLower()) == newFileNameHash);
 
-                    DAIEntry bundleInTocMeta = new DAIEntry();
-                    bundleInTocMeta.AddStringValue("id", bundleInToc.Name);
-                    bundleInTocMeta.AddQWordValue("offset", 0L);
-                    bundleInTocMeta.AddDWordValue("size", 0u);
+                DAIEntry newTocMetaBundles = new DAIEntry();
+                newTocMetaBundles.AddListValue("bundles", new List<DAIEntry>());
+                DAIEntry newTocContentBundles = new DAIEntry();
+                newTocContentBundles.AddListValue("bundles", new List<DAIEntry>());
 
-                    tocBundlesContent.GetListValue("bundles").Add(bundleInTocContent);
-                    tocBundlesMeta.GetListValue("bundles").Add(bundleInTocMeta);
+                // process bundles in newToc
+                foreach (ModBundle bundleInNewToc in bundlesInNewToc) {
+                    DAIEntry contentBundle = new DAIEntry();
+                    contentBundle.AddStringValue("path", bundleInNewToc.Name);
+                    contentBundle.AddDWordValue("magicSalt", (uint)bundleInNewToc.MagicSalt);
+                    contentBundle.AddListValue("ebx", new List<DAIEntry>());
+                    contentBundle.AddListValue("res", new List<DAIEntry>());
+                    contentBundle.AddBoolValue("alignMembers", bundleInNewToc.AlignMembers == 1);
+                    contentBundle.AddBoolValue("ridSupport", bundleInNewToc.RidSupport == 1);
+                    contentBundle.AddBoolValue("storeCompressedSizes", bundleInNewToc.StoreCompressedSizes == 1);
+                    contentBundle.AddQWordValue("totalSize", 0L);
+                    contentBundle.AddQWordValue("dbxTotalSize", 0L);
 
-                    foreach (ModBundleEntry entry in bundleInToc.Entries) {
-                        ChunkModResourceEntry entryMre = basePatchModJob.Meta.Resources[entry.ResourceId];
-                        ChunkModResourceEntry.BuildDAIEntry(bundleInTocContent, entryMre);
+                    DAIEntry metaBundle = new DAIEntry();
+                    metaBundle.AddStringValue("id", bundleInNewToc.Name);
+                    metaBundle.AddQWordValue("offset", 0L);
+                    metaBundle.AddDWordValue("size", 0u);
+
+                    newTocContentBundles.GetListValue("bundles").Add(contentBundle);
+                    newTocMetaBundles.GetListValue("bundles").Add(metaBundle);
+
+                    // add each resource entry as a daientry to bundle
+                    foreach (ModBundleEntry entry in bundleInNewToc.Entries) {
+                        ModResourceEntry entryMre = basePatchModJob.Meta.Resources[entry.ResourceId];
+                        ModResourceEntry.BuildDAIEntry(contentBundle, entryMre);
                     }
-                    int bundleInTocKey = Utils.Hasher(bundleInTocMeta.GetStringValue("id").ToLower());
-                    // if already have bundle, move on
-                    if (!modifiedBundles.ContainsKey(bundleInTocKey)) {
-                        continue;
-                    }
-                    // 
-                    foreach (ChunkModResourceEntry entryInBundleInToc in modifiedBundles[bundleInTocKey]) {
-                        ChunkModResourceEntry EntryInBundleInToc = entryInBundleInToc;
-                        if (EntryInBundleInToc.Action != "modify") {
-                            continue;
-                        }
-                        DAIEntry prevDAIEntry = bundleInTocContent.GetListValue(EntryInBundleInToc.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == EntryInBundleInToc.OriginalSha1);
-                        if (prevDAIEntry != null) {
-                            ChunkModResourceEntry.ModifyResourceEntry(EntryInBundleInToc, prevDAIEntry);
-                            continue;
-                        }
-                        ModJob prevModJob = ModJobForResource(modJobList, entryInBundleInToc);
-                        if (prevModJob != null) {
-                            WriteLogEntry_Threaded("*** Warning: " + entryInBundleInToc.Name + " not found for " + prevModJob.Name);
+                    // if we don't have  bundle, move on to next bundle
+                    int bundleInNewTocKey = Utils.Hasher(metaBundle.GetStringValue("id").ToLower());
+                    if (modifiedBundleEntriesDict.ContainsKey(bundleInNewTocKey)) {
+                        // else process existing entries
+                        foreach (ModResourceEntry entryInBundleInNewToc in modifiedBundleEntriesDict[bundleInNewTocKey]) {
+                            ModResourceEntry entryiBiNToc = entryInBundleInNewToc;
+                            if (entryiBiNToc.Action == "modify") {
+                                // tbh idk what's going on with the original/newsha1 stuff
+                                DAIEntry prevDAIEntry = contentBundle.GetListValue(entryiBiNToc.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == entryiBiNToc.OriginalSha1);
+                                if (prevDAIEntry != null) {
+                                    // update prevDAIEntry, if exists
+                                    ModResourceEntry.ModifyResourceEntry(entryiBiNToc, prevDAIEntry);
+                                } else {
+                                    // DAIEntry isn't in content bundle
+                                    // so if it IS referenced by a modjob, how did we get here without it
+                                    ModJob prevModJob = ModJobForResource(modJobList, entryInBundleInNewToc);
+                                    if (prevModJob != null) {
+                                        WriteLogEntry_Threaded("*** Warning: " + entryInBundleInNewToc.Name + " not found for " + prevModJob.Name);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                tocBundlesMeta.AddListValue("chunks", new List<DAIEntry>());
-                tocBundlesMeta.AddBoolValue("cas", Value: true);
-                tocBundlesMeta.AddStringValue("name", "Win32/" + newTocFileName.Replace(".toc", ""));
-                tocBundlesMeta.AddBoolValue("alwaysEmitSuperbundle", Value: true);
-                DAIToc newTocBundleContent = new DAIToc();
-                newTocBundleContent.SetRootEntry(tocBundlesContent);
-                newTocBundleContent.WriteToFile(patchDirectory + "\\Data\\Win32\\" + newTocFileName.Replace(".toc", ".sb"));
-                DAIToc newTocBundleMeta = new DAIToc();
-                newTocBundleMeta.SetRootEntry(tocBundlesMeta);
-                for (int i = 0; i < tocBundlesMeta.GetListValue("bundles").Count; i++) {
-                    DAIEntry tocBundlesMetaBundles = tocBundlesMeta.GetListValue("bundles")[i];
-                    DAIEntry tocBundlesContentBundles = tocBundlesContent.GetListValue("bundles")[i];
-                    tocBundlesMetaBundles.SetQWordValue("offset", tocBundlesContentBundles.EntryOffset);
-                    tocBundlesMetaBundles.SetDWordValue("size", (uint)tocBundlesContentBundles.GetSize());
+                
+                // set up toc i think
+                newTocMetaBundles.AddListValue("chunks", new List<DAIEntry>());
+                newTocMetaBundles.AddBoolValue("cas", Value: true);
+                newTocMetaBundles.AddStringValue("name", "Win32/" + newTocFileName.Replace(".toc", ""));
+                newTocMetaBundles.AddBoolValue("alwaysEmitSuperbundle", Value: true);
+
+                DAIToc newTocContentBundlesToc = new DAIToc();
+                newTocContentBundlesToc.SetRootEntry(newTocContentBundles);
+                newTocContentBundlesToc.WriteToFile(patchPayloadDirectory + "\\Data\\Win32\\" + newTocFileName.Replace(".toc", ".sb"));
+
+                DAIToc newTocMetaBundlesToc = new DAIToc();
+                newTocMetaBundlesToc.SetRootEntry(newTocMetaBundles);
+
+                // set offsets and size for each meta bundle
+                for (int i = 0; i < newTocMetaBundles.GetListValue("bundles").Count; i++) {
+                    DAIEntry newTocMetaBundle = newTocMetaBundles.GetListValue("bundles")[i];
+                    DAIEntry newTocContentBundle = newTocContentBundles.GetListValue("bundles")[i];
+                    newTocMetaBundle.SetQWordValue("offset", newTocContentBundle.EntryOffset);
+                    newTocMetaBundle.SetDWordValue("size", (uint)newTocContentBundle.GetSize());
                 }
-                newTocBundleMeta.WriteToFile(patchDirectory + "\\Data\\Win32\\" + newTocFileName, bWriteTocHeader: true);
+
+                newTocMetaBundlesToc.WriteToFile(patchPayloadDirectory + "\\Data\\Win32\\" + newTocFileName, bWriteTocHeader: true);
             }
 
+            // get all the existing toc files in main game data
             List<string> tocFiles = new List<string>();
             string win32Path = Settings.BasePath + "Data\\Win32";
             tocFiles.AddRange(Directory.GetFiles(win32Path, "*.toc", SearchOption.AllDirectories));
 
             int tocFileCount = 0;
+            // merge each existing toc with modified ones
             foreach (string tocFilename in tocFiles) {
                 if (Settings.VerboseScan) {
                     WriteLogEntry_Threaded("[0] Merging " + tocFilename);
                 }
-                Dictionary<DAIEntry, DAIEntry> entryMap = new Dictionary<DAIEntry, DAIEntry>();
+                Dictionary<DAIEntry, DAIEntry> bundleToChangedValue = new Dictionary<DAIEntry, DAIEntry>();
 
                 _bgWorker.ReportProgress((int)((double)tocFileCount / (double)tocFiles.Count * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, tocFilename.Replace(win32Path + "\\", ""), ""));
 
                 DAIToc tocFile = DAIToc.ReadFromFile(tocFilename, 0L);
-                bool flag = false;
-                using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(tocFilename.Replace(".toc", ".sb"))))) {
+                bool toRemove = false;
+                using (LazyDisposable<BinaryReader> lazyDisposableSb = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(tocFilename.Replace(".toc", ".sb"))))) {
+                    // foreach toc bundle
                     foreach (DAIEntry tocFileBundle in tocFile.GetBundles()) {
                         tocFileBundle.AddBoolValue("base", Value: true);
                         DAIEntry value = null;
                         int tocFileBundleKey = Utils.Hasher(tocFileBundle.GetStringValue("id").ToLower());
                         if (bundlesToRemove.Contains(tocFileBundleKey)) {
-                            flag = true;
-                            continue;
+                            toRemove = true;
+                        } else {
+                            // change to delta
+                            if (modifiedBundleEntriesDict.ContainsKey(tocFileBundleKey)) {
+                                tocFileBundle.RemoveField("base");
+                                tocFileBundle.AddBoolValue("delta", Value: true);
+                                value = DAIToc.ReadFromStream(lazyDisposableSb.Value, tocFileBundle.GetQWordValue("offset")).GetRootEntry();
+                                toRemove = true;
+                            }
+                            bundleToChangedValue.Add(tocFileBundle, value);
                         }
-                        if (modifiedBundles.ContainsKey(tocFileBundleKey)) {
-                            tocFileBundle.RemoveField("base");
-                            tocFileBundle.AddBoolValue("delta", Value: true);
-                            value = DAIToc.ReadFromStream(lazyDisposable.Value, tocFileBundle.GetQWordValue("offset")).GetRootEntry();
-                            flag = true;
-                        }
-                        entryMap.Add(tocFileBundle, value);
                     }
                 }
-                string actualFilename = tocFilename.Replace(Settings.BasePath + "Data\\Win32\\", "");
-                foreach (ModBundle basePatchBundleAdded in basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.Action == "add" && A.TocFilename.ToLower() == actualFilename.ToLower())) {
+
+                string shortFilename = tocFilename.Replace(Settings.BasePath + "Data\\Win32\\", "");
+                // set up added bundles
+                foreach (ModBundle addedBundle in basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.Action == "add" && A.TocFilename.ToLower() == shortFilename.ToLower())) {
                     if (Settings.VerboseScan) {
-                        WriteLogEntry_Threaded("[1] Adding bundle " + basePatchBundleAdded.Name);
+                        WriteLogEntry_Threaded("[1] Adding bundle " + addedBundle.Name);
                     }
-                    DAIEntry bundleContent = new DAIEntry();
-                    bundleContent.AddStringValue("path", basePatchBundleAdded.Name.ToLower());
-                    bundleContent.AddDWordValue("magicSalt", (uint)basePatchBundleAdded.MagicSalt);
-                    bundleContent.AddListValue("ebx", new List<DAIEntry>());
-                    bundleContent.AddListValue("res", new List<DAIEntry>());
-                    DAIEntry bundleMeta = new DAIEntry();
-                    bundleMeta.AddStringValue("id", basePatchBundleAdded.Name.ToLower());
-                    bundleMeta.AddQWordValue("offset", 0L);
-                    bundleMeta.AddDWordValue("size", 0u);
-                    bundleMeta.AddBoolValue("delta", Value: true);
-                    entryMap.Add(bundleMeta, bundleContent);
-                    foreach (ModBundleEntry basePatchBundleAddedEntry in basePatchBundleAdded.Entries) {
-                        ModResourceEntry modResourceEntry3 = basePatchModJob.Meta.Resources[basePatchBundleAddedEntry.ResourceId];
-                        ModResourceEntry.BuildDAIEntry(bundleContent, modResourceEntry3);
-                        flag = true;
+
+                    DAIEntry addedBundleContent = new DAIEntry();
+                    addedBundleContent.AddStringValue("path", addedBundle.Name.ToLower());
+                    addedBundleContent.AddDWordValue("magicSalt", (uint)addedBundle.MagicSalt);
+                    addedBundleContent.AddListValue("ebx", new List<DAIEntry>());
+                    addedBundleContent.AddListValue("res", new List<DAIEntry>());
+
+                    DAIEntry addedBundleMeta = new DAIEntry();
+                    addedBundleMeta.AddStringValue("id", addedBundle.Name.ToLower());
+                    addedBundleMeta.AddQWordValue("offset", 0L);
+                    addedBundleMeta.AddDWordValue("size", 0u);
+                    addedBundleMeta.AddBoolValue("delta", Value: true);
+
+                    bundleToChangedValue.Add(addedBundleMeta, addedBundleContent);
+
+                    foreach (ModBundleEntry addedBundleEntry in addedBundle.Entries) {
+                        ModResourceEntry addedBundleResource = basePatchModJob.Meta.Resources[addedBundleEntry.ResourceId];
+                        ModResourceEntry.BuildDAIEntry(addedBundleContent, addedBundleResource);
+                        toRemove = true;
                     }
-                    bundleContent.AddBoolValue("alignMembers", basePatchBundleAdded.AlignMembers == 1);
-                    bundleContent.AddBoolValue("ridSupport", basePatchBundleAdded.RidSupport == 1);
-                    bundleContent.AddBoolValue("storeCompressedSizes", basePatchBundleAdded.StoreCompressedSizes == 1);
-                    bundleContent.AddQWordValue("totalSize", 0L);
-                    bundleContent.AddQWordValue("dbxTotalSize", 0L);
+
+                    addedBundleContent.AddBoolValue("alignMembers", addedBundle.AlignMembers == 1);
+                    addedBundleContent.AddBoolValue("ridSupport", addedBundle.RidSupport == 1);
+                    addedBundleContent.AddBoolValue("storeCompressedSizes", addedBundle.StoreCompressedSizes == 1);
+                    addedBundleContent.AddQWordValue("totalSize", 0L);
+                    addedBundleContent.AddQWordValue("dbxTotalSize", 0L);
                 }
-                foreach (DAIEntry bundleMeta in entryMap.Values) {
-                    if (bundleMeta == null) {
-                        continue;
-                    }
-                    if (Settings.VerboseScan) {
-                        WriteLogEntry_Threaded("[1] Merging " + bundleMeta.GetStringValue("path"));
-                    }
-                    int bundleMetaKey = Utils.Hasher(bundleMeta.GetStringValue("path").ToLower());
-                    if (!modifiedBundles.ContainsKey(bundleMetaKey)) {
-                        continue;
-                    }
-                    foreach (ModResourceEntry bundleMetaRes in modifiedBundles[bundleMetaKey]) {
-                        ModResourceEntry ResourceEntry = bundleMetaRes;
-                        if (ResourceEntry.Action == "modify") {
-                            DAIEntry dAIEntry12 = bundleMeta.GetListValue(ResourceEntry.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == ResourceEntry.OriginalSha1);
-                            if (dAIEntry12 != null) {
-                                ModResourceEntry.ModifyResourceEntry(bundleMetaRes, dAIEntry12);
-                                continue;
-                            }
-                            ModJob prevModJob = ModJobForResource(modJobList, bundleMetaRes);
-                            if (prevModJob != null) {
-                                WriteLogEntry_Threaded("*** Warning: " + bundleMetaRes.Name + " not found for " + prevModJob.Name);
-                            }
-                        } else if (ResourceEntry.Action == "remove") {
-                            string mreType = ((ResourceEntry.Type == "chunk") ? "chunks" : ResourceEntry.Type);
-                            int index = bundleMeta.GetListValue(mreType).FindIndex((DAIEntry A) => A.GetSha1Value("sha1") == ResourceEntry.OriginalSha1);
-                            if (index != -1) {
-                                bundleMeta.GetListValue(mreType).RemoveAt(index);
-                                if (mreType == "chunks") {
-                                    bundleMeta.GetListValue("chunkMeta").RemoveAt(index);
+                // setup changed entries
+                foreach (DAIEntry changedEntry in bundleToChangedValue.Values) {
+                    if (changedEntry != null) {
+                        if (Settings.VerboseScan) {
+                            WriteLogEntry_Threaded("[1] Merging " + changedEntry.GetStringValue("path"));
+                        }
+                        int changedEntryKey = Utils.Hasher(changedEntry.GetStringValue("path").ToLower());
+                        if (modifiedBundleEntriesDict.ContainsKey(changedEntryKey)) {
+                            foreach (ModResourceEntry changedEntryEntry in modifiedBundleEntriesDict[changedEntryKey]) {
+                                ModResourceEntry resEntry = changedEntryEntry;
+                                if (resEntry.Action == "modify") {
+                                    DAIEntry currentResEntry = changedEntry.GetListValue(resEntry.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == resEntry.OriginalSha1);
+                                    if (currentResEntry != null) {
+                                        // change current entry
+                                        ModResourceEntry.ModifyResourceEntry(changedEntryEntry, currentResEntry);
+                                    } else {
+                                        // no existing res entry, in which case, we shouldn't have a mod job referencing it
+                                        ModJob prevModJob = ModJobForResource(modJobList, changedEntryEntry);
+                                        if (prevModJob != null) {
+                                            WriteLogEntry_Threaded("*** Warning: " + changedEntryEntry.Name + " not found for " + prevModJob.Name);
+                                        }
+                                    }
+                                } else if (resEntry.Action == "remove") {
+                                    string mreType = ((resEntry.Type == "chunk") ? "chunks" : resEntry.Type);
+                                    int index = changedEntry.GetListValue(mreType).FindIndex((DAIEntry A) => A.GetSha1Value("sha1") == resEntry.OriginalSha1);
+                                    if (index != -1) {
+                                        changedEntry.GetListValue(mreType).RemoveAt(index);
+                                        if (mreType == "chunks") {
+                                            changedEntry.GetListValue("chunkMeta").RemoveAt(index);
+                                        }
+                                    }
+                                } else {
+                                    ModResourceEntry.BuildDAIEntry(changedEntry, resEntry);
                                 }
                             }
-                        } else {
-                            ModResourceEntry.BuildDAIEntry(bundleMeta, ResourceEntry);
                         }
                     }
                 }
-                int num4;
-                if (flag) {
-                    foreach (KeyValuePair<DAIEntry, DAIEntry> entryMapPair in entryMap) {
-                        DAIEntry bundleContent = entryMapPair.Value;
-                        DAIEntry bundleMeta = entryMapPair.Key;
-                        if (bundleContent != null) {
-                            bundleContent.GetListValue("ebx").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
-                            bundleContent.GetListValue("res").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
-                            foreach (DAIEntry ebx in bundleContent.GetListValue("ebx")) {
+                // take care of removed bundles
+                if (toRemove) {
+                    foreach (KeyValuePair<DAIEntry, DAIEntry> entryMapPair in bundleToChangedValue) {
+                        DAIEntry changedValue = entryMapPair.Value;
+                        DAIEntry keyBundle = entryMapPair.Key;
+                        if (changedValue != null) {
+                            changedValue.GetListValue("ebx").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
+                            changedValue.GetListValue("res").Sort((DAIEntry A, DAIEntry B) => A.GetStringValue("name").CompareTo(B.GetStringValue("name")));
+                            foreach (DAIEntry ebx in changedValue.GetListValue("ebx")) {
                                 if (ebx.HasField("idata")) {
                                     ebx.RemoveField("idata");
                                 }
                             }
-                            foreach (DAIEntry res in bundleContent.GetListValue("res")) {
+                            foreach (DAIEntry res in changedValue.GetListValue("res")) {
                                 if (res.HasField("idata")) {
                                     res.RemoveField("idata");
                                 }
                             }
-                            if (bundleContent.HasField("chunks")) {
-                                foreach (DAIEntry chunk in bundleContent.GetListValue("chunks")) {
+                            if (changedValue.HasField("chunks")) {
+                                foreach (DAIEntry chunk in changedValue.GetListValue("chunks")) {
                                     if (chunk.HasField("idata")) {
                                         chunk.RemoveField("idata");
                                     }
                                 }
                             }
-                            if (bundleContent.HasField("chunkMeta")) {
-                                foreach (DAIEntry chunkMeta in from A in bundleContent.GetListValue("chunkMeta")
+                            if (changedValue.HasField("chunkMeta")) {
+                                foreach (DAIEntry chunkMeta in from A in changedValue.GetListValue("chunkMeta")
                                                             where A.GetDWordValue("h32") == -1
                                                             select A) {
-                                    bundleContent.GetListValue("chunkMeta").Remove(chunkMeta);
+                                    changedValue.GetListValue("chunkMeta").Remove(chunkMeta);
                                 }
                             }
-                            if (bundleContent.HasField("dbx")) {
-                                bundleContent.RemoveField("dbx");
+                            if (changedValue.HasField("dbx")) {
+                                changedValue.RemoveField("dbx");
                             }
-                            bundleContent.SetStringValue("path", bundleContent.GetStringValue("path").ToLower());
+                            changedValue.SetStringValue("path", changedValue.GetStringValue("path").ToLower());
                         }
-                        bundleMeta.SetStringValue("id", bundleMeta.GetStringValue("id").ToLower());
+                        keyBundle.SetStringValue("id", keyBundle.GetStringValue("id").ToLower());
                     }
-                    string tocActualFileName = tocFilename.Replace(Settings.BasePath, patchDirectory + "\\");
-                    string filename = tocActualFileName.Replace(".toc", ".sb");
+                    string tocPatchFilename = tocFilename.Replace(Settings.BasePath, patchPayloadDirectory + "\\");
+                    string filename = tocPatchFilename.Replace(".toc", ".sb");
                     DAIEntry allBundleContents = new DAIEntry();
                     allBundleContents.AddListValue("bundles", new List<DAIEntry>());
-                    foreach (DAIEntry bundleContent in entryMap.Values) {
-                        if (bundleContent != null) {
-                            allBundleContents.GetListValue("bundles").Add(bundleContent);
+                    foreach (DAIEntry changedValue in bundleToChangedValue.Values) {
+                        if (changedValue != null) {
+                            allBundleContents.GetListValue("bundles").Add(changedValue);
                         }
                     }
                     allBundleContents.GetListValue("bundles").Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("path"), B.GetStringValue("path")));
@@ -467,8 +530,8 @@ namespace DAI.Mod.Manager {
                     allBundleContentsToc.WriteToFile(filename);
                     DAIToc baseBundlesToc = new DAIToc();
                     DAIEntry baseBundles = new DAIEntry();
-                    List<DAIEntry> bundleMetas = entryMap.Keys.Where((DAIEntry A) => A.HasField("base")).ToList();
-                    List<DAIEntry> bundleMetaDeltas = entryMap.Keys.Where((DAIEntry A) => A.HasField("delta")).ToList();
+                    List<DAIEntry> bundleMetas = bundleToChangedValue.Keys.Where((DAIEntry A) => A.HasField("base")).ToList();
+                    List<DAIEntry> bundleMetaDeltas = bundleToChangedValue.Keys.Where((DAIEntry A) => A.HasField("delta")).ToList();
                     bundleMetas.Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("id"), B.GetStringValue("id")));
                     bundleMetaDeltas.Sort((DAIEntry A, DAIEntry B) => string.Compare(A.GetStringValue("id"), B.GetStringValue("id")));
                     bundleMetas.AddRange(bundleMetaDeltas);
@@ -477,7 +540,7 @@ namespace DAI.Mod.Manager {
                     baseBundles.AddBoolValue("cas", tocFile.GetRootEntry().GetBoolValue("cas"));
                     baseBundlesToc.SetRootEntry(baseBundles);
                     int index = 0;
-                    for (int j = 0; j < entryMap.Count; j++) {
+                    for (int j = 0; j < bundleToChangedValue.Count; j++) {
                         DAIEntry baseBundle = baseBundlesToc.GetBundles()[j];
                         if (baseBundle.HasField("delta")) {
                             DAIEntry dAIEntry16 = allBundleContentsToc.GetBundles()[index];
@@ -486,7 +549,7 @@ namespace DAI.Mod.Manager {
                             index++;
                         }
                     }
-                    baseBundlesToc.WriteToFile(tocActualFileName, bWriteTocHeader: true);
+                    baseBundlesToc.WriteToFile(tocPatchFilename, bWriteTocHeader: true);
                 }
                 tocFileCount++;
                 Sha1 LayoutNameHash = new Sha1(tocFilename.Replace(Settings.BasePath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
@@ -500,9 +563,9 @@ namespace DAI.Mod.Manager {
             layoutToc.GetRootEntry().RemoveField("fs");
             layoutToc.GetRootEntry().AddListValue("fs", new List<DAIEntry>());
             layoutToc.GetRootEntry().AddListStringChild("fs", "initfs_Win32");
-            layoutToc.WriteToFile(patchDirectory + "\\Data\\layout.toc", bWriteTocHeader: true);
-            dAIToc.WriteToFile(patchDirectory + "\\Data\\Win32\\chunks0.toc", bWriteTocHeader: true);
-            StreamWriter streamWriter = new StreamWriter(patchDirectory + "\\package.mft");
+            layoutToc.WriteToFile(patchPayloadDirectory + "\\Data\\layout.toc", bWriteTocHeader: true);
+            chunks0Toc.WriteToFile(patchPayloadDirectory + "\\Data\\Win32\\chunks0.toc", bWriteTocHeader: true);
+            StreamWriter streamWriter = new StreamWriter(patchPayloadDirectory + "\\package.mft");
             streamWriter.WriteLine("Name patch");
             streamWriter.WriteLine("Authoritative");
             streamWriter.WriteLine("Version " + (Settings.PatchVersion + 1));
@@ -523,400 +586,409 @@ namespace DAI.Mod.Manager {
 
         public ModJob GenerateModJobFromPatch(string version) {
             IndexedMultiMap<Sha1, ModResourceEntry> indexedMultiMap = new IndexedMultiMap<Sha1, ModResourceEntry>();
-            List<ModBundle> list = new List<ModBundle>();
-            List<string> list2 = new List<string>();
+            List<ModBundle> modBundleList = new List<ModBundle>();
+            List<string> copyFiles = new List<string>();
             if (File.Exists(Settings.BasePath + "Update\\Patch\\package.mft")) {
+
                 _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing official patch."));
-                string text = Settings.BasePath + "Update\\Patch\\Data\\Win32";
-                string[] files = Directory.GetFiles(text, "*.toc", SearchOption.AllDirectories);
-                int num = 0;
-                string[] array = files;
-                foreach (string patchTocFileName in array) {
-                    _bgWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(Settings.BasePath, ""), ""));
-                    num++;
+
+                string patchWin32Path = Settings.BasePath + "Update\\Patch\\Data\\Win32";
+                string[] patchTocFiles = Directory.GetFiles(patchWin32Path, "*.toc", SearchOption.AllDirectories);
+
+                int tocFileCount = 0;
+                string[] patchTocFilesArray = patchTocFiles;
+                foreach (string patchTocFileName in patchTocFilesArray) {
+
+                    _bgWorker.ReportProgress((int)((double)tocFileCount / (double)patchTocFiles.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(Settings.BasePath, ""), ""));
                     if (Settings.VerboseScan) {
                         WriteLogEntry_Threaded("[0] Processing " + patchTocFileName);
                     }
-                    DAIToc Toc = DAIToc.ReadFromFile(patchTocFileName, 0L);
-                    if (!Toc.HasBundles()) {
-                        continue;
-                    }
-                    string baseTocFileName = patchTocFileName.Replace(text, Settings.BasePath + "Data\\Win32");
-                    DAIToc dAIToc = (File.Exists(baseTocFileName) ? DAIToc.ReadFromFile(baseTocFileName, 0L) : null);
-                    if (dAIToc != null) {
-                        foreach (DAIEntry item in dAIToc.GetBundles().FindAll((DAIEntry A) => Toc.GetBundles().Find((DAIEntry B) => A.GetStringHashValue("id") == B.GetStringHashValue("id")) == null)) {
-                            list.Add(new ModBundle(item.GetStringValue("id"), "remove"));
-                        }
-                    }
-                    using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(patchTocFileName.Replace(".toc", ".sb"))))) {
-                        using (LazyDisposable<BinaryReader> lazyDisposable2 = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(baseTocFileName.Replace(".toc", ".sb"))))) {
-                            if (lazyDisposable.Value.ReadByte() != 130) {
-                                list2.Add(patchTocFileName.Replace(text + "\\", ""));
-                                continue;
+
+                    DAIToc newToc = DAIToc.ReadFromFile(patchTocFileName, 0L);
+                    if (newToc.HasBundles()) {
+                        string baseTocFileName = patchTocFileName.Replace(patchWin32Path, Settings.BasePath + "Data\\Win32");
+                        DAIToc existingToc = File.Exists(baseTocFileName) ? DAIToc.ReadFromFile(baseTocFileName, 0L) : null;
+                        if (existingToc != null) {
+                            // find all resources in existing toc that are NOT in newToc
+                            foreach (DAIEntry bundle in existingToc.GetBundles().FindAll(
+                                (DAIEntry A) => newToc.GetBundles().Find(
+                                    (DAIEntry B) => A.GetStringHashValue("id") == B.GetStringHashValue("id")
+                                ) == null)
+                            ) {
+                                modBundleList.Add(new ModBundle(bundle.GetStringValue("id"), "remove"));
                             }
-                            foreach (DAIEntry bundle in Toc.GetBundles()) {
-                                if (bundle.HasField("base")) {
-                                    continue;
-                                }
-                                bool flag = false;
-                                if (bundle.HasField("delta")) {
-                                    if (Settings.VerboseScan) {
-                                        WriteLogEntry_Threaded("[1] Processing bundle " + bundle.GetStringValue("id"));
-                                    }
-                                    DAIEntry rootEntry = DAIToc.ReadFromStream(lazyDisposable.Value, bundle.GetQWordValue("offset")).GetRootEntry();
-                                    Sha1 BundleHash = bundle.GetStringHashValue("id");
-                                    DAIEntry dAIEntry = dAIToc?.GetBundles().Find((DAIEntry A) => A.GetStringHashValue("id") == BundleHash);
-                                    if (dAIEntry != null) {
-                                        ModBundle modBundle = new ModBundle(rootEntry.GetStringValue("path"), "modify");
-                                        list.Add(modBundle);
-                                        if (rootEntry.HasField("ebx") && File.Exists(baseTocFileName)) {
-                                            DAIEntry rootEntry2 = DAIToc.ReadFromStream(lazyDisposable2.Value, dAIEntry.GetQWordValue("offset")).GetRootEntry();
-                                            HashSet<Sha1> modBundleSet3 = new HashSet<Sha1>(from ent in rootEntry.GetListValue("ebx")
-                                                                                            select ent.GetSha1Value("sha1"));
-                                            HashSet<Sha1> baseBundleSet3 = new HashSet<Sha1>(from ent in rootEntry2.GetListValue("ebx")
-                                                                                             select ent.GetSha1Value("sha1"));
-                                            foreach (DAIEntry item2 in from ent in rootEntry2.GetListValue("ebx")
-                                                                       where !modBundleSet3.Contains(ent.GetSha1Value("sha1"))
-                                                                       select ent) {
-                                                Sha1 sha1Value = item2.GetSha1Value("sha1");
-                                                int num2 = indexedMultiMap.FindIndex(sha1Value, (ModResourceEntry A) => A.Action == "remove");
-                                                if (num2 == -1) {
-                                                    num2 = indexedMultiMap.Add(sha1Value, new ModResourceEntry(item2.GetStringValue("name"), "ebx", "remove") {
-                                                        OriginalSha1 = sha1Value
-                                                    });
-                                                }
-                                                modBundle.Entries.Add(new ModBundleEntry(num2));
-                                            }
-                                            foreach (DAIEntry daiEntry7 in from ent in rootEntry.GetListValue("ebx")
-                                                                           where !baseBundleSet3.Contains(ent.GetSha1Value("sha1"))
-                                                                           select ent) {
-                                                int num3 = indexedMultiMap.FindIndex(daiEntry7.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "add" && A.PatchType == (daiEntry7.HasField("casPatchType") ? daiEntry7.GetDWordValue("casPatchType") : 0));
-                                                if (num3 == -1) {
-                                                    ModResourceEntry modResourceEntry = new ModResourceEntry(daiEntry7.GetStringValue("name"), "ebx", "add");
-                                                    modResourceEntry.Size = daiEntry7.GetQWordValue("size");
-                                                    modResourceEntry.OriginalSize = daiEntry7.GetQWordValue("originalSize");
-                                                    modResourceEntry.CopyPatchSha1(daiEntry7);
-                                                    num3 = indexedMultiMap.Add(daiEntry7.GetSha1Value("sha1"), modResourceEntry);
-                                                }
-                                                modBundle.Entries.Add(new ModBundleEntry(num3));
-                                            }
-                                        }
-                                        if (rootEntry.HasField("res") && File.Exists(baseTocFileName)) {
-                                            DAIEntry rootEntry3 = DAIToc.ReadFromStream(lazyDisposable2.Value, dAIEntry.GetQWordValue("offset")).GetRootEntry();
-                                            HashSet<Sha1> modBundleSet2 = new HashSet<Sha1>(from ent in rootEntry.GetListValue("res")
-                                                                                            select ent.GetSha1Value("sha1"));
-                                            HashSet<Sha1> baseBundleSet2 = new HashSet<Sha1>(from ent in rootEntry3.GetListValue("res")
-                                                                                             select ent.GetSha1Value("sha1"));
-                                            foreach (DAIEntry daiEntry6 in from ent in rootEntry3.GetListValue("res")
-                                                                           where !modBundleSet2.Contains(ent.GetSha1Value("sha1"))
-                                                                           select ent) {
-                                                Sha1 sha1Value2 = daiEntry6.GetSha1Value("sha1");
-                                                int num4 = indexedMultiMap.FindIndex(sha1Value2, (ModResourceEntry A) => A.Action == "remove" && A.Name == daiEntry6.GetStringValue("name"));
-                                                if (num4 == -1) {
-                                                    num4 = indexedMultiMap.Add(sha1Value2, new ModResourceEntry(daiEntry6.GetStringValue("name"), "res", "remove") {
-                                                        OriginalSha1 = sha1Value2
-                                                    });
-                                                }
-                                                modBundle.Entries.Add(new ModBundleEntry(num4));
-                                            }
-                                            foreach (DAIEntry daiEntry5 in from ent in rootEntry.GetListValue("res")
-                                                                           where !baseBundleSet2.Contains(ent.GetSha1Value("sha1"))
-                                                                           select ent) {
-                                                Sha1 sha1Value3 = daiEntry5.GetSha1Value("sha1");
-                                                int num5 = indexedMultiMap.FindIndex(sha1Value3, (ModResourceEntry A) => A.Action == "add" && A.Name == daiEntry5.GetStringValue("name") && A.PatchType == (daiEntry5.HasField("casPatchType") ? daiEntry5.GetDWordValue("casPatchType") : 0));
-                                                if (num5 == -1) {
-                                                    ModResourceEntry modResourceEntry2 = new ModResourceEntry(daiEntry5.GetStringValue("name"), "res", "add");
-                                                    modResourceEntry2.Size = daiEntry5.GetQWordValue("size");
-                                                    modResourceEntry2.OriginalSize = daiEntry5.GetQWordValue("originalSize");
-                                                    modResourceEntry2.ResRid = daiEntry5.GetQWordValue("resRid");
-                                                    modResourceEntry2.ResType = daiEntry5.GetDWordValue("resType");
-                                                    modResourceEntry2.Meta = Util.MetaToString(daiEntry5.GetByteArrayValue("resMeta"));
-                                                    modResourceEntry2.CopyPatchSha1(daiEntry5);
-                                                    num5 = indexedMultiMap.Add(sha1Value3, modResourceEntry2);
-                                                }
-                                                modBundle.Entries.Add(new ModBundleEntry(num5));
-                                            }
-                                        }
-                                        if (rootEntry.HasField("chunks") && File.Exists(baseTocFileName)) {
-                                            DAIEntry rootEntry4 = DAIToc.ReadFromStream(lazyDisposable2.Value, dAIEntry.GetQWordValue("offset")).GetRootEntry();
-                                            List<int> AddedCHUNK = new List<int>();
-                                            if (rootEntry4.HasField("chunks")) {
-                                                HashSet<DQWord> modBundleSet = new HashSet<DQWord>(from ent in rootEntry.GetListValue("chunks")
-                                                                                                   select ent.GetDQWordValue("id"));
-                                                foreach (DAIEntry daiEntry4 in from ent in rootEntry4.GetListValue("chunks")
-                                                                               where !modBundleSet.Contains(ent.GetDQWordValue("id"))
-                                                                               select ent) {
-                                                    int num6 = indexedMultiMap.FindIndex(daiEntry4.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "remove" && A.Name == daiEntry4.GetDQWordValue("id").ToString());
-                                                    if (num6 == -1) {
-                                                        num6 = indexedMultiMap.Add(daiEntry4.GetSha1Value("sha1"), new ModResourceEntry(daiEntry4.GetDQWordValue("id").ToString(), "chunk", "remove") {
-                                                            OriginalSha1 = daiEntry4.GetSha1Value("sha1")
-                                                        });
-                                                    }
-                                                    modBundle.Entries.Add(new ModBundleEntry(num6));
-                                                }
-                                                HashSet<DQWord> baseBundleSet = new HashSet<DQWord>(from ent in rootEntry4.GetListValue("chunks")
-                                                                                                    select ent.GetDQWordValue("id"));
-                                                int Idx = 0;
-                                                rootEntry.GetListValue("chunks").ForEach(delegate (DAIEntry A) {
-                                                    if (!baseBundleSet.Contains(A.GetDQWordValue("id"))) {
-                                                        AddedCHUNK.Add(Idx);
-                                                    }
-                                                    Idx++;
-                                                });
-                                            }
-                                            foreach (int item3 in AddedCHUNK) {
-                                                DAIEntry daiEntry3 = rootEntry.GetListValue("chunks")[item3];
-                                                DAIEntry dAIEntry2;
-                                                if (item3 < rootEntry.GetListValue("chunkMeta").Count) {
-                                                    dAIEntry2 = rootEntry.GetListValue("chunkMeta")[item3];
-                                                } else {
-                                                    dAIEntry2 = new DAIEntry();
-                                                    dAIEntry2.AddDWordValue("h32", uint.MaxValue);
-                                                    dAIEntry2.AddByteArrayValue("meta", new byte[1]);
-                                                }
-                                                int num7 = indexedMultiMap.FindIndex(daiEntry3.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "add" && A.Name == daiEntry3.GetDQWordValue("id").ToString());
-                                                if (num7 == -1) {
-                                                    ModResourceEntry modResourceEntry3 = new ModResourceEntry(daiEntry3.GetDQWordValue("id").ToString(), "chunk", "add");
-                                                    modResourceEntry3.Size = daiEntry3.GetDWordValue("size");
-                                                    modResourceEntry3.CopyChunkFields(daiEntry3, dAIEntry2);
-                                                    num7 = indexedMultiMap.Add(daiEntry3.GetSha1Value("sha1"), modResourceEntry3);
-                                                }
-                                                modBundle.Entries.Add(new ModBundleEntry(num7));
-                                            }
-                                        }
-                                    } else {
-                                        flag = true;
-                                    }
+                        }
+                        using (LazyDisposable<BinaryReader> patchSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(patchTocFileName.Replace(".toc", ".sb"))))) {
+                            using (LazyDisposable<BinaryReader> baseSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(baseTocFileName.Replace(".toc", ".sb"))))) {
+                                if (patchSbReader.Value.ReadByte() != 130) {
+                                    copyFiles.Add(patchTocFileName.Replace(patchWin32Path + "\\", ""));
                                 } else {
-                                    flag = true;
-                                }
-                                if (!flag) {
-                                    continue;
-                                }
-                                if (Settings.VerboseScan) {
-                                    WriteLogEntry_Threaded("[1] Processing bundle " + bundle.GetStringValue("id"));
-                                }
-                                DAIEntry rootEntry5 = DAIToc.ReadFromStream(lazyDisposable.Value, bundle.GetQWordValue("offset")).GetRootEntry();
-                                ModBundle modBundle2 = new ModBundle(rootEntry5.GetStringValue("path"), "add");
-                                modBundle2.TocFilename = patchTocFileName.Replace(text + "\\", "");
-                                modBundle2.MagicSalt = rootEntry5.GetDWordValue("magicSalt");
-                                modBundle2.AlignMembers = (byte)(rootEntry5.GetBoolValue("alignMembers") ? 1 : 0);
-                                modBundle2.RidSupport = (byte)(rootEntry5.GetBoolValue("ridSupport") ? 1 : 0);
-                                modBundle2.StoreCompressedSizes = (byte)(rootEntry5.GetBoolValue("storeCompressedSizes") ? 1 : 0);
-                                list.Add(modBundle2);
-                                if (rootEntry5.HasField("ebx")) {
-                                    foreach (DAIEntry item4 in rootEntry5.GetListValue("ebx")) {
-                                        DAIEntry Entry2 = item4;
-                                        Sha1 sha1Value4 = Entry2.GetSha1Value("sha1");
-                                        int num8 = indexedMultiMap.FindIndex(sha1Value4, (ModResourceEntry A) => A.Action == "add" && A.PatchType == (Entry2.HasField("casPatchType") ? Entry2.GetDWordValue("casPatchType") : 0));
-                                        if (num8 == -1) {
-                                            ModResourceEntry modResourceEntry4 = new ModResourceEntry(Entry2.GetStringValue("name"), "ebx", "add");
-                                            modResourceEntry4.Size = Entry2.GetQWordValue("size");
-                                            modResourceEntry4.OriginalSize = Entry2.GetQWordValue("originalSize");
-                                            modResourceEntry4.CopyPatchSha1(Entry2);
-                                            num8 = indexedMultiMap.Add(sha1Value4, modResourceEntry4);
+                                    foreach (DAIEntry bundle in newToc.GetBundles()) {
+                                        if (!bundle.HasField("base")) {
+                                            bool isBase = false;
+                                            if (!bundle.HasField("delta")) {
+                                                isBase = true;
+                                            } else {
+                                                if (Settings.VerboseScan) {
+                                                    WriteLogEntry_Threaded("[1] Processing bundle " + bundle.GetStringValue("id"));
+                                                }
+                                                DAIEntry patchRootEntry = DAIToc.ReadFromStream(patchSbReader.Value, bundle.GetQWordValue("offset")).GetRootEntry();
+                                                Sha1 bundleHash = bundle.GetStringHashValue("id");
+                                                DAIEntry existingBundle = existingToc?.GetBundles().Find((DAIEntry A) => A.GetStringHashValue("id") == bundleHash);
+                                                if (existingBundle == null) {
+                                                    isBase = true;
+                                                } else {
+                                                    ModBundle modBundle = new ModBundle(patchRootEntry.GetStringValue("path"), "modify");
+                                                    modBundleList.Add(modBundle);
+                                                    if (patchRootEntry.HasField("ebx") && File.Exists(baseTocFileName)) {
+                                                        DAIEntry baseRootEntry = DAIToc.ReadFromStream(baseSbReader.Value, existingBundle.GetQWordValue("offset")).GetRootEntry();
+                                                        HashSet<Sha1> patchRootEbxSha1s = new HashSet<Sha1>(from ent in patchRootEntry.GetListValue("ebx") select ent.GetSha1Value("sha1"));
+                                                        HashSet<Sha1> baseRootEbxSha1s = new HashSet<Sha1>(from ent in baseRootEntry.GetListValue("ebx") select ent.GetSha1Value("sha1"));
+                                                        foreach (DAIEntry baseRootEntryEbx in from ent in baseRootEntry.GetListValue("ebx")
+                                                                                              where !patchRootEbxSha1s.Contains(ent.GetSha1Value("sha1"))
+                                                                                              select ent) {
+                                                            Sha1 baseRootEntryEbxSha1 = baseRootEntryEbx.GetSha1Value("sha1");
+                                                            int removedIndex = indexedMultiMap.FindIndex(baseRootEntryEbxSha1, (ModResourceEntry A) => A.Action == "remove");
+                                                            if (removedIndex == -1) {
+                                                                removedIndex = indexedMultiMap.Add(baseRootEntryEbxSha1, new EbxModResourceEntry(baseRootEntryEbx.GetStringValue("name"), "remove") {
+                                                                    OriginalSha1 = baseRootEntryEbxSha1
+                                                                });
+                                                            }
+                                                            modBundle.Entries.Add(new ModBundleEntry(removedIndex));
+                                                        }
+                                                        foreach (DAIEntry patchRootEntryEbx in from ent in patchRootEntry.GetListValue("ebx")
+                                                                                               where !baseRootEbxSha1s.Contains(ent.GetSha1Value("sha1"))
+                                                                                               select ent) {
+                                                            int addedIndex = indexedMultiMap.FindIndex(patchRootEntryEbx.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "add" && A.PatchType == (patchRootEntryEbx.HasField("casPatchType") ? patchRootEntryEbx.GetDWordValue("casPatchType") : 0));
+                                                            if (addedIndex == -1) {
+                                                                ModResourceEntry modResourceEntry = new EbxModResourceEntry(patchRootEntryEbx.GetStringValue("name"), "add") {
+                                                                    Size = patchRootEntryEbx.GetQWordValue("size"),
+                                                                    OriginalSize = patchRootEntryEbx.GetQWordValue("originalSize")
+                                                                };
+                                                                modResourceEntry.CopyPatchSha1(patchRootEntryEbx);
+                                                                addedIndex = indexedMultiMap.Add(patchRootEntryEbx.GetSha1Value("sha1"), modResourceEntry);
+                                                            }
+                                                            modBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                        }
+                                                    }
+                                                    if (patchRootEntry.HasField("res") && File.Exists(baseTocFileName)) {
+                                                        DAIEntry baseRootEntry = DAIToc.ReadFromStream(baseSbReader.Value, existingBundle.GetQWordValue("offset")).GetRootEntry();
+                                                        HashSet<Sha1> patchRootEntryResSha1s = new HashSet<Sha1>(from ent in patchRootEntry.GetListValue("res")
+                                                                                                                 select ent.GetSha1Value("sha1"));
+                                                        HashSet<Sha1> baseRootEntryResSha1s = new HashSet<Sha1>(from ent in baseRootEntry.GetListValue("res")
+                                                                                                                select ent.GetSha1Value("sha1"));
+                                                        foreach (DAIEntry baseRootEntryRes in from ent in baseRootEntry.GetListValue("res")
+                                                                                              where !patchRootEntryResSha1s.Contains(ent.GetSha1Value("sha1"))
+                                                                                              select ent) {
+                                                            Sha1 baseRootEntryResSha1 = baseRootEntryRes.GetSha1Value("sha1");
+                                                            int removedIndex = indexedMultiMap.FindIndex(baseRootEntryResSha1, (ModResourceEntry A) => A.Action == "remove" && A.Name == baseRootEntryRes.GetStringValue("name"));
+                                                            if (removedIndex == -1) {
+                                                                removedIndex = indexedMultiMap.Add(baseRootEntryResSha1, new ResModResourceEntry(baseRootEntryRes.GetStringValue("name"), "remove") {
+                                                                    OriginalSha1 = baseRootEntryResSha1
+                                                                });
+                                                            }
+                                                            modBundle.Entries.Add(new ModBundleEntry(removedIndex));
+                                                        }
+                                                        foreach (DAIEntry patchRootEntryRes in from ent in patchRootEntry.GetListValue("res")
+                                                                                               where !baseRootEntryResSha1s.Contains(ent.GetSha1Value("sha1"))
+                                                                                               select ent) {
+                                                            Sha1 patchRootEntryResSha1 = patchRootEntryRes.GetSha1Value("sha1");
+                                                            int addedIndex = indexedMultiMap.FindIndex(patchRootEntryResSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == patchRootEntryRes.GetStringValue("name") && A.PatchType == (patchRootEntryRes.HasField("casPatchType") ? patchRootEntryRes.GetDWordValue("casPatchType") : 0));
+                                                            if (addedIndex == -1) {
+                                                                ResModResourceEntry resModEntry = new ResModResourceEntry(patchRootEntryRes.GetStringValue("name"), "add");
+                                                                resModEntry.Size = patchRootEntryRes.GetQWordValue("size");
+                                                                resModEntry.OriginalSize = patchRootEntryRes.GetQWordValue("originalSize");
+                                                                resModEntry.ResRid = patchRootEntryRes.GetQWordValue("resRid");
+                                                                resModEntry.ResType = patchRootEntryRes.GetDWordValue("resType");
+                                                                resModEntry.Meta = Meta.MetaToString(patchRootEntryRes.GetByteArrayValue("resMeta"));
+                                                                resModEntry.CopyPatchSha1(patchRootEntryRes);
+                                                                addedIndex = indexedMultiMap.Add(patchRootEntryResSha1, resModEntry);
+                                                            }
+                                                            modBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                        }
+                                                    }
+                                                    if (patchRootEntry.HasField("chunks") && File.Exists(baseTocFileName)) {
+                                                        DAIEntry baseRootEntry = DAIToc.ReadFromStream(baseSbReader.Value, existingBundle.GetQWordValue("offset")).GetRootEntry();
+                                                        List<int> AddedCHUNK = new List<int>();
+                                                        if (baseRootEntry.HasField("chunks")) {
+                                                            HashSet<DQWord> patchChunkId = new HashSet<DQWord>(from ent in patchRootEntry.GetListValue("chunks")
+                                                                                                               select ent.GetDQWordValue("id"));
+                                                            foreach (DAIEntry baseRootEntryChunk in from ent in baseRootEntry.GetListValue("chunks")
+                                                                                                    where !patchChunkId.Contains(ent.GetDQWordValue("id"))
+                                                                                                    select ent) {
+                                                                int removedIndex = indexedMultiMap.FindIndex(baseRootEntryChunk.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "remove" && A.Name == baseRootEntryChunk.GetDQWordValue("id").ToString());
+                                                                if (removedIndex == -1) {
+                                                                    removedIndex = indexedMultiMap.Add(baseRootEntryChunk.GetSha1Value("sha1"), new ChunkModResourceEntry(baseRootEntryChunk.GetDQWordValue("id").ToString(), "remove") {
+                                                                        OriginalSha1 = baseRootEntryChunk.GetSha1Value("sha1")
+                                                                    });
+                                                                }
+                                                                modBundle.Entries.Add(new ModBundleEntry(removedIndex));
+                                                            }
+                                                            HashSet<DQWord> baseChunkId = new HashSet<DQWord>(from ent in baseRootEntry.GetListValue("chunks") select ent.GetDQWordValue("id"));
+                                                            int idx = 0;
+                                                            patchRootEntry.GetListValue("chunks").ForEach(delegate (DAIEntry A)
+                                                            {
+                                                                if (!baseChunkId.Contains(A.GetDQWordValue("id"))) {
+                                                                    AddedCHUNK.Add(idx);
+                                                                }
+                                                                idx++;
+                                                            });
+                                                        }
+                                                        foreach (int index in AddedCHUNK) {
+                                                            DAIEntry chunk = patchRootEntry.GetListValue("chunks")[index];
+                                                            DAIEntry chunkMeta;
+                                                            if (index < patchRootEntry.GetListValue("chunkMeta").Count) {
+                                                                chunkMeta = patchRootEntry.GetListValue("chunkMeta")[index];
+                                                            } else {
+                                                                chunkMeta = new DAIEntry();
+                                                                chunkMeta.AddDWordValue("h32", uint.MaxValue);
+                                                                chunkMeta.AddByteArrayValue("meta", new byte[1]);
+                                                            }
+                                                            int addedIndex = indexedMultiMap.FindIndex(chunk.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "add" && A.Name == chunk.GetDQWordValue("id").ToString());
+                                                            if (addedIndex == -1) {
+                                                                ModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
+                                                                chunkModEntry.Size = chunk.GetDWordValue("size");
+                                                                chunkModEntry.CopyChunkFields(chunk, chunkMeta);
+                                                                addedIndex = indexedMultiMap.Add(chunk.GetSha1Value("sha1"), chunkModEntry);
+                                                            }
+                                                            modBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (isBase) {
+                                                if (Settings.VerboseScan) {
+                                                    WriteLogEntry_Threaded("[1] Processing bundle " + bundle.GetStringValue("id"));
+                                                }
+                                                DAIEntry patchBundle = DAIToc.ReadFromStream(patchSbReader.Value, bundle.GetQWordValue("offset")).GetRootEntry();
+                                                ModBundle patchModBundle = new ModBundle(patchBundle.GetStringValue("path"), "add");
+                                                patchModBundle.TocFilename = patchTocFileName.Replace(patchWin32Path + "\\", "");
+                                                patchModBundle.MagicSalt = patchBundle.GetDWordValue("magicSalt");
+                                                patchModBundle.AlignMembers = (byte)(patchBundle.GetBoolValue("alignMembers") ? 1 : 0);
+                                                patchModBundle.RidSupport = (byte)(patchBundle.GetBoolValue("ridSupport") ? 1 : 0);
+                                                patchModBundle.StoreCompressedSizes = (byte)(patchBundle.GetBoolValue("storeCompressedSizes") ? 1 : 0);
+                                                modBundleList.Add(patchModBundle);
+                                                if (patchBundle.HasField("ebx")) {
+                                                    foreach (DAIEntry patchBundleEbx in patchBundle.GetListValue("ebx")) {
+                                                        DAIEntry patchBundleEbxEntry = patchBundleEbx;
+                                                        Sha1 patchBundleEbxSha1 = patchBundleEbxEntry.GetSha1Value("sha1");
+                                                        int addedIndex = indexedMultiMap.FindIndex(patchBundleEbxSha1, (ModResourceEntry A) => A.Action == "add" && A.PatchType == (patchBundleEbxEntry.HasField("casPatchType") ? patchBundleEbxEntry.GetDWordValue("casPatchType") : 0));
+                                                        if (addedIndex == -1) {
+                                                            EbxModResourceEntry ebxModEntry = new EbxModResourceEntry(patchBundleEbxEntry.GetStringValue("name"), "add");
+                                                            ebxModEntry.Size = patchBundleEbxEntry.GetQWordValue("size");
+                                                            ebxModEntry.OriginalSize = patchBundleEbxEntry.GetQWordValue("originalSize");
+                                                            ebxModEntry.CopyPatchSha1(patchBundleEbxEntry);
+                                                            addedIndex = indexedMultiMap.Add(patchBundleEbxSha1, ebxModEntry);
+                                                        }
+                                                        patchModBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                    }
+                                                }
+                                                if (patchBundle.HasField("res")) {
+                                                    foreach (DAIEntry patchBundleRes in patchBundle.GetListValue("res")) {
+                                                        Sha1 patchBundleResSha1 = patchBundleRes.GetSha1Value("sha1");
+                                                        int addedIndex = indexedMultiMap.FindIndex(patchBundleResSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == patchBundleRes.GetStringValue("name") && A.PatchType == (patchBundleRes.HasField("casPatchType") ? patchBundleRes.GetDWordValue("casPatchType") : 0));
+                                                        if (addedIndex == -1) {
+                                                            ResModResourceEntry resModEntry = new ResModResourceEntry(patchBundleRes.GetStringValue("name"), "add");
+                                                            resModEntry.CopyPatchSha1(patchBundleRes);
+                                                            resModEntry.Size = patchBundleRes.GetQWordValue("size");
+                                                            resModEntry.OriginalSize = patchBundleRes.GetQWordValue("originalSize");
+                                                            resModEntry.ResRid = patchBundleRes.GetQWordValue("resRid");
+                                                            resModEntry.ResType = patchBundleRes.GetDWordValue("resType");
+                                                            resModEntry.Meta = Meta.MetaToString(patchBundleRes.GetByteArrayValue("resMeta"));
+                                                            addedIndex = indexedMultiMap.Add(patchBundleResSha1, resModEntry);
+                                                        }
+                                                        patchModBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                    }
+                                                }
+                                                if (patchBundle.HasField("chunks")) {
+                                                    for (int i = 0; i < patchBundle.GetListValue("chunks").Count; i++) {
+                                                        DAIEntry chunk = patchBundle.GetListValue("chunks")[i];
+                                                        Sha1 chunkSha1 = chunk.GetSha1Value("sha1");
+                                                        DAIEntry chunkMeta = patchBundle.GetListValue("chunkMeta")[i];
+                                                        int addedIndex = indexedMultiMap.FindIndex(chunkSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == chunk.GetDQWordValue("id").ToString());
+                                                        if (addedIndex == -1) {
+                                                            ChunkModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
+                                                            chunkModEntry.Size = chunk.GetDWordValue("size");
+                                                            chunkModEntry.CopyChunkFields(chunk, chunkMeta);
+                                                            addedIndex = indexedMultiMap.Add(chunkSha1, chunkModEntry);
+                                                        }
+                                                        patchModBundle.Entries.Add(new ModBundleEntry(addedIndex));
+                                                    }
+                                                }
+                                            }
                                         }
-                                        modBundle2.Entries.Add(new ModBundleEntry(num8));
                                     }
-                                }
-                                if (rootEntry5.HasField("res")) {
-                                    foreach (DAIEntry daiEntry2 in rootEntry5.GetListValue("res")) {
-                                        Sha1 sha1Value5 = daiEntry2.GetSha1Value("sha1");
-                                        int num9 = indexedMultiMap.FindIndex(sha1Value5, (ModResourceEntry A) => A.Action == "add" && A.Name == daiEntry2.GetStringValue("name") && A.PatchType == (daiEntry2.HasField("casPatchType") ? daiEntry2.GetDWordValue("casPatchType") : 0));
-                                        if (num9 == -1) {
-                                            ModResourceEntry modResourceEntry5 = new ModResourceEntry(daiEntry2.GetStringValue("name"), "res", "add");
-                                            modResourceEntry5.CopyPatchSha1(daiEntry2);
-                                            modResourceEntry5.Size = daiEntry2.GetQWordValue("size");
-                                            modResourceEntry5.OriginalSize = daiEntry2.GetQWordValue("originalSize");
-                                            modResourceEntry5.ResRid = daiEntry2.GetQWordValue("resRid");
-                                            modResourceEntry5.ResType = daiEntry2.GetDWordValue("resType");
-                                            modResourceEntry5.Meta = Util.MetaToString(daiEntry2.GetByteArrayValue("resMeta"));
-                                            num9 = indexedMultiMap.Add(sha1Value5, modResourceEntry5);
-                                        }
-                                        modBundle2.Entries.Add(new ModBundleEntry(num9));
-                                    }
-                                }
-                                if (!rootEntry5.HasField("chunks")) {
-                                    continue;
-                                }
-                                int num10 = 0;
-                                while (num10 < rootEntry5.GetListValue("chunks").Count) {
-                                    DAIEntry Entry = rootEntry5.GetListValue("chunks")[num10];
-                                    Sha1 sha1Value6 = Entry.GetSha1Value("sha1");
-                                    DAIEntry chunkMetaEntry = rootEntry5.GetListValue("chunkMeta")[num10];
-                                    int num11 = indexedMultiMap.FindIndex(sha1Value6, (ModResourceEntry A) => A.Action == "add" && A.Name == Entry.GetDQWordValue("id").ToString());
-                                    if (num11 == -1) {
-                                        ModResourceEntry modResourceEntry6 = new ModResourceEntry(Entry.GetDQWordValue("id").ToString(), "chunk", "add");
-                                        modResourceEntry6.Size = Entry.GetDWordValue("size");
-                                        modResourceEntry6.CopyChunkFields(Entry, chunkMetaEntry);
-                                        num11 = indexedMultiMap.Add(sha1Value6, modResourceEntry6);
-                                    }
-                                    modBundle2.Entries.Add(new ModBundleEntry(num11));
-                                    int num12 = num10 + 1;
-                                    num10 = num12;
                                 }
                             }
                         }
                     }
+                    tocFileCount++;
                 }
             }
-            ModJob modJob = new ModJob("Official Patch", "", "");
-            modJob.Meta = new ModMetaData(1, "", 0, new ModDetail("Official Patch", version, "Bioware", ""));
-            modJob.Meta.Resources = indexedMultiMap.ToList();
-            modJob.Meta.Bundles = list;
-            modJob.Meta.CopyFiles = list2;
+            ModJob modJob = new ModJob("Official Patch", "", "") {
+                Meta = new ModMetaData(1, 0, "", 0, new ModDetail("Official Patch", version, "Bioware", "")) {
+                    Resources = indexedMultiMap.ToList(),
+                    Bundles = modBundleList,
+                    CopyFiles = copyFiles
+                }
+            };
             modJob.Save(Directory.GetCurrentDirectory() + "\\Patch.daimod");
             Settings.RescanPatch = false;
             return modJob;
         }
 
-        public ModJob GenerateModJobFromDistPatch(ModContainer ModCont) {
-            ModJob modJob = new ModJob(ModCont.Name, "", "");
-            modJob.Meta = new ModMetaData(1, "", 0, new ModDetail(ModCont.Name, "", "", ""));
-            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing distributable patch \"" + ModCont.Name + "\""));
-            Dictionary<Sha1, DAICatEntry> dictionary = DAICat.SerializeLocal(ModCont.Path + "\\Data\\cas.cat");
-            string[] files = Directory.GetFiles(ModCont.Path + "\\Data\\Win32", "*.toc", SearchOption.AllDirectories);
-            int num = 0;
-            string[] array = files;
-            foreach (string Filename1 in array) {
-                _bgWorker.ReportProgress((int)((double)num / (double)files.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, Filename1.Replace(ModCont.Path + "\\Data\\Win32\\", ""), ""));
-                DAIToc dAIToc = DAIToc.ReadFromFile(Filename1, 0L);
-                string Filename2 = Filename1.Replace(ModCont.Path + "\\", Settings.BasePath);
-                if (dAIToc.HasBundles()) {
-                    using (LazyDisposable<BinaryReader> lazyDisposable = new LazyDisposable<BinaryReader>(() => new BinaryReader(Util.UnXorFile(Filename1.Replace(".toc", ".sb"))))) {
-                        using (LazyDisposable<BinaryReader> lazyDisposable2 = new LazyDisposable<BinaryReader>(() => new BinaryReader(Util.UnXorFile(Filename2.Replace(".toc", ".sb"))))) {
-                            foreach (DAIEntry bundle in dAIToc.GetBundles()) {
-                                if (bundle.HasField("base") || !bundle.HasField("delta")) {
-                                    continue;
-                                }
-                                DAIEntry rootEntry = DAIToc.ReadFromStream(lazyDisposable.Value, bundle.GetQWordValue("offset")).GetRootEntry();
-                                Sha1 BundleHash = bundle.GetStringHashValue("id");
-                                ModBundle modBundle = new ModBundle(rootEntry.GetStringValue("path"), "modify");
-                                modJob.Meta.Bundles.Add(modBundle);
-                                DAIEntry dAIEntry = DAIToc.ReadFromFile(Filename2, 0L).GetBundles().Find((DAIEntry A) => A.GetStringHashValue("id") == BundleHash);
-                                DAIEntry rootEntry2 = DAIToc.ReadFromStream(lazyDisposable2.Value, dAIEntry.GetQWordValue("offset")).GetRootEntry();
-                                if (rootEntry.HasField("ebx")) {
-                                    ILookup<Sha1, DAIEntry> baseBundleSet3 = rootEntry2.GetListValue("ebx").ToLookup((DAIEntry ent) => ent.GetStringHashValue("name"));
-                                    foreach (DAIEntry item in from ent in rootEntry.GetListValue("ebx")
-                                                              where !baseBundleSet3[ent.GetStringHashValue("name")].Any((DAIEntry ent2) => ent.GetSha1Value("sha1") == ent2.GetSha1Value("sha1"))
-                                                              select ent) {
-                                        DAIEntry dAIEntry2 = item;
-                                        DAIEntry FoundEntry2 = baseBundleSet3[item.GetStringHashValue("name")].FirstOrDefault();
-                                        if (FoundEntry2 != null) {
-                                            int num2 = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == FoundEntry2.GetSha1Value("sha1") && A.Action == "modify");
-                                            if (num2 == -1) {
-                                                ModResourceEntry modResourceEntry = new ModResourceEntry(dAIEntry2.GetStringValue("name"), "ebx", "modify");
-                                                modJob.Meta.Resources.Add(modResourceEntry);
-                                                modResourceEntry.Size = dAIEntry2.GetQWordValue("size");
-                                                modResourceEntry.OriginalSize = dAIEntry2.GetQWordValue("originalSize");
-                                                modResourceEntry.PatchType = 1;
-                                                modResourceEntry.OriginalSha1 = FoundEntry2.GetSha1Value("sha1");
-                                                num2 = modJob.Meta.Resources.Count - 1;
-                                                DAICatEntry dAICatEntry = dictionary[dAIEntry2.GetSha1Value("sha1")];
-                                                modJob.Data.Add(DAICat.Get().GetCompressedPayloadFromFile(dAICatEntry.Path, dAICatEntry.Offset, dAICatEntry.Size).ToArray());
-                                                modResourceEntry.ResourceID = modJob.Data.Count - 1;
-                                                modResourceEntry.NewSha1 = Util.CalculateSha1(modJob.Data[modResourceEntry.ResourceID]);
+        public ModJob GenerateModJobFromDistPatch(ModContainer modContainer) {
+            ModJob modJob = new ModJob(modContainer.Name, "", "") {
+                Meta = new ModMetaData(1, 0, "", 0, new ModDetail(modContainer.Name, "", "", ""))
+            };
+            _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing distributable patch \"" + modContainer.Name + "\""));
+            
+            Dictionary<Sha1, DAICatEntry> catDict = DAICat.SerializeLocal(modContainer.Path + "\\Data\\cas.cat");
+            string[] modTocFiles = Directory.GetFiles(modContainer.Path + "\\Data\\Win32", "*.toc", SearchOption.AllDirectories);
+            int modTocFileCount = 0;
+            string[] modTocFilesArray = modTocFiles;
+            foreach (string modTocFilename in modTocFilesArray) {
+
+                _bgWorker.ReportProgress((int)(modTocFileCount / (double)modTocFiles.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, modTocFilename.Replace(modContainer.Path + "\\Data\\Win32\\", ""), ""));
+                
+                DAIToc modToc = DAIToc.ReadFromFile(modTocFilename, 0L);
+                string baseTocFile = modTocFilename.Replace(modContainer.Path + "\\", Settings.BasePath);
+                if (modToc.HasBundles()) {
+                    using (LazyDisposable<BinaryReader> modSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(modTocFilename.Replace(".toc", ".sb"))))) {
+                        using (LazyDisposable<BinaryReader> baseSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(baseTocFile.Replace(".toc", ".sb"))))) {
+                            foreach (DAIEntry modTocBundle in modToc.GetBundles()) {
+                                if (!modTocBundle.HasField("base") && modTocBundle.HasField("delta")) {
+                                    DAIEntry modRootEntry = DAIToc.ReadFromStream(modSbReader.Value, modTocBundle.GetQWordValue("offset")).GetRootEntry();
+                                    Sha1 modTocBundleSha1 = modTocBundle.GetStringHashValue("id");
+                                    ModBundle modRootEntryModBundle = new ModBundle(modRootEntry.GetStringValue("path"), "modify");
+                                    modJob.Meta.Bundles.Add(modRootEntryModBundle);
+                                    DAIEntry baseEntry = DAIToc.ReadFromFile(baseTocFile, 0L).GetBundles().Find((DAIEntry A) => A.GetStringHashValue("id") == modTocBundleSha1);
+                                    DAIEntry baseRootEntry = DAIToc.ReadFromStream(baseSbReader.Value, baseEntry.GetQWordValue("offset")).GetRootEntry();
+                                    if (modRootEntry.HasField("ebx")) {
+                                        ILookup<Sha1, DAIEntry> baseRootEntryEbxLookup = baseRootEntry.GetListValue("ebx").ToLookup((DAIEntry ent) => ent.GetStringHashValue("name"));
+                                        foreach (DAIEntry ebx in from ent in modRootEntry.GetListValue("ebx")
+                                                                 where !baseRootEntryEbxLookup[ent.GetStringHashValue("name")].Any((DAIEntry ent2) => ent.GetSha1Value("sha1") == ent2.GetSha1Value("sha1"))
+                                                                 select ent) {
+                                            DAIEntry modEbxEntry = ebx;
+                                            DAIEntry baseEbxEntry = baseRootEntryEbxLookup[ebx.GetStringHashValue("name")].FirstOrDefault();
+                                            if (baseEbxEntry != null) {
+                                                int modifiedIndex = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == baseEbxEntry.GetSha1Value("sha1") && A.Action == "modify");
+                                                if (modifiedIndex == -1) {
+                                                    EbxModResourceEntry ebxMre = new EbxModResourceEntry(modEbxEntry.GetStringValue("name"), "modify") {
+                                                        Size = modEbxEntry.GetQWordValue("size"),
+                                                        OriginalSize = modEbxEntry.GetQWordValue("originalSize"),
+                                                        PatchType = 1,
+                                                        OriginalSha1 = baseEbxEntry.GetSha1Value("sha1")
+                                                    };
+                                                    modJob.Meta.Resources.Add(ebxMre);
+                                                    modifiedIndex = modJob.Meta.Resources.Count - 1;
+                                                    DAICatEntry modCatEntry = catDict[modEbxEntry.GetSha1Value("sha1")];
+                                                    modJob.Data.Add(DAICat.Get().GetCompressedPayloadFromFile(modCatEntry.Path, modCatEntry.Offset, modCatEntry.Size).ToArray());
+                                                    ebxMre.ResourceID = modJob.Data.Count - 1;
+                                                    ebxMre.NewSha1 = new Sha1(modJob.Data[ebxMre.ResourceID]);
+                                                }
+                                                modRootEntryModBundle.Entries.Add(new ModBundleEntry(modifiedIndex));
                                             }
-                                            modBundle.Entries.Add(new ModBundleEntry(num2));
                                         }
                                     }
-                                }
-                                if (rootEntry.HasField("res")) {
-                                    ILookup<Sha1, DAIEntry> baseBundleSet2 = rootEntry2.GetListValue("res").ToLookup((DAIEntry ent) => ent.GetStringHashValue("name"));
-                                    foreach (DAIEntry item2 in from ent in rootEntry.GetListValue("res")
-                                                               where !baseBundleSet2[ent.GetStringHashValue("name")].Any((DAIEntry ent2) => ent.GetSha1Value("sha1") == ent2.GetSha1Value("sha1"))
-                                                               select ent) {
-                                        DAIEntry dAIEntry3 = item2;
-                                        DAIEntry FoundEntry = baseBundleSet2[item2.GetStringHashValue("name")].FirstOrDefault();
-                                        if (FoundEntry != null) {
-                                            int num3 = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == FoundEntry.GetSha1Value("sha1") && A.Action == "modify");
-                                            if (num3 == -1) {
-                                                ModResourceEntry modResourceEntry2 = new ModResourceEntry(dAIEntry3.GetStringValue("name"), "res", "modify");
-                                                modJob.Meta.Resources.Add(modResourceEntry2);
-                                                modResourceEntry2.Size = dAIEntry3.GetQWordValue("size");
-                                                modResourceEntry2.OriginalSize = dAIEntry3.GetQWordValue("originalSize");
-                                                modResourceEntry2.ResRid = dAIEntry3.GetQWordValue("resRid");
-                                                modResourceEntry2.ResType = dAIEntry3.GetDWordValue("resType");
-                                                modResourceEntry2.Meta = Util.MetaToString(dAIEntry3.GetByteArrayValue("resMeta"));
-                                                modResourceEntry2.PatchType = 1;
-                                                modResourceEntry2.OriginalSha1 = FoundEntry.GetSha1Value("sha1");
-                                                num3 = modJob.Meta.Resources.Count - 1;
-                                                DAICatEntry dAICatEntry2 = dictionary[dAIEntry3.GetSha1Value("sha1")];
-                                                modJob.Data.Add(DAICat.Get().GetCompressedPayloadFromFile(dAICatEntry2.Path, dAICatEntry2.Offset, dAICatEntry2.Size).ToArray());
-                                                modResourceEntry2.ResourceID = modJob.Data.Count - 1;
-                                                modResourceEntry2.NewSha1 = Util.CalculateSha1(modJob.Data[modResourceEntry2.ResourceID]);
+
+                                    if (modRootEntry.HasField("res")) {
+                                        ILookup<Sha1, DAIEntry> baseRootEntryResLookup = baseRootEntry.GetListValue("res").ToLookup((DAIEntry ent) => ent.GetStringHashValue("name"));
+                                        foreach (DAIEntry res in from ent in modRootEntry.GetListValue("res")
+                                                                 where !baseRootEntryResLookup[ent.GetStringHashValue("name")].Any((DAIEntry ent2) => ent.GetSha1Value("sha1") == ent2.GetSha1Value("sha1"))
+                                                                 select ent) {
+                                            DAIEntry modResEntry = res;
+                                            DAIEntry baseResEntry = baseRootEntryResLookup[res.GetStringHashValue("name")].FirstOrDefault();
+                                            if (baseResEntry != null) {
+                                                int modifiedIndex = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == baseResEntry.GetSha1Value("sha1") && A.Action == "modify");
+                                                if (modifiedIndex == -1) {
+                                                    ResModResourceEntry resMre = new ResModResourceEntry(modResEntry.GetStringValue("name"), "modify");
+                                                    modJob.Meta.Resources.Add(resMre);
+                                                    resMre.Size = modResEntry.GetQWordValue("size");
+                                                    resMre.OriginalSize = modResEntry.GetQWordValue("originalSize");
+                                                    resMre.ResRid = modResEntry.GetQWordValue("resRid");
+                                                    resMre.ResType = modResEntry.GetDWordValue("resType");
+                                                    resMre.Meta = Meta.MetaToString(modResEntry.GetByteArrayValue("resMeta"));
+                                                    resMre.PatchType = 1;
+                                                    resMre.OriginalSha1 = baseResEntry.GetSha1Value("sha1");
+                                                    modifiedIndex = modJob.Meta.Resources.Count - 1;
+                                                    DAICatEntry modCatEntry = catDict[modResEntry.GetSha1Value("sha1")];
+                                                    modJob.Data.Add(DAICat.Get().GetCompressedPayloadFromFile(modCatEntry.Path, modCatEntry.Offset, modCatEntry.Size).ToArray());
+                                                    resMre.ResourceID = modJob.Data.Count - 1;
+                                                    resMre.NewSha1 = new Sha1(modJob.Data[resMre.ResourceID]);
+                                                }
+                                                modRootEntryModBundle.Entries.Add(new ModBundleEntry(modifiedIndex));
                                             }
-                                            modBundle.Entries.Add(new ModBundleEntry(num3));
                                         }
                                     }
-                                }
-                                if (!rootEntry.HasField("chunks")) {
-                                    continue;
-                                }
-                                List<int> AddedCHUNK = new List<int>();
-                                if (rootEntry2.HasField("chunks")) {
-                                    HashSet<DQWord> baseBundleSet = new HashSet<DQWord>(from ent in rootEntry2.GetListValue("chunks")
-                                                                                        select ent.GetDQWordValue("id"));
-                                    int Idx = 0;
-                                    rootEntry.GetListValue("chunks").ForEach(delegate (DAIEntry A) {
-                                        if (!baseBundleSet.Contains(A.GetDQWordValue("id"))) {
-                                            AddedCHUNK.Add(Idx);
+                                    if (modRootEntry.HasField("chunks")) { 
+                                        List<int> AddedCHUNK = new List<int>();
+                                        if (baseRootEntry.HasField("chunks")) {
+                                            HashSet<DQWord> baseRootEntryChunkIds = new HashSet<DQWord>(from ent in baseRootEntry.GetListValue("chunks")
+                                                                                                select ent.GetDQWordValue("id"));
+                                            int idx = 0;
+                                            modRootEntry.GetListValue("chunks").ForEach(delegate (DAIEntry A)
+                                            {
+                                                if (!baseRootEntryChunkIds.Contains(A.GetDQWordValue("id"))) {
+                                                    AddedCHUNK.Add(idx);
+                                                }
+                                                idx++;
+                                            });
                                         }
-                                        Idx++;
-                                    });
-                                }
-                                foreach (int item3 in AddedCHUNK) {
-                                    DAIEntry Entry = rootEntry.GetListValue("chunks")[item3];
-                                    DAIEntry dAIEntry4 = rootEntry.GetListValue("chunkMeta")[item3];
-                                    int num4 = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == Entry.GetSha1Value("sha1") && A.Action == "add");
-                                    if (num4 == -1) {
-                                        if (!dictionary.ContainsKey(Entry.GetSha1Value("sha1"))) {
-                                            continue;
+                                        foreach (int chunkIndex in AddedCHUNK) {
+                                            DAIEntry chunk = modRootEntry.GetListValue("chunks")[chunkIndex];
+                                            DAIEntry chunkMeta = modRootEntry.GetListValue("chunkMeta")[chunkIndex];
+                                            int addedIndex = modJob.Meta.Resources.FindIndex((ModResourceEntry A) => A.OriginalSha1 == chunk.GetSha1Value("sha1") && A.Action == "add");
+                                            if (addedIndex == -1) {
+                                                if (!catDict.ContainsKey(chunk.GetSha1Value("sha1"))) {
+                                                    continue;
+                                                }
+                                                ChunkModResourceEntry chunkMre = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
+                                                modJob.Meta.Resources.Add(chunkMre);
+                                                chunkMre.ChunkH32 = chunkMeta.GetDWordValue("h32");
+                                                chunkMre.OriginalSha1 = chunk.GetSha1Value("sha1");
+                                                chunkMre.PatchType = 1;
+                                                addedIndex = modJob.Meta.Resources.Count - 1;
+                                                DAICatEntry chunkCatEntry = catDict[chunk.GetSha1Value("sha1")];
+                                                byte[] catFileData = Utils.DecompressData(DAICat.Get().GetCompressedPayloadFromFile(chunkCatEntry.Path, chunkCatEntry.Offset, chunkCatEntry.Size).ToArray());
+                                                ImportCompressData ImportResults = new ImportCompressData();
+                                                byte[] compCatFileData = Utils.CompressData(catFileData, ref ImportResults);
+                                                if (chunk.HasField("rangeStart")) {
+                                                    chunkMre.RangeStart = ImportResults.RangeStart;
+                                                    chunkMre.RangeEnd = ImportResults.RangeEnd;
+                                                    chunkMre.Meta = "0866697273744D6970000000000000";
+                                                }
+                                                chunkMre.LogicalOffset = 0;
+                                                chunkMre.LogicalSize = catFileData.Length;
+                                                chunkMre.Size = compCatFileData.Length;
+                                                modJob.Data.Add(compCatFileData);
+                                                chunkMre.ResourceID = modJob.Data.Count - 1;
+                                            }
+                                            modRootEntryModBundle.Entries.Add(new ModBundleEntry(addedIndex));
                                         }
-                                        ModResourceEntry modResourceEntry3 = new ModResourceEntry(Entry.GetDQWordValue("id").ToString(), "chunk", "add");
-                                        modJob.Meta.Resources.Add(modResourceEntry3);
-                                        modResourceEntry3.ChunkH32 = dAIEntry4.GetDWordValue("h32");
-                                        modResourceEntry3.OriginalSha1 = Entry.GetSha1Value("sha1");
-                                        modResourceEntry3.PatchType = 1;
-                                        num4 = modJob.Meta.Resources.Count - 1;
-                                        DAICatEntry dAICatEntry3 = dictionary[Entry.GetSha1Value("sha1")];
-                                        byte[] array2 = Util.DecompressData(DAICat.Get().GetCompressedPayloadFromFile(dAICatEntry3.Path, dAICatEntry3.Offset, dAICatEntry3.Size).ToArray());
-                                        ImportCompressData ImportResults = new ImportCompressData();
-                                        byte[] array3 = Util.CompressData(array2, ref ImportResults);
-                                        if (Entry.HasField("rangeStart")) {
-                                            modResourceEntry3.RangeStart = ImportResults.RangeStart;
-                                            modResourceEntry3.RangeEnd = ImportResults.RangeEnd;
-                                            modResourceEntry3.Meta = "0866697273744D6970000000000000";
-                                        }
-                                        modResourceEntry3.LogicalOffset = 0;
-                                        modResourceEntry3.LogicalSize = array2.Length;
-                                        modResourceEntry3.Size = array3.Length;
-                                        modJob.Data.Add(array3);
-                                        modResourceEntry3.ResourceID = modJob.Data.Count - 1;
                                     }
-                                    modBundle.Entries.Add(new ModBundleEntry(num4));
                                 }
                             }
                         }
                     }
                 }
-                int num5 = num + 1;
-                num = num5;
+                int num5 = modTocFileCount + 1;
+                modTocFileCount = num5;
             }
             return modJob;
         }
 
         public IEnumerable<ModJob> ProcessModList(PatchPayloadData patchPayloadData) {
-            return patchPayloadData.ModList.Select(delegate (ModContainer ModCont) {
-                if (!ModCont.IsDAIMod()) {
-                    return GenerateModJobFromDistPatch(ModCont);
+            return patchPayloadData.ModList.Select(delegate (ModContainer modContainer) {
+                if (!modContainer.IsDAIMod()) {
+                    return GenerateModJobFromDistPatch(modContainer);
                 }
-                _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing DAI mod \"" + ModCont.Name + "\""));
-                if (ModCont.Mod.ScriptObject != null) {
-                    Scripting.CurrentMod = ModCont.Mod;
-                    ModCont.Mod.ScriptObject.RunScript();
+                _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing DAI mod \"" + modContainer.Name + "\""));
+                if (modContainer.Mod.ScriptObject != null) {
+                    Scripting.CurrentMod = modContainer.Mod;
+                    modContainer.Mod.ScriptObject.RunScript();
                 }
-                return ModCont.Mod;
+                return modContainer.Mod;
             });
         }
 
@@ -972,11 +1044,11 @@ namespace DAI.Mod.Manager {
                     num = num2;
                     binaryWriter = new BinaryWriter(new FileStream(directoryName + "\\Data\\cas_" + num.ToString("D2") + ".cas", FileMode.Create));
                 }
-                Sha1 value = Util.CalculateSha1(modResource.Value);
+                Sha1 sha1 = new Sha1(modResource.Value);
                 binaryWriter.Write(new byte[4] { 250, 206, 15, 240 });
-                binaryWriter.Write(value);
+                binaryWriter.Write(sha1);
                 binaryWriter.Write((long)modResource.Value.Length);
-                binaryWriter2.Write(value);
+                binaryWriter2.Write(sha1);
                 binaryWriter2.Write((uint)binaryWriter.BaseStream.Position);
                 binaryWriter2.Write(modResource.Value.Length);
                 binaryWriter2.Write(num);

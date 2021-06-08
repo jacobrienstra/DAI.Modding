@@ -2,15 +2,11 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
-using System.Windows.Forms;
 using System.Reflection;
 
 using DAI.Mod.Manager.Frostbite;
-using DAI.Mod.Manager.Utilities;
-using DAI.Utilities;
 
 // TODO: inotify for 2 way bindings ugh
 
@@ -108,6 +104,7 @@ namespace DAI.Mod.Manager {
             //    Settings.CurrentVersion = "v0.60 alpha";
             //}
             LoadMods();
+            
         }
 
         private void Window_Closing(object sender, CancelEventArgs e) {

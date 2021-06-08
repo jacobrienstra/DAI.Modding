@@ -48,7 +48,7 @@ namespace DAI.AssetLibrary.Parsers {
                     reader.ReadLEUInt();
                     reader.ReadLEUInt();
                     for (int m = 0; m < totalCount; m++) {
-                        sha1s.Add(reader.ReadSha1());
+                        sha1s.Add(reader.ReadSha1ToHexStr());
                     }
                     ReadEbxList(sb, reader, startOffset + stringOffsets, ebxCount);
                     ReadResList(sb, reader, startOffset + stringOffsets, resCount);

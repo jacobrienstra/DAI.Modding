@@ -25,7 +25,7 @@ namespace DAI.Mod.Manager.Frostbite {
             binaryReader.BaseStream.Seek(16L, SeekOrigin.Begin);
             while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) {
                 DAICatEntry dAICatEntry = new DAICatEntry();
-                Sha1 key = new Sha1(binaryReader.ReadSha1());
+                Sha1 key = new Sha1(binaryReader.ReadSha1ToBytes());
                 dAICatEntry.Offset = binaryReader.ReadInt32();
                 dAICatEntry.Size = binaryReader.ReadInt32();
                 int num = binaryReader.ReadInt32();
@@ -45,7 +45,7 @@ namespace DAI.Mod.Manager.Frostbite {
             binaryReader.BaseStream.Seek(16L, SeekOrigin.Begin);
             while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) {
                 DAICatEntry dAICatEntry = new DAICatEntry();
-                Sha1 key = new Sha1(binaryReader.ReadSha1());
+                Sha1 key = new Sha1(binaryReader.ReadSha1ToBytes());
                 dAICatEntry.Offset = binaryReader.ReadInt32();
                 dAICatEntry.Size = binaryReader.ReadInt32();
                 int num = binaryReader.ReadInt32();

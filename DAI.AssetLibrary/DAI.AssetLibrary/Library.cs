@@ -340,7 +340,7 @@ namespace DAI.AssetLibrary {
                 byte[] data = null;
                 using (FileStream fs = new FileStream("EbxNameTypes.txt", FileMode.Open, FileAccess.Read)) {
                     using (BinaryReader binaryReader = new BinaryReader(fs)) {
-                        data = DAI.AssetLibrary.Utilities.Utilities.DecompressData(binaryReader.ReadBytes((int)binaryReader.BaseStream.Length), -1L);
+                        data = DAI.AssetLibrary.Utilities.Utils.DecompressData(binaryReader.ReadBytes((int)binaryReader.BaseStream.Length), -1L);
                     }
                 }
                 using (MemoryStream ms = new MemoryStream(data)) {
@@ -364,7 +364,7 @@ namespace DAI.AssetLibrary {
                         streamWriter.WriteLine($"{values.Key};{values.Value};{EbxNameGuid[values.Key]}");
                     }
                 }
-                data = DAI.AssetLibrary.Utilities.Utilities.CompressData(ms.ToArray());
+                data = Utils.CompressData(ms.ToArray());
             }
             using (FileStream fs = new FileStream("EbxNameTypes.txt", FileMode.Create)) {
                 using (BinaryWriter writer = new BinaryWriter(fs)) {

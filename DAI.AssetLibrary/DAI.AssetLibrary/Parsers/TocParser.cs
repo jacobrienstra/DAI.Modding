@@ -9,7 +9,7 @@ namespace DAI.AssetLibrary.Parsers {
         public static TableOfContentRef ParseToc(string filename, string basePath, FolderType ft, bool includeSBs = true) {
             TableOfContentRef toc = new TableOfContentRef();
             toc.EntryPath = filename.Replace(basePath + "\\", "");
-            using (MemoryStream ms = new MemoryStream(DAI.AssetLibrary.Utilities.Utilities.DecodeFile(filename))) {
+            using (MemoryStream ms = new MemoryStream(Utils.DecodeFile(filename))) {
                 using (BinaryReader reader = new BinaryReader(ms)) {
                     if (!reader.ParseEntry(toc)) {
                         return null;

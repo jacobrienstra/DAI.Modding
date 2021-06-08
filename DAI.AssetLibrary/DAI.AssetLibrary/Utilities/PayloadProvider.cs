@@ -15,7 +15,7 @@ namespace DAI.AssetLibrary.Utilities {
                 return null;
             }
             if (r.State != 0 && r.ModifiedData != null) {
-                return Utilities.DecompressData(r.ModifiedData, -1L);
+                return Utils.DecompressData(r.ModifiedData, -1L);
             }
             if (!r.IsDelta) {
                 if (!string.IsNullOrEmpty(r.Sha1)) {
@@ -39,7 +39,7 @@ namespace DAI.AssetLibrary.Utilities {
                 return null;
             }
             if (ebx.State != 0 && ebx.ModifiedData != null) {
-                return Utilities.DecompressData(ebx.ModifiedData, -1L);
+                return Utils.DecompressData(ebx.ModifiedData, -1L);
             }
             if (!ebx.IsDelta) {
                 if (!string.IsNullOrEmpty(ebx.Sha1)) {
@@ -60,7 +60,7 @@ namespace DAI.AssetLibrary.Utilities {
                 return null;
             }
             if (c.State != 0 && c.ModifiedData != null) {
-                return Utilities.DecompressData(c.ModifiedData, -1L);
+                return Utils.DecompressData(c.ModifiedData, -1L);
             }
             if (!c.Offset.HasValue && !string.IsNullOrEmpty(c.Sha1)) {
                 return GetPayloadFromCas(c.Sha1);
@@ -110,7 +110,7 @@ namespace DAI.AssetLibrary.Utilities {
                         case 624:
                             buff = new byte[csize];
                             reader.Read(buff, 0, csize);
-                            buff = Utilities.DecompressZlib(buff, ucsize);
+                            buff = Utils.DecompressZlib(buff, ucsize);
                             break;
                         case 112:
                         case 113:
@@ -223,7 +223,7 @@ namespace DAI.AssetLibrary.Utilities {
                         }
                     }
                     while (baseBinaryReader.BaseStream.Position < baseBinaryReader.BaseStream.Length) {
-                        binaryWriter.Write(Utilities.DecompressBlock(baseBinaryReader));
+                        binaryWriter.Write(Utils.DecompressBlock(baseBinaryReader));
                     }
                     return memoryStream.ToArray();
                 }
@@ -232,12 +232,12 @@ namespace DAI.AssetLibrary.Utilities {
 
         private static void ReadPatch0(BinaryReader baseBinaryReader, BinaryWriter binaryWriter, ushort nbBlocks) {
             for (int i = 0; (long)i < (long)nbBlocks; i++) {
-                binaryWriter.Write(Utilities.DecompressBlock(baseBinaryReader));
+                binaryWriter.Write(Utils.DecompressBlock(baseBinaryReader));
             }
         }
 
         private static void ReadPatch1(BinaryReader deltaBinaryReader, BinaryReader baseBinaryReader, BinaryWriter binaryWriter, ushort nbBlocks) {
-            using (MemoryStream ms = new MemoryStream(Utilities.DecompressBlock(baseBinaryReader))) {
+            using (MemoryStream ms = new MemoryStream(Utils.DecompressBlock(baseBinaryReader))) {
                 using (BinaryReader blockReader = new BinaryReader(ms)) {
                     for (int i = 0; (long)i < (long)nbBlocks; i++) {
                         uint endOfBlock = deltaBinaryReader.ReadUInt16BE();
@@ -245,7 +245,7 @@ namespace DAI.AssetLibrary.Utilities {
                         while (blockReader.BaseStream.Position != endOfBlock) {
                             binaryWriter.Write(blockReader.ReadByte());
                         }
-                        binaryWriter.Write(Utilities.DecompressBlock(deltaBinaryReader));
+                        binaryWriter.Write(Utils.DecompressBlock(deltaBinaryReader));
                         blockReader.BaseStream.Seek(padding, SeekOrigin.Current);
                     }
                     binaryWriter.Write(blockReader.ReadBytes((int)(blockReader.BaseStream.Length - blockReader.BaseStream.Position)));
@@ -254,7 +254,7 @@ namespace DAI.AssetLibrary.Utilities {
         }
 
         private static void ReadPatch2(BinaryReader deltaBinaryReader, BinaryReader baseBinaryReader, BinaryWriter binaryWriter, ushort nbBlocks) {
-            using (MemoryStream ms = new MemoryStream(Utilities.DecompressBlock(baseBinaryReader))) {
+            using (MemoryStream ms = new MemoryStream(Utils.DecompressBlock(baseBinaryReader))) {
                 using (BinaryReader reader = new BinaryReader(ms)) {
                     uint writerPosition = (uint)((int)binaryWriter.BaseStream.Position + (int)deltaBinaryReader.ReadUInt16BE() + 1);
                     long deltaReaderPosition = deltaBinaryReader.BaseStream.Position;
@@ -279,13 +279,13 @@ namespace DAI.AssetLibrary.Utilities {
 
         private static void ReadPatch3(BinaryReader deltaBinaryReader, BinaryReader baseBinaryReader, BinaryWriter binaryWriter, ushort nbBlocks) {
             for (int i = 0; (long)i < (long)nbBlocks; i++) {
-                binaryWriter.Write(Utilities.DecompressBlock(deltaBinaryReader));
+                binaryWriter.Write(Utils.DecompressBlock(deltaBinaryReader));
             }
         }
 
         private static void ReadPatch4(BinaryReader deltaBinaryReader, BinaryReader baseBinaryReader, BinaryWriter binaryWriter, ushort nbBlocks) {
             for (int i = 0; i < nbBlocks; i++) {
-                Utilities.DecompressBlock(baseBinaryReader);
+                Utils.DecompressBlock(baseBinaryReader);
             }
         }
     }

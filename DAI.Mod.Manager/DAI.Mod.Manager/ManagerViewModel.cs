@@ -289,7 +289,7 @@ namespace DAI.Mod.Manager {
                 ProgressWin.StatusTextBlock.Text = loadingProgressState.StatusText;
             }
             if (loadingProgressState.UpdateProgress) {
-                ProgressWin.StatusProgressBar.Visibility = Visibility.Visible;
+                ProgressWin.StatusProgressBar.Visibility = System.Windows.Visibility.Visible;
                 ProgressWin.StatusProgressBar.Value = e.ProgressPercentage;
                 ProgressWin.TaskbarItemInfo.ProgressValue = (double)e.ProgressPercentage / 100.0;
                 ProgressWin.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;

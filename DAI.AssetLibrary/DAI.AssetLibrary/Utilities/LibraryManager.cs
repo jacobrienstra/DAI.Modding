@@ -260,7 +260,7 @@ namespace DAI.AssetLibrary.Utilities {
             if (entry.State != EntryState.Added) {
                 entry.State = EntryState.Modified;
             }
-            entry.ModifiedData = (compressed ? data : Utilities.CompressData(data));
+            entry.ModifiedData = compressed ? data : Utils.CompressData(data);
             entry.DataOriginalSize = data.Length;
             if (!Library.ModifiedEntries.Contains(entry)) {
                 Library.ModifiedEntries.Add(entry);

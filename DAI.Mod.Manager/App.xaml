@@ -1,7 +1,7 @@
 ﻿<Application x:Class="DAI.Mod.Manager.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:utils="clr-namespace:DAI.Mod.Manager.Utilities;assembly="
+             xmlns:utils="clr-namespace:DAI.Mod.Manager.Utilities"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -12,14 +12,7 @@
                 <ResourceDictionary Source="pack://application:,,,/DAI.Common;component/DAI.Styles/Menu.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/DAI.Common;component/DAI.Styles/TabControl.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/DAI.Common;component/DAI.Styles/GridSplitter.xaml"/>
-           </ResourceDictionary.MergedDictionaries>
-
-            <utils:MinPatchVersionToMessageConverter x:Key="MinPatchVersionToMessageConverter"/>
-            <utils:MinPatchVersionToStringConverter x:Key="MinPatchVersionToStringConverter"/>
-            <utils:SelectedModToConfigureButtonIsEnabledConverter x:Key="SelectedModToConfigureButtonIsEnabledConverter"/>
-            <utils:SelectedModToChangeStatusButtonIsEnabledConverter x:Key="SelectedModToChangeStatusButtonIsEnabledConverter"/>
-            <utils:SelectedModToUpButtonIsEnabledConverter x:Key="SelectedModToUpButtonIsEnabledConverter"/>
-            <utils:SelectedModToDownButtonIsEnabledConverter x:Key="SelectedModToDownButtonIsEnabledConverter"/>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

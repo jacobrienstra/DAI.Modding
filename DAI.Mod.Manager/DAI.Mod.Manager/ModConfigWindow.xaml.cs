@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-using DAI.Mod.Maker.Controls;
+using DAI.Controls;
 using DAI.Mod;
 
 namespace DAI.Mod.Manager {
@@ -77,8 +77,8 @@ namespace DAI.Mod.Manager {
                     };
                     ControlsStackPanel.Children.Add(comboBox);
                     ControlsList.Add(comboBox);
-                } else if (uIElement.ParameterType == typeof(DAI.Mod.Color)) {
-                    DAI.Mod.Color color = (DAI.Mod.Color)uIElement.ParameterDefaultValue;
+                } else if (uIElement.ParameterType == typeof(Mod.Color)) {
+                    Mod.Color color = (Mod.Color)uIElement.ParameterDefaultValue;
                     Button button = new Button();
                     button.Margin = new Thickness(2.0);
                     button.Height = height;
@@ -138,9 +138,9 @@ namespace DAI.Mod.Manager {
                 } else if (modConfigElement.ParameterType.IsSubclassOf(typeof(Enum))) {
                     ComboBox comboBox = ControlsList[num] as ComboBox;
                     ConfigValues[modConfigElement.ParameterName] = comboBox.SelectedIndex;
-                } else if (modConfigElement.ParameterType == typeof(DAI.Mod.Color)) {
+                } else if (modConfigElement.ParameterType == typeof(Mod.Color)) {
                     SolidColorBrush solidColorBrush = (SolidColorBrush)(ControlsList[num] as Button).Background;
-                    DAI.Mod.Color value = new DAI.Mod.Color((float)(int)solidColorBrush.Color.R / 255f, (float)(int)solidColorBrush.Color.G / 255f, (float)(int)solidColorBrush.Color.B / 255f, (float)(int)solidColorBrush.Color.A / 255f);
+                    Mod.Color value = new Mod.Color((float)(int)solidColorBrush.Color.R / 255f, (float)(int)solidColorBrush.Color.G / 255f, (float)(int)solidColorBrush.Color.B / 255f, (float)(int)solidColorBrush.Color.A / 255f);
                     ConfigValues[modConfigElement.ParameterName] = value;
                 }
                 int num6 = num + 1;

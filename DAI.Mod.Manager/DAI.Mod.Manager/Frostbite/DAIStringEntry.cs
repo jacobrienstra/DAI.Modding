@@ -1,6 +1,6 @@
 using System.IO;
 
-using DAI.Mod.Manager.Utils;
+using DAI.AssetLibrary.Utilities.Extensions;
 
 namespace DAI.Mod.Manager.Frostbite {
     internal class DAIStringEntry : DAIEntry {

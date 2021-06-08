@@ -15,6 +15,11 @@
            </ResourceDictionary.MergedDictionaries>
 
             <utils:MinPatchVersionToMessageConverter x:Key="MinPatchVersionToMessageConverter"/>
+            <utils:MinPatchVersionToStringConverter x:Key="MinPatchVersionToStringConverter"/>
+            <utils:SelectedModToConfigureButtonIsEnabledConverter x:Key="SelectedModToConfigureButtonIsEnabledConverter"/>
+            <utils:SelectedModToChangeStatusButtonIsEnabledConverter x:Key="SelectedModToChangeStatusButtonIsEnabledConverter"/>
+            <utils:SelectedModToUpButtonIsEnabledConverter x:Key="SelectedModToUpButtonIsEnabledConverter"/>
+            <utils:SelectedModToDownButtonIsEnabledConverter x:Key="SelectedModToDownButtonIsEnabledConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

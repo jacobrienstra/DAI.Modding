@@ -17,6 +17,8 @@ using RoslynPad.Runtime;
 using RoslynPad.UI;
 using RoslynPad.Utilities;
 
+using DAI.Utilities;
+
 #nullable enable
 namespace RoslynPad {
 

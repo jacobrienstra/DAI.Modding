@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using System.Windows.Shell;
 using System.Windows.Threading;
 
@@ -13,23 +12,160 @@ using DAI.Mod.Manager.Frostbite;
 using DAI.Mod.Manager.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.AssetLibrary.Utilities;
+using System.Windows.Forms;
 
 namespace DAI.Mod.Manager {
-    public class ManagerViewModel {
+    public class ManagerViewModel : NotificationObject {
         private readonly BackgroundWorker _bgWorker;
-        public bool Cancelled { get; set; }
+        private bool _cancelled;
+        public bool Cancelled {
+            get => _cancelled;
+            set {
+                SetProperty(ref _cancelled, value);
+            }
+        }
+
         public ProgressWindow ProgressWin { get; private set; }
-        public List<ModContainer> ModList { get; private set; }
-        public ModContainer SelectedMod { get; set; }
-        public bool ModManagerGridEnabled { get; private set; }
-        public bool MergeReady { get; private set; }
-        public string ModPath { get; set; }
-        public string DAIPath { get; set; }
+
+        private List<ModContainer> _userModList;
+        public List<ModContainer> UserModList {
+            get => _userModList;
+            set {
+                OnPropertyChanged(nameof(AllModsList));
+                SetProperty(ref _userModList, value);
+            }
+        }
+
+        private void ManagerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+            if (e.PropertyName == nameof(UserModList)) {
+                OnPropertyChanged(nameof(AllModsList));
+            }
+        }
+
+        private ModContainer _patchMod;
+        public ModContainer PatchMod {
+            get => _patchMod;
+            set {
+                SetProperty(ref _patchMod, value);
+            }
+        }
+        public List<ModContainer> AllModsList {
+            get {
+                List<ModContainer> list = UserModList;
+                list.Insert(0, PatchMod);
+                return list;
+            }
+            internal set { }
+        }
+
+        private void AddUserMod(ModContainer userMod) {
+            UserModList.Add(userMod);
+            userMod.Index = UserModList.IndexOf(userMod);
+            OnPropertyChanged(nameof(UserModList));
+        }
+
+        private void UpdateUserModIndicesAfter(int index) {
+            for (int i = index; i < UserModList.Count; i++) {
+                UserModList[i].Index = i;
+            }
+            OnPropertyChanged(nameof(UserModList));
+        }
+
+        private void RemoveUserMod(ModContainer userMod) {
+            int modIndex = UserModList.IndexOf(userMod);
+            UserModList.RemoveAt(modIndex);
+            UpdateUserModIndicesAfter(modIndex);
+        }
+
+        private void InsertUserMod(int index, ModContainer userMod) {
+            UserModList.Insert(index, userMod);
+            UpdateUserModIndicesAfter(index);
+        }
+
+        private ModContainer _selectedMod;
+        public ModContainer SelectedMod {
+            get => _selectedMod;
+            set {
+                SetProperty(ref _selectedMod, value);
+            }
+        }
+
+        private bool _modManagerGridEnabled;
+        public bool ModManagerGridEnabled {
+            get => _modManagerGridEnabled;
+            set {
+                SetProperty(ref _modManagerGridEnabled, value);
+            }
+        }
+
+        private bool _mergeReady;
+        public bool MergeReady {
+            get => _mergeReady;
+            set {
+                SetProperty(ref _mergeReady, value);
+            }
+        }
+
+        private string _modPath;
+        public string ModPath {
+            get => _modPath;
+            set {
+                Settings.ModPath = value;
+                Settings.Save();
+                SetProperty(ref _modPath, value);
+            }
+        }
+
+        private string _daiPath;
+        public string DAIPath {
+            get => _daiPath;
+            set {
+                Settings.BasePath = value;
+                Settings.Save();
+                SetProperty(ref _daiPath, value);
+            }
+        }
+
+        private bool _mergeDesitnation;
+        public bool MergeDestination {
+            get => _mergeDesitnation;
+            set {
+                SetProperty(ref _mergeDesitnation, value);
+            }
+        }
+
+        private bool _verboseScan;
+        public bool VerboseScan {
+            get => _verboseScan;
+            set {
+                Settings.VerboseScan = value;
+                Settings.Save();
+                SetProperty(ref _verboseScan, value);
+            }
+        }
+
+        private bool _forceRescan;
+        public bool ForceRescan {
+            get => _forceRescan;
+            set {
+                Settings.RescanPatch = value;
+                Settings.Save();
+                SetProperty(ref _forceRescan, value);
+            }
+        }
+
         public ManagerViewModel(BackgroundWorker bgWorker) {
             Cancelled = true;
             ModManagerGridEnabled = false;
-            ModList = new List<ModContainer>();
             MergeReady = false;
+            UserModList = new List<ModContainer>();
+            PatchMod = null;
+            ModPath = Settings.ModPath;
+            DAIPath = Settings.BasePath;
+            MergeDestination = false;
+            VerboseScan = Settings.VerboseScan;
+            ForceRescan = Settings.RescanPatch;
+            this.PropertyChanged += ManagerViewModel_PropertyChanged;
             _bgWorker = bgWorker;
             _bgWorker.WorkerReportsProgress = true;
             _bgWorker.WorkerSupportsCancellation = true;
@@ -38,18 +174,28 @@ namespace DAI.Mod.Manager {
             _bgWorker.ProgressChanged += BGWorker_ProgressChanged;
         }
 
-        public void MergeMods(bool verboseLogging, bool forceRescan) {
+        public void SwitchSelectedModStatus() {
+            ModContainer selectedMod = SelectedMod;
+            if (selectedMod != null) {
+                if (!selectedMod.IsOfficialPatch && Settings.PatchVersion >= selectedMod.MinPatchVersion) {
+                    selectedMod.IsEnabled = !selectedMod.IsEnabled;
+                    OnPropertyChanged();// TODO check if works for this nested field
+                }
+            }
+        }
+
+        public void MergeMods() {
             Cancelled = false;
             if (Cancelled) {
                 return;
             }
-            Settings.VerboseScan = verboseLogging;
-            Settings.RescanPatch |= forceRescan;
-            List <ModContainer> modList = (from ModContainer modContainer in ModList
+            Settings.VerboseScan = VerboseScan;
+            Settings.RescanPatch |= ForceRescan;
+            List <ModContainer> modList = (from ModContainer modContainer in UserModList
                                           where modContainer.IsEnabled
                                           select modContainer).ToList();
-            string text;
-            if (MergeDestinationCheckBox.IsChecked.GetValueOrDefault()) {
+            string newPath;
+            if (MergeDestination) {
                 Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
                 saveFileDialog.Title = "Save merged patch";
                 saveFileDialog.FileName = "package.mft";
@@ -57,26 +203,28 @@ namespace DAI.Mod.Manager {
                 if (!saveFileDialog.ShowDialog().Value) {
                     return;
                 }
-                text = saveFileDialog.FileName.Remove(saveFileDialog.FileName.LastIndexOf('\\') + 1).ToLower();
+                newPath = saveFileDialog.FileName.Remove(saveFileDialog.FileName.LastIndexOf('\\') + 1).ToLower();
             } else {
-                text = Settings.BasePath + "Update\\Patch_ModManagerMerge\\";
+                newPath = Settings.BasePath + "Update\\Patch_ModManagerMerge\\";
             }
-            if (text == Settings.BasePath.ToLower() || text == Settings.BasePath.ToLower() + "update\\" || text == Settings.BasePath.ToLower() + "Update\\Patch\\") {
+            if (newPath == Settings.BasePath.ToLower() ||
+                newPath == Settings.BasePath.ToLower() + "update\\" || 
+                newPath == Settings.BasePath.ToLower() + "Update\\Patch\\") {
                 System.Windows.MessageBox.Show("You tried to save the merged patch to an invalid location. Please read usage instructions carefully and try again.", "Error");
                 return;
             }
-            _viewModel.ProgressWin = new ProgressWindow();
-            Scripting.ProgressWindow = ProgressWin;
+            ProgressWin = new ProgressWindow();
+            Scripting.ScriptingTextBox = ProgressWin.StatusTextBox;
             ProgressWin.Show();
-            BGWorker.RunWorkerAsync(new WorkerState(WorkerStateType.WorkerState_SavePatch, new PatchPayloadData {
+            _bgWorker.RunWorkerAsync(new WorkerState(WorkerStateType.WorkerState_SavePatch, new PatchPayloadData {
                 CreateDistPatch = false,
                 IncludeProjectData = false,
-                OutputPath = text,
+                OutputPath = newPath,
                 ModList = modList
             }));
         }
         public void LoadMods() {
-            ModList.Clear();
+            UserModList.Clear();
             // Initialize Check
             if (!File.Exists(Settings.BasePath + "DragonAgeInquisition.exe")) {
                 MessageBox.Show("Dragon Age path has not been setup correctly. Please click on Browse and locate.", "Warning");
@@ -96,20 +244,17 @@ namespace DAI.Mod.Manager {
             }
 
             // Add official Patch
-            ModList.Add(new ModContainer(Settings.BasePath + "Update\\Patch\\", "Official Patch", "Bioware", "", "") {
+            PatchMod = new ModContainer(Settings.BasePath + "Update\\Patch\\", "Official Patch", "Bioware", "", "") {
                 IsOfficialPatch = true,
                 Version = Settings.PatchVersion.ToString()
-            });
+            };
 
             // Add mft user mods
-            int i = 1;
             foreach (string item in Directory.EnumerateDirectories(Settings.ModPath)) {
                 if (File.Exists(item + "\\package.mft")) {
                     DAIMft dAIMft = DAIMft.SerializeFromFile(item + "\\package.mft");
                     if (dAIMft.HasKey("ModTitle")) {
-                        ModList.Add(new ModContainer(item, dAIMft.GetValue("ModTitle"), dAIMft.GetValue("ModAuthor"), dAIMft.GetValue("ModVersion"), dAIMft.GetValue("ModDescription")) {
-                            Index = i++
-                        });
+                        AddUserMod(new ModContainer(item, dAIMft.GetValue("ModTitle"), dAIMft.GetValue("ModAuthor"), dAIMft.GetValue("ModVersion"), dAIMft.GetValue("ModDescription")));
                     }
                 }
             }
@@ -118,9 +263,8 @@ namespace DAI.Mod.Manager {
             string[] files = Directory.GetFiles(Settings.ModPath, "*.daimod", SearchOption.AllDirectories);
             foreach (string file in files) {
                 ModJob modJob = ModJob.CreateFromFile(file);
-                ModList.Add(new ModContainer(file, modJob.Meta.Details.Name, modJob.Meta.Details.Author, modJob.Meta.Details.Version, modJob.Meta.Details.Description, modJob.Meta.MinPatchVersion) {
+                AddUserMod(new ModContainer(file, modJob.Meta.Details.Name, modJob.Meta.Details.Author, modJob.Meta.Details.Version, modJob.Meta.Details.Description, modJob.Meta.MinPatchVersion) {
                     Mod = modJob,
-                    Index = i++
                 });
                 // setup UI, set configvalues
                 if (modJob.ScriptObject != null) {
@@ -180,8 +324,8 @@ namespace DAI.Mod.Manager {
         private void BGWorker_DoWork(object sender, DoWorkEventArgs e) {
             PatchPayloadData patchPayloadData = (PatchPayloadData)((WorkerState)e.Argument).Payload;
             string patchPayloadDirectory = Path.GetDirectoryName(patchPayloadData.OutputPath);
-            ModJob basePatchModJob = GetBasePatchModJob(patchPayloadData);
-            patchPayloadData.ModList.RemoveAt(0);//TODO make this more explicitly the base patch
+            ModJob basePatchModJob = GetBasePatchModJob();
+            //patchPayloadData.ModList.RemoveAt(0);
 
             List<ModJob> modJobList = ProcessModList(patchPayloadData).ToList(); 
 
@@ -316,7 +460,7 @@ namespace DAI.Mod.Manager {
                     // add each resource entry as a daientry to bundle
                     foreach (ModBundleEntry entry in bundleInNewToc.Entries) {
                         ModResourceEntry entryMre = basePatchModJob.Meta.Resources[entry.ResourceId];
-                        ModResourceEntry.BuildDAIEntry(contentBundle, entryMre);
+                        ModResourceEntryExt.BuildDAIEntry(contentBundle, entryMre);
                     }
                     // if we don't have  bundle, move on to next bundle
                     int bundleInNewTocKey = Utils.Hasher(metaBundle.GetStringValue("id").ToLower());
@@ -329,7 +473,7 @@ namespace DAI.Mod.Manager {
                                 DAIEntry prevDAIEntry = contentBundle.GetListValue(entryiBiNToc.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == entryiBiNToc.OriginalSha1);
                                 if (prevDAIEntry != null) {
                                     // update prevDAIEntry, if exists
-                                    ModResourceEntry.ModifyResourceEntry(entryiBiNToc, prevDAIEntry);
+                                    ModResourceEntryExt.ModifyResourceEntry(entryiBiNToc, prevDAIEntry);
                                 } else {
                                     // DAIEntry isn't in content bundle
                                     // so if it IS referenced by a modjob, how did we get here without it
@@ -428,7 +572,7 @@ namespace DAI.Mod.Manager {
 
                     foreach (ModBundleEntry addedBundleEntry in addedBundle.Entries) {
                         ModResourceEntry addedBundleResource = basePatchModJob.Meta.Resources[addedBundleEntry.ResourceId];
-                        ModResourceEntry.BuildDAIEntry(addedBundleContent, addedBundleResource);
+                        ModResourceEntryExt.BuildDAIEntry(addedBundleContent, addedBundleResource);
                         toRemove = true;
                     }
 
@@ -452,7 +596,7 @@ namespace DAI.Mod.Manager {
                                     DAIEntry currentResEntry = changedEntry.GetListValue(resEntry.Type).Find((DAIEntry A) => A.GetSha1Value("sha1") == resEntry.OriginalSha1);
                                     if (currentResEntry != null) {
                                         // change current entry
-                                        ModResourceEntry.ModifyResourceEntry(changedEntryEntry, currentResEntry);
+                                        ModResourceEntryExt.ModifyResourceEntry(changedEntryEntry, currentResEntry);
                                     } else {
                                         // no existing res entry, in which case, we shouldn't have a mod job referencing it
                                         ModJob prevModJob = ModJobForResource(modJobList, changedEntryEntry);
@@ -470,7 +614,7 @@ namespace DAI.Mod.Manager {
                                         }
                                     }
                                 } else {
-                                    ModResourceEntry.BuildDAIEntry(changedEntry, resEntry);
+                                    ModResourceEntryExt.BuildDAIEntry(changedEntry, resEntry);
                                 }
                             }
                         }
@@ -665,7 +809,7 @@ namespace DAI.Mod.Manager {
                                                                     Size = patchRootEntryEbx.GetQWordValue("size"),
                                                                     OriginalSize = patchRootEntryEbx.GetQWordValue("originalSize")
                                                                 };
-                                                                modResourceEntry.CopyPatchSha1(patchRootEntryEbx);
+                                                                ModResourceEntryExt.CopyPatchSha1(modResourceEntry, patchRootEntryEbx);
                                                                 addedIndex = indexedMultiMap.Add(patchRootEntryEbx.GetSha1Value("sha1"), modResourceEntry);
                                                             }
                                                             modBundle.Entries.Add(new ModBundleEntry(addedIndex));
@@ -701,7 +845,7 @@ namespace DAI.Mod.Manager {
                                                                 resModEntry.ResRid = patchRootEntryRes.GetQWordValue("resRid");
                                                                 resModEntry.ResType = patchRootEntryRes.GetDWordValue("resType");
                                                                 resModEntry.Meta = Meta.MetaToString(patchRootEntryRes.GetByteArrayValue("resMeta"));
-                                                                resModEntry.CopyPatchSha1(patchRootEntryRes);
+                                                                ModResourceEntryExt.CopyPatchSha1(resModEntry, patchRootEntryRes);
                                                                 addedIndex = indexedMultiMap.Add(patchRootEntryResSha1, resModEntry);
                                                             }
                                                             modBundle.Entries.Add(new ModBundleEntry(addedIndex));
@@ -746,9 +890,9 @@ namespace DAI.Mod.Manager {
                                                             }
                                                             int addedIndex = indexedMultiMap.FindIndex(chunk.GetSha1Value("sha1"), (ModResourceEntry A) => A.Action == "add" && A.Name == chunk.GetDQWordValue("id").ToString());
                                                             if (addedIndex == -1) {
-                                                                ModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
+                                                                ChunkModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
                                                                 chunkModEntry.Size = chunk.GetDWordValue("size");
-                                                                chunkModEntry.CopyChunkFields(chunk, chunkMeta);
+                                                                ModResourceEntryExt.CopyChunkFields(chunkModEntry, chunk, chunkMeta);
                                                                 addedIndex = indexedMultiMap.Add(chunk.GetSha1Value("sha1"), chunkModEntry);
                                                             }
                                                             modBundle.Entries.Add(new ModBundleEntry(addedIndex));
@@ -777,7 +921,7 @@ namespace DAI.Mod.Manager {
                                                             EbxModResourceEntry ebxModEntry = new EbxModResourceEntry(patchBundleEbxEntry.GetStringValue("name"), "add");
                                                             ebxModEntry.Size = patchBundleEbxEntry.GetQWordValue("size");
                                                             ebxModEntry.OriginalSize = patchBundleEbxEntry.GetQWordValue("originalSize");
-                                                            ebxModEntry.CopyPatchSha1(patchBundleEbxEntry);
+                                                            ModResourceEntryExt.CopyPatchSha1(ebxModEntry, patchBundleEbxEntry);
                                                             addedIndex = indexedMultiMap.Add(patchBundleEbxSha1, ebxModEntry);
                                                         }
                                                         patchModBundle.Entries.Add(new ModBundleEntry(addedIndex));
@@ -789,7 +933,7 @@ namespace DAI.Mod.Manager {
                                                         int addedIndex = indexedMultiMap.FindIndex(patchBundleResSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == patchBundleRes.GetStringValue("name") && A.PatchType == (patchBundleRes.HasField("casPatchType") ? patchBundleRes.GetDWordValue("casPatchType") : 0));
                                                         if (addedIndex == -1) {
                                                             ResModResourceEntry resModEntry = new ResModResourceEntry(patchBundleRes.GetStringValue("name"), "add");
-                                                            resModEntry.CopyPatchSha1(patchBundleRes);
+                                                            ModResourceEntryExt.CopyPatchSha1(resModEntry, patchBundleRes);
                                                             resModEntry.Size = patchBundleRes.GetQWordValue("size");
                                                             resModEntry.OriginalSize = patchBundleRes.GetQWordValue("originalSize");
                                                             resModEntry.ResRid = patchBundleRes.GetQWordValue("resRid");
@@ -809,7 +953,7 @@ namespace DAI.Mod.Manager {
                                                         if (addedIndex == -1) {
                                                             ChunkModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
                                                             chunkModEntry.Size = chunk.GetDWordValue("size");
-                                                            chunkModEntry.CopyChunkFields(chunk, chunkMeta);
+                                                            ModResourceEntryExt.CopyChunkFields(chunkModEntry, chunk, chunkMeta);
                                                             addedIndex = indexedMultiMap.Add(chunkSha1, chunkModEntry);
                                                         }
                                                         patchModBundle.Entries.Add(new ModBundleEntry(addedIndex));
@@ -992,9 +1136,9 @@ namespace DAI.Mod.Manager {
             });
         }
 
-        public ModJob GetBasePatchModJob(PatchPayloadData patchPayloadData) {
+        public ModJob GetBasePatchModJob() {
             if (!File.Exists(Directory.GetCurrentDirectory() + "\\patch.daimod") || Settings.RescanPatch) {
-                return GenerateModJobFromPatch(patchPayloadData.ModList[0].Version);
+                return GenerateModJobFromPatch(PatchMod.Version);
             }
             _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Loading official patch."));
             return ModJob.CreateFromFile(Directory.GetCurrentDirectory() + "\\patch.daimod");
@@ -1080,5 +1224,56 @@ namespace DAI.Mod.Manager {
             return enumerable.SequenceEqual(enumerable.OrderBy((string id) => id));
         }
 
+        public void SetModPath() {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            if (!string.IsNullOrWhiteSpace(ModPath)) {
+                folderBrowserDialog.SelectedPath = ModPath;
+            }
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) {
+                ModPath = folderBrowserDialog.SelectedPath;
+                LoadMods();
+            }
+        }
+
+        public void SetBasePath() {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog {
+                Filter = "*.exe|*.exe",
+                Title = "Find Dragon Age: Inquisition executable"
+            };
+            if (!openFileDialog.ShowDialog().Value) {
+                return;
+            }
+            DAIPath = Path.GetDirectoryName(openFileDialog.FileName) + "\\";
+            if (File.Exists(DAIPath + "Update\\Patch\\package.mft")) {
+                int num = int.Parse(DAIMft.SerializeFromFile(DAIPath + "Update\\Patch\\package.mft").GetValue("Version"));
+                if (Settings.PatchVersion != num) {
+                    ForceRescan = true;
+                }
+                Settings.PatchVersion = num;
+            } else {
+                Settings.PatchVersion = -1;
+            }
+            LoadMods();
+        }
+
+        public void MoveSelectedModUp() {
+            ModContainer mod1Before = UserModList[SelectedMod.Index - 1];
+            SwitchSelectedModWith(mod1Before);
+
+        }
+
+        public void MoveSelectedModDown() {
+            ModContainer mod1After = UserModList[SelectedMod.Index + 1];
+            SwitchSelectedModWith(mod1After);
+        }
+
+        private void SwitchSelectedModWith(ModContainer modToSwitch) {
+            int selectedIndex = UserModList.IndexOf(SelectedMod);
+            int switchIndex = modToSwitch.Index;
+            UserModList.Remove(SelectedMod);
+            UserModList.Insert(switchIndex, SelectedMod);
+            UserModList.Remove(modToSwitch);
+            UserModList.Insert(selectedIndex, modToSwitch);
+        }
     }
 }

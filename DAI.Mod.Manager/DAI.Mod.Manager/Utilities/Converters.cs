@@ -3,16 +3,71 @@ using System.Globalization;
 using System.Windows.Data;
 
 namespace DAI.Mod.Manager.Utilities {
-    internal sealed class MinPatchVersionToMessageConverter : IValueConverter {
-        public string Compatible { get; set; } = "";
-        public string Incompatible { get; set; } = "(This mod is incompatible with your patch.)";
-
+    public class MinPatchVersionToMessageConverter : IValueConverter {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            return Settings.PatchVersion < (value as int?) ? Incompatible : Compatible;
+            return Settings.PatchVersion < (value as int?) ? "(This mod is incompatible with your patch.)" : "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
             return null;
         }
     }
+
+    public class MinPatchVersionToStringConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            return Settings.PatchVersion < (value as int?) ? (value as int?).ToString() : "None";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return null;
+        }
+    }
+
+    public class ManagerViewModelToUpButtonIsEnabledConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            ManagerViewModel viewModel = value as ManagerViewModel;
+            return !viewModel.SelectedMod.IsOfficialPatch && viewModel.SelectedMod.Index != 0; // should be redundant, technically
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return null;
+        }
+    }
+
+    public class ManagerViewModelToDownButtonIsEnabledConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            ManagerViewModel viewModel = value as ManagerViewModel;
+            return !viewModel.SelectedMod.IsOfficialPatch && viewModel.SelectedMod.Index != viewModel.UserModList.Count - 1;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return null;
+        }
+    }
+
+    public class SelectedModToConfigureButtonIsEnabledConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            return (value as ModContainer).IsDAIMod() && (value as ModContainer).Mod.ScriptObject != null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return null;
+        }
+    }
+    
+    public class SelectedModToChangeStatusButtonIsEnabledConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            ModContainer selectedMod = value as ModContainer;
+            return !selectedMod.IsOfficialPatch && (selectedMod.MinPatchVersion == -1 || Settings.PatchVersion >= selectedMod.MinPatchVersion);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return null;
+        }
+    }
+
 }

@@ -5,7 +5,7 @@ using DAI.Utilities;
 
 namespace DAI.Mod.Manager.Utilities {
     public static class ModResourceEntryExt {
-        public static void CopyPatchSha1(this ModResourceEntry mre, DAIEntry copyFromEntry) {
+        public static void CopyPatchSha1(ModResourceEntry mre, DAIEntry copyFromEntry) {
             int num = copyFromEntry.HasField("casPatchType") ? copyFromEntry.GetDWordValue("casPatchType") : 0;
             mre.PatchType = (byte)num;
             mre.OriginalSha1 = copyFromEntry.GetSha1Value("sha1");
@@ -15,7 +15,7 @@ namespace DAI.Mod.Manager.Utilities {
             }
         }
 
-        public static void CopyChunkFields(this ChunkModResourceEntry chunkEntry, DAIEntry Entry, DAIEntry ChunkMetaEntry) {
+        public static void CopyChunkFields(ChunkModResourceEntry chunkEntry, DAIEntry Entry, DAIEntry ChunkMetaEntry) {
             chunkEntry.LogicalOffset = Entry.GetDWordValue("logicalOffset");
             chunkEntry.LogicalSize = Entry.GetDWordValue("logicalSize");
             if (Entry.HasField("rangeStart")) {
@@ -24,20 +24,20 @@ namespace DAI.Mod.Manager.Utilities {
             }
             chunkEntry.ChunkH32 = ChunkMetaEntry.GetDWordValue("h32");
             chunkEntry.Meta = Meta.MetaToString(ChunkMetaEntry.GetByteArrayValue("meta"));
-            chunkEntry.CopyPatchSha1(Entry);
+            CopyPatchSha1(chunkEntry, Entry);
         }
 
-        public static void ModifyResourceEntry(this ModResourceEntry mre, ResModResourceEntry newEntry, DAIEntry entryToModify) {
+        public static void ModifyResourceEntry(ModResourceEntry newEntry, DAIEntry entryToModify) {
             entryToModify.RemoveField("casPatchType");
             entryToModify.RemoveField("baseSha1");
             entryToModify.RemoveField("deltaSha1");
             entryToModify.SetSha1Value("sha1", newEntry.NewSha1);
             entryToModify.SetQWordValue("size", newEntry.Size);
             entryToModify.SetQWordValue("originalSize", newEntry.OriginalSize);
-            if (newEntry.Type == "res") {
-                entryToModify.SetDWordValue("resType", (uint)newEntry.ResType);
-                entryToModify.SetByteArrayValue("resMeta", Meta.StringToMeta(newEntry.Meta));
-                entryToModify.SetQWordValue("resRid", newEntry.ResRid);
+            if (newEntry is ResModResourceEntry resEntry) {
+                entryToModify.SetDWordValue("resType", (uint)resEntry.ResType);
+                entryToModify.SetByteArrayValue("resMeta", Meta.StringToMeta(resEntry.Meta));
+                entryToModify.SetQWordValue("resRid", resEntry.ResRid);
             }
             entryToModify.AddDWordValue("casPatchType", newEntry.PatchType);
             if (newEntry.PatchType == 2) {
@@ -46,7 +46,7 @@ namespace DAI.Mod.Manager.Utilities {
             }
         }
 
-        public static void BuildDAIEntry(this ModResourceEntry mre, DAIEntry existingEntry, ModResourceEntry newMre) {
+        public static void BuildDAIEntry(DAIEntry existingEntry, ModResourceEntry newMre) {
             DAIEntry newEntry = new DAIEntry();
             string mreType = (newMre.Type == "chunk") ? "chunks" : newMre.Type;
             if (newMre is ChunkModResourceEntry) {

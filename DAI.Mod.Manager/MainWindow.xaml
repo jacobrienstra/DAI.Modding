@@ -10,7 +10,11 @@
         Width="500" 
         Background="#FFF0F0F0" 
         Loaded="Window_Loaded" 
+        
         Closing="Window_Closing">
+    <Window.DataContext>
+        <local:ManagerViewModel x:Key="ModManagerViewModel"/>
+    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -42,24 +46,30 @@
             </Grid.ColumnDefinitions>
             <DockPanel Margin="10,10,5,10">
                 <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0" LastChildFill="False">
-                    <Button Name="ChangeStatusModButton" DataContext="{Binding SelectedMod}" Content="Enable" IsEnabled="False" Click="ChangeStatusModButton_Click" DockPanel.Dock="Right">
+                    <Button Name="ChangeStatusModButton" Content="Enable"  Click="ChangeStatusModButton_Click" DockPanel.Dock="Right">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                                    <DataTrigger Binding="{Binding SelectedMod.IsEnabled}" Value="True">
                                         <Setter Property="Content" Value="Disable"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                    <DataTrigger Binding="{Binding SelectedMod.IsEnabled}" Value="False">
                                         <Setter Property="Content" Value="Enable"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedMod.IsOfficialPatch}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedMod.IsOfficialPatch}" Value="False">
+                                        <Setter Property="IsEnabled" Value="True"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Name="MoveModUpButton" Content="▲" IsEnabled="False" Click="MoveModUpButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0,0,5,0"/>
-                    <Button Name="MoveModDownButton" Content="▼" IsEnabled="False" Click="MoveModDownButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0"/>
+                    <Button Name="MoveModUpButton" Content="▲" Click="MoveModUpButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0,0,5,0" IsEnabled="{Binding SelectedMod, Converter={StaticResource SelectedModToUpButtonIsEnabledConverter}}"/>
+                    <Button Name="MoveModDownButton" Content="▼" Click="MoveModDownButton_Click" Style="{StaticResource DefaultButtonCompactStyle}" Margin="0"  IsEnabled="{Binding SelectedMod, Converter={StaticResource SelectedModToDownButtonIsEnabledConverter}}"/>
                 </DockPanel>
-                <ListBox Grid.Column="0" Name="ModListBox" FontFamily="Consolas" SelectionChanged="ModListBox_SelectionChanged" MouseDoubleClick="ModListBox_MouseDoubleClick" ItemsSource="{Binding ModList, Mode=TwoWay}" SelectedItem="{Binding SelectedMod, Mode=TwoWay}">
+                <ListBox Grid.Column="0" Name="ModListBox" FontFamily="Consolas" SelectionChanged="ModListBox_SelectionChanged" MouseDoubleClick="ModListBox_MouseDoubleClick" ItemsSource="{Binding AllModsList, Mode=OneWay}" SelectedItem="{Binding SelectedMod, Mode=TwoWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock x:Name="modNameBlock" Text="{Binding Name}"/>
@@ -112,9 +122,9 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <CheckBox Name="VerboseLoggingCheckBox" Content="Verbose Logging" HorizontalAlignment="Left" Grid.Row="0" VerticalAlignment="Center" Margin="3,5"/>
-                        <CheckBox Name="ForceRescanCheckBox" Content="Force rescan of Patch" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center"  Margin="3,5"/>
-                        <CheckBox Name="MergeDestinationCheckBox" Content="Choose custom merge destination" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" Margin="3,5"/>
+                        <CheckBox Name="VerboseLoggingCheckBox" Content="Verbose Logging" HorizontalAlignment="Left" Grid.Row="0" VerticalAlignment="Center" Margin="3,5" IsChecked="{Binding VerboseLogging, Mode=TwoWay}"/>
+                        <CheckBox Name="ForceRescanCheckBox" Content="Force rescan of Patch" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center"  Margin="3,5" IsChecked="{Binding ForceRescan, Mode=TwoWay}"/>
+                        <CheckBox Name="MergeDestinationCheckBox" Content="Choose custom merge destination" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" Margin="3,5" IsChecked="{Binding MergeDestination, Mode=TwoWay}"/>
                     </Grid>
                 </GroupBox>
             </DockPanel>

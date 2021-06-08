@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAI.AssetLibrary", "DAI.Ass
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAI.FrostbiteAssets", "DAI.FrostbiteAssets\DAI.FrostbiteAssets.csproj", "{2556553E-1461-49EA-8A0B-4DF654F2BD98}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RoslynPad", "RoslynPad", "{8C1ABC19-634B-4097-A696-96C6FF98C9C9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 RoslynPad", "1 RoslynPad", "{8C1ABC19-634B-4097-A696-96C6FF98C9C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extensions", "Extensions\Extensions.csproj", "{7208E169-0496-4B89-B7C9-2AC5AE553E77}"
 EndProject

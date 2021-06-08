@@ -92,6 +92,7 @@
     <Compile Include="DAI.Utilities\IndexedSet.cs" />
     <Compile Include="DAI.Utilities\Key.cs" />
     <Compile Include="DAI.Utilities\LoadingProgressState.cs" />
+    <Compile Include="DAI.Utilities\NotificationObject.cs" />
     <Compile Include="DAI.Utilities\NumericExtensions.cs" />
     <Compile Include="DAI.Utilities\Meta.cs" />
     <Compile Include="DAI.Utilities\Sha1.cs" />

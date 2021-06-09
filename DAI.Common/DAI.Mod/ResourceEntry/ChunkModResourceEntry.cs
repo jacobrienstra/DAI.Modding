@@ -52,7 +52,7 @@ namespace DAI.Mod {
         }
 
         public ChunkModResourceEntry(ChunkRef chunk, string action)
-            : base(chunk.ChunkId.ToSha1(), "chunk", action) {
+            : base(chunk.ChunkId.ToSha1HexStr(), "chunk", action) {
         }
 
         public ChunkModResourceEntry(string chunkIDSha1HexString, string action)

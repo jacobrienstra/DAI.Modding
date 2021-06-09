@@ -1,12 +1,13 @@
 using System;
 
 using DAI.AssetLibrary.Utilities.Extensions;
+using DAI.AssetLibrary.Utilities;
 
 namespace DAI.AssetLibrary.Assets.References {
     public class EbxRef : AssetEntryRef {
         public string Name { get; set; }
 
-        public string Sha1 { get; set; }
+        public Sha1 Sha1 { get; set; }
 
         public long Size { get; set; }
 
@@ -14,9 +15,9 @@ namespace DAI.AssetLibrary.Assets.References {
 
         public int CasPatchType { get; set; }
 
-        public string BaseSha1 { get; set; }
+        public Sha1 BaseSha1 { get; set; }
 
-        public string DeltaSha1 { get; set; }
+        public Sha1 DeltaSha1 { get; set; }
 
         public string AssetType { get; set; }
 
@@ -26,11 +27,11 @@ namespace DAI.AssetLibrary.Assets.References {
 
         public EbxRef() {
             Name = string.Empty;
-            Sha1 = string.Empty;
+            Sha1 = Sha1.Empty;
             AssetType = string.Empty;
             CasPatchType = 0;
-            BaseSha1 = string.Empty;
-            DeltaSha1 = string.Empty;
+            BaseSha1 = Sha1.Empty;
+            DeltaSha1 = Sha1.Empty;
         }
     }
 }

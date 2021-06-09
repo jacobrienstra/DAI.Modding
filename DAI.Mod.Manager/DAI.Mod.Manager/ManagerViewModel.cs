@@ -206,6 +206,7 @@ namespace DAI.Mod.Manager {
             ProgressWin = new ProgressWindow();
             Scripting.ScriptingTextBox = ProgressWin.StatusTextBox;
             ProgressWin.Show();
+            //TODO: pass in cancellation token
             _bgWorker.RunWorkerAsync(new WorkerState(WorkerStateType.WorkerState_SavePatch, new PatchPayloadData {
                 CreateDistPatch = false,
                 IncludeProjectData = false,
@@ -215,7 +216,7 @@ namespace DAI.Mod.Manager {
         }
 
         public void LoadMods() {
-            UserModList.Clear(); 
+            ClearUserMods();
             ModManagerGridEnabled = false;
             MergeReady = false;
             // Initialize Check
@@ -284,7 +285,7 @@ namespace DAI.Mod.Manager {
             if (loadingProgressState.UpdateProgress) {
                 ProgressWin.StatusProgressBar.Visibility = System.Windows.Visibility.Visible;
                 ProgressWin.StatusProgressBar.Value = e.ProgressPercentage;
-                ProgressWin.TaskbarItemInfo.ProgressValue = (double)e.ProgressPercentage / 100.0;
+                ProgressWin.TaskbarItemInfo.ProgressValue = e.ProgressPercentage / 100.0;
                 ProgressWin.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
             }
             if (loadingProgressState.UpdateLog) {
@@ -711,8 +712,8 @@ namespace DAI.Mod.Manager {
         }
 
         private void WriteLogEntry(string LogText) {
-            ProgressWin.StatusTextBox.AppendText("[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + LogText + "\n");
-            ProgressWin.StatusTextBox.ScrollToEnd();
+                ProgressWin.StatusTextBox.AppendText("[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + LogText + "\n");
+                ProgressWin.StatusTextBox.ScrollToEnd(); 
         }
 
         private void WriteLogEntry_Threaded(string LogText) {
@@ -832,12 +833,13 @@ namespace DAI.Mod.Manager {
                                                             Sha1 patchRootEntryResSha1 = patchRootEntryRes.GetSha1Value("sha1");
                                                             int addedIndex = indexedMultiMap.FindIndex(patchRootEntryResSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == patchRootEntryRes.GetStringValue("name") && A.PatchType == (patchRootEntryRes.HasField("casPatchType") ? patchRootEntryRes.GetDWordValue("casPatchType") : 0));
                                                             if (addedIndex == -1) {
-                                                                ResModResourceEntry resModEntry = new ResModResourceEntry(patchRootEntryRes.GetStringValue("name"), "add");
-                                                                resModEntry.Size = patchRootEntryRes.GetQWordValue("size");
-                                                                resModEntry.OriginalSize = patchRootEntryRes.GetQWordValue("originalSize");
-                                                                resModEntry.ResRid = patchRootEntryRes.GetQWordValue("resRid");
-                                                                resModEntry.ResType = patchRootEntryRes.GetDWordValue("resType");
-                                                                resModEntry.Meta = Meta.MetaToString(patchRootEntryRes.GetByteArrayValue("resMeta"));
+                                                                ResModResourceEntry resModEntry = new ResModResourceEntry(patchRootEntryRes.GetStringValue("name"), "add") {
+                                                                    Size = patchRootEntryRes.GetQWordValue("size"),
+                                                                    OriginalSize = patchRootEntryRes.GetQWordValue("originalSize"),
+                                                                    ResRid = patchRootEntryRes.GetQWordValue("resRid"),
+                                                                    ResType = patchRootEntryRes.GetDWordValue("resType"),
+                                                                    Meta = Meta.MetaToString(patchRootEntryRes.GetByteArrayValue("resMeta"))
+                                                                };
                                                                 ModResourceEntryExt.CopyPatchSha1(resModEntry, patchRootEntryRes);
                                                                 addedIndex = indexedMultiMap.Add(patchRootEntryResSha1, resModEntry);
                                                             }
@@ -944,8 +946,9 @@ namespace DAI.Mod.Manager {
                                                         DAIEntry chunkMeta = patchBundle.GetListValue("chunkMeta")[i];
                                                         int addedIndex = indexedMultiMap.FindIndex(chunkSha1, (ModResourceEntry A) => A.Action == "add" && A.Name == chunk.GetDQWordValue("id").ToString());
                                                         if (addedIndex == -1) {
-                                                            ChunkModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add");
-                                                            chunkModEntry.Size = chunk.GetDWordValue("size");
+                                                            ChunkModResourceEntry chunkModEntry = new ChunkModResourceEntry(chunk.GetDQWordValue("id").ToString(), "add") {
+                                                                Size = chunk.GetDWordValue("size")
+                                                            };
                                                             ModResourceEntryExt.CopyChunkFields(chunkModEntry, chunk, chunkMeta);
                                                             addedIndex = indexedMultiMap.Add(chunkSha1, chunkModEntry);
                                                         }
@@ -969,7 +972,7 @@ namespace DAI.Mod.Manager {
                     CopyFiles = copyFiles
                 }
             };
-            modJob.Save(Directory.GetCurrentDirectory() + "\\Patch.daimod");
+            modJob.Save(Directory.GetCurrentDirectory() + "\\patch.daimod");
             Settings.RescanPatch = false;
             return modJob;
         }

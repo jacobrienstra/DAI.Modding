@@ -33,7 +33,7 @@ namespace DAI.AssetLibrary.Parsers {
             sb.EntryPath = filename.Replace(basePath + "\\", "");
             using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
                 using (BinaryReader reader = new BinaryReader(fs)) {
-                    List<string> sha1s = new List<string>();
+                    List<Sha1> sha1s = new List<Sha1>();
                     reader.BaseStream.Seek(offset, SeekOrigin.Begin);
                     uint headerSize = reader.ReadLEUInt();
                     long startOffset = reader.BaseStream.Position;
@@ -48,7 +48,7 @@ namespace DAI.AssetLibrary.Parsers {
                     reader.ReadLEUInt();
                     reader.ReadLEUInt();
                     for (int m = 0; m < totalCount; m++) {
-                        sha1s.Add(reader.ReadSha1ToHexStr());
+                        sha1s.Add(reader.ReadSha1());
                     }
                     ReadEbxList(sb, reader, startOffset + stringOffsets, ebxCount);
                     ReadResList(sb, reader, startOffset + stringOffsets, resCount);

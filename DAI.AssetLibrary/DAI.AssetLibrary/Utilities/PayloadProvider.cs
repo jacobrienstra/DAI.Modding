@@ -18,7 +18,7 @@ namespace DAI.AssetLibrary.Utilities {
                 return Utils.DecompressData(r.ModifiedData, -1L);
             }
             if (!r.IsDelta) {
-                if (!string.IsNullOrEmpty(r.Sha1)) {
+                if (!r.Sha1.IsEmpty()) {
                     return GetPayloadFromCas(r.Sha1);
                 }
                 return GetPayloadFromSB(r.EntryPath, r.EntryOffset, r.Size);
@@ -42,7 +42,7 @@ namespace DAI.AssetLibrary.Utilities {
                 return Utils.DecompressData(ebx.ModifiedData, -1L);
             }
             if (!ebx.IsDelta) {
-                if (!string.IsNullOrEmpty(ebx.Sha1)) {
+                if (!ebx.Sha1.IsEmpty()) {
                     return GetPayloadFromCas(ebx.Sha1);
                 }
                 return GetPayloadFromSB(ebx.EntryPath, ebx.EntryOffset, ebx.Size);
@@ -62,7 +62,7 @@ namespace DAI.AssetLibrary.Utilities {
             if (c.State != 0 && c.ModifiedData != null) {
                 return Utils.DecompressData(c.ModifiedData, -1L);
             }
-            if (!c.Offset.HasValue && !string.IsNullOrEmpty(c.Sha1)) {
+            if (!c.Offset.HasValue && !c.Sha1.IsEmpty()) {
                 return GetPayloadFromCas(c.Sha1);
             }
             if (c.Offset.HasValue) {
@@ -139,7 +139,7 @@ namespace DAI.AssetLibrary.Utilities {
             }
         }
 
-        public static byte[] GetPayloadFromCas(string sha1) {
+        public static byte[] GetPayloadFromCas(Sha1 sha1) {
             if (!Library.CasEntries.ContainsKey(sha1)) {
                 return null;
             }
@@ -157,7 +157,7 @@ namespace DAI.AssetLibrary.Utilities {
             }
         }
 
-        public static byte[] GetCompressedPayloadFromCas(string sha1) {
+        public static byte[] GetCompressedPayloadFromCas(Sha1 sha1) {
             if (!Library.CasEntries.ContainsKey(sha1)) {
                 return null;
             }

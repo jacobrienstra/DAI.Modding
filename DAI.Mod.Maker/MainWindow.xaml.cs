@@ -19,10 +19,10 @@ using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
-using DAI.Mod;
 using DAI.Mod.Maker.DAIModules;
 using DAI.Mod.Maker.Properties;
 using DAI.Mod.Maker.Utilities;
+using DAI.Utilities;
 
 namespace DAI.Mod.Maker {
     public partial class MainWindow : Window, IComponentConnector {
@@ -697,17 +697,20 @@ namespace DAI.Mod.Maker {
         }
 
         private void WriteLogEntry(string LogText) {
-            System.Windows.Controls.TextBox logTextBox = LogTextBox;
-            string text = logTextBox.Text;
-            string[] shortDateString = new string[8] { text, "[", null, null, null, null, null, null };
-            shortDateString[2] = DateTime.Now.ToShortDateString();
-            shortDateString[3] = " ";
-            shortDateString[4] = DateTime.Now.ToShortTimeString();
-            shortDateString[5] = "] ";
-            shortDateString[6] = LogText;
-            shortDateString[7] = "\n";
-            logTextBox.Text = string.Concat(shortDateString);
-            LogTextBox.ScrollToEnd();
+            LogTextBox.Dispatcher.Invoke(() =>
+            {
+                System.Windows.Controls.TextBox logTextBox = LogTextBox;
+                string text = logTextBox.Text;
+                string[] shortDateString = new string[8] { text, "[", null, null, null, null, null, null };
+                shortDateString[2] = DateTime.Now.ToShortDateString();
+                shortDateString[3] = " ";
+                shortDateString[4] = DateTime.Now.ToShortTimeString();
+                shortDateString[5] = "] ";
+                shortDateString[6] = LogText;
+                shortDateString[7] = "\n";
+                logTextBox.Text = string.Concat(shortDateString);
+                LogTextBox.ScrollToEnd();
+            });
         }
 
         private static void LoadMeshVariations() {

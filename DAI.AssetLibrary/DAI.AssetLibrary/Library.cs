@@ -41,7 +41,7 @@ namespace DAI.AssetLibrary {
 
         public static LibraryEventManager EventManager = new LibraryEventManager();
 
-        internal static Dictionary<string, CatalogEntry> CasEntries { get; private set; }
+        internal static Dictionary<Sha1, CatalogEntry> CasEntries { get; private set; }
 
         internal static Dictionary<Guid, string> PlotFlagTable { get; private set; }
 
@@ -77,7 +77,7 @@ namespace DAI.AssetLibrary {
             LoadPlotFlags();
             LoadFieldNames();
             LoadEbxNameTypes();
-            CasEntries = GameAssetFolders.SelectMany((GameAssetFolder folder) => CatalogParser.ParseAll(Path.Combine(BasePath, folder.Path))).ToDictionary((KeyValuePair<string, CatalogEntry> pair) => pair.Key, (KeyValuePair<string, CatalogEntry> pair) => pair.Value);
+            CasEntries = GameAssetFolders.SelectMany((GameAssetFolder folder) => CatalogParser.ParseAll(Path.Combine(BasePath, folder.Path))).ToDictionary((KeyValuePair<Sha1, CatalogEntry> pair) => pair.Key, (KeyValuePair<Sha1, CatalogEntry> pair) => pair.Value);
         }
 
         public static void BuildLibrary() {
@@ -159,7 +159,7 @@ namespace DAI.AssetLibrary {
                     chunk2.ChunkId = new Guid(chunk2.Id);
                 }
                 if (!toc.Cas) {
-                    chunk2.Sha1 = string.Empty;
+                    chunk2.Sha1 = Sha1.Empty;
                 } else if (!CasEntries.ContainsKey(chunk2.Sha1)) {
                     continue;
                 }
@@ -178,7 +178,7 @@ namespace DAI.AssetLibrary {
                         chunk.ChunkId = new Guid(chunk.Id);
                     }
                     if (!CasEntries.ContainsKey(chunk.Sha1)) {
-                        chunk.Sha1 = string.Empty;
+                        chunk.Sha1 = Sha1.Empty;
                     }
                     if (!AllChunks.ContainsKey(chunk.ChunkId)) {
                         AllChunks.Add(chunk.ChunkId, chunk);
@@ -199,11 +199,11 @@ namespace DAI.AssetLibrary {
                     res.EntryPath = curSb.EntryPath;
                     res.FromDLC = isAddonContent;
                     if (!toc.Cas) {
-                        res.Sha1 = string.Empty;
+                        res.Sha1 = Sha1.Empty;
                     }
                     if (curSb.Delta && res.CasPatchType == 2) {
                         res.IsDelta = true;
-                    } else if (!string.IsNullOrEmpty(res.Sha1) && !CasEntries.ContainsKey(res.Sha1)) {
+                    } else if (!res.Sha1.IsEmpty() && !CasEntries.ContainsKey(res.Sha1)) {
                         continue;
                     }
                     ResRef oldRes = null;
@@ -246,18 +246,18 @@ namespace DAI.AssetLibrary {
                     ebx.EntryPath = curSb.EntryPath;
                     ebx.FromDLC = isAddonContent;
                     if (!toc.Cas) {
-                        ebx.Sha1 = string.Empty;
+                        ebx.Sha1 = Sha1.Empty;
                     }
                     if (curSb.Delta && ebx.CasPatchType == 2) {
                         ebx.IsDelta = true;
-                    } else if (!string.IsNullOrEmpty(ebx.Sha1) && !CasEntries.ContainsKey(ebx.Sha1)) {
+                    } else if (!ebx.Sha1.IsEmpty() && !CasEntries.ContainsKey(ebx.Sha1)) {
                         continue;
                     }
 
                     if (AllEbx.ContainsKey(ebx.Name)) {
                         EbxRef oldEbx = AllEbx[ebx.Name];
                         if (oldEbx.IsDelta || !ebx.IsDelta) {
-                            if (string.IsNullOrEmpty(oldEbx.Sha1) && !string.IsNullOrEmpty(ebx.Sha1) && curSb.Delta) {
+                            if (oldEbx.Sha1.IsEmpty() && !ebx.Sha1.IsEmpty() && curSb.Delta) {
                                 oldEbx.Sha1 = ebx.Sha1;
                             }
                             AddToBundle(oldEbx, sb);
@@ -441,7 +441,7 @@ namespace DAI.AssetLibrary {
                 if (!EbxGuidLookup.ContainsKey(ebx.FileGuid)) {
                     EbxGuidLookup.Add(ebx.FileGuid, ebx);
                 }
-                string nameHash = ebx.Name.ToSha1();
+                string nameHash = ebx.Name.EncodeAsSha1().HexStringValue;
                 if (!EbxNameSha1Lookup.ContainsKey(nameHash)) {
                     EbxNameSha1Lookup.Add(nameHash, ebx);
                 }

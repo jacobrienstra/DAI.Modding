@@ -1,10 +1,12 @@
 using System;
 
+using DAI.AssetLibrary.Utilities;
+
 namespace DAI.AssetLibrary.Assets.References {
     public class ChunkRef : AssetEntryRef {
         internal string Id { get; set; }
 
-        public string Sha1 { get; set; }
+        public Sha1 Sha1 { get; set; }
 
         public int Size { get; set; }
 
@@ -28,7 +30,7 @@ namespace DAI.AssetLibrary.Assets.References {
 
         public ChunkRef() {
             ChunkId = Guid.Empty;
-            Sha1 = string.Empty;
+            Sha1 = Sha1.Empty;
             Meta = null;
             CasPatchType = 7;
         }

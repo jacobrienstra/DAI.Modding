@@ -195,7 +195,7 @@ namespace DAI.AssetLibrary.Utilities {
             if (reader.ReadBoolean()) {
                 chunk.RangeStart = reader.ReadInt32();
             }
-            chunk.Sha1 = reader.ReadString();
+            chunk.Sha1 = reader.ReadSha1();
             chunk.Size = reader.ReadInt32();
             if (reader.ReadBoolean()) {
                 chunk.H32 = reader.ReadInt32();
@@ -208,15 +208,15 @@ namespace DAI.AssetLibrary.Utilities {
             EbxRef ebx = new EbxRef();
             DeserializeAssetEntry(reader, ebx);
             ebx.AssetType = reader.ReadString();
-            ebx.BaseSha1 = reader.ReadString();
+            ebx.BaseSha1 = reader.ReadSha1();
             ebx.BinaryName = reader.ReadString();
             ebx.CasPatchType = reader.ReadInt32();
-            ebx.DeltaSha1 = reader.ReadString();
+            ebx.DeltaSha1 = reader.ReadSha1();
             ebx.FileGuid = reader.ReadGuid();
             ebx.IsDelta = reader.ReadBoolean();
             ebx.Name = reader.ReadString();
             ebx.OriginalSize = reader.ReadInt64();
-            ebx.Sha1 = reader.ReadString();
+            ebx.Sha1 = reader.ReadSha1();
             ebx.Size = reader.ReadInt64();
             return ebx;
         }
@@ -224,16 +224,16 @@ namespace DAI.AssetLibrary.Utilities {
         private static ResRef DeserializeRes(BinaryReader reader) {
             ResRef res = new ResRef();
             DeserializeAssetEntry(reader, res);
-            res.BaseSha1 = reader.ReadString();
+            res.BaseSha1 = reader.ReadSha1();
             res.BinaryName = reader.ReadString();
             res.CasPatchType = reader.ReadInt32();
-            res.DeltaSha1 = reader.ReadString();
+            res.DeltaSha1 = reader.ReadSha1();
             res.IsDelta = reader.ReadBoolean();
             res.Name = reader.ReadString();
             res.ResMeta = DeserializeByteArray(reader);
             res.ResRid = reader.ReadInt64();
             res.ResType = reader.ReadInt32();
-            res.Sha1 = reader.ReadString();
+            res.Sha1 = reader.ReadSha1();
             res.Size = reader.ReadInt64();
             return res;
         }

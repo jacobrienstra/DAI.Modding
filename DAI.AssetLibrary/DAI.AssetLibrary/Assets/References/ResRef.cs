@@ -1,8 +1,10 @@
+using DAI.AssetLibrary.Utilities;
+
 namespace DAI.AssetLibrary.Assets.References {
     public class ResRef : AssetEntryRef {
         public string Name { get; set; }
 
-        public string Sha1 { get; set; }
+        public Sha1 Sha1 { get; set; }
 
         public long Size { get; set; }
 
@@ -16,15 +18,15 @@ namespace DAI.AssetLibrary.Assets.References {
 
         public int CasPatchType { get; set; }
 
-        public string BaseSha1 { get; set; }
+        public Sha1 BaseSha1 { get; set; }
 
-        public string DeltaSha1 { get; set; }
+        public Sha1 DeltaSha1 { get; set; }
 
         public ResRef() {
             Name = string.Empty;
-            Sha1 = string.Empty;
-            BaseSha1 = string.Empty;
-            DeltaSha1 = string.Empty;
+            Sha1 = Sha1.Empty;
+            BaseSha1 = Sha1.Empty;
+            DeltaSha1 = Sha1.Empty;
             CasPatchType = 0;
         }
     }

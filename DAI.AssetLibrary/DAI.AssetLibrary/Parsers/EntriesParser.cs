@@ -106,7 +106,7 @@ namespace DAI.AssetLibrary.Parsers {
                 case 15:
                     return reader.ReadGuidAsString();
                 case 16:
-                    return reader.ReadSha1ToHexStr();
+                    return reader.ReadSha1();
                 case 7:
                     return reader.ReadStringField();
                 case 1:

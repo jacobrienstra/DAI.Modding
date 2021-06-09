@@ -1,6 +1,8 @@
+using DAI.AssetLibrary.Utilities;
+
 namespace DAI.AssetLibrary.Assets.References {
     public class CatalogEntry {
-        internal string Sha1 { get; set; }
+        internal Sha1 Sha1 { get; set; }
 
         internal int Offset { get; set; }
 

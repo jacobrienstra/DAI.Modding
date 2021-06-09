@@ -11,8 +11,6 @@ using DAI.FrostbiteAssets;
 using DAI.Mod.Maker.Properties;
 using DAI.Mod.Maker.Utilities;
 
-using AssetUtils = DAI.AssetLibrary.Utilities.Utilities;
-
 namespace DAI.Mod.Maker.DAIModules.Import {
     public class MeshImport : DAIBaseImporter {
         private void ComputeTangentBasis(ref MeshBuffer MeshBuffer) {
@@ -205,7 +203,7 @@ namespace DAI.Mod.Maker.DAIModules.Import {
 
         private ChunkRef AddNewChunk(ChunkRef oldChunk, byte[] chunkPayload, int meshNameHash, ResRef res) {
             ChunkRef obj = new ChunkRef {
-                Sha1 = "00000000000000000000",
+                Sha1 = Sha1.Empty,
                 ChunkId = Guid.NewGuid(),
                 H32 = meshNameHash,
                 Meta = new byte[1],
@@ -213,7 +211,7 @@ namespace DAI.Mod.Maker.DAIModules.Import {
                 LogicalSize = chunkPayload.Length,
                 Size = oldChunk.Size
             };
-            byte[] modifiedData = AssetUtils.CompressData(chunkPayload);
+            byte[] modifiedData = AssetLibrary.Utilities.Utils.CompressData(chunkPayload);
             LibraryManager.AddChunk(obj, modifiedData, true);
             LibraryManager.AddToBundles(obj, res.ParentSbs);
             if (oldChunk.State != 0) {

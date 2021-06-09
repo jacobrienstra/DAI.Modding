@@ -60,7 +60,7 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
             return new Guid(reversed);
         }
 
-        public static string ToSha1(this Guid g) {
+        public static string ToSha1HexStr(this Guid g) {
             ulong[] values = g.AsDoubleULong();
             ulong value1 = 0uL;
             for (int i = 56; i >= 0; i -= 8) {

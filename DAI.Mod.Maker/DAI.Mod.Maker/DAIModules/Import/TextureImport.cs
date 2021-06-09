@@ -142,7 +142,7 @@ namespace DAI.Mod.Maker.DAIModules.Import {
             firstMip.Name = dAITexture.Name;
             LibraryManager.DeleteChunk(Library.GetChunkById(dAITexture.ChunkID));
             ChunkRef chunkAsset = new ChunkRef {
-                Sha1 = "00000000000000000000"
+                Sha1 = Sha1.Empty
             };
             chunkAsset.ChunkId = Guid.NewGuid();
             chunkAsset.H32 = (int)firstMip.NameHash;
@@ -164,7 +164,7 @@ namespace DAI.Mod.Maker.DAIModules.Import {
             for (int k = 0; k < chunkAsset.Meta[10]; k++) {
                 mipSizes = (importCompressDatum.MipSize = mipSizes + firstMip.MipSizes[k]);
             }
-            byte[] numArray2 = DAI.AssetLibrary.Utilities.Utilities.CompressData(numArray, ref importCompressDatum);
+            byte[] numArray2 = Utils.CompressData(numArray, ref importCompressDatum);
             firstMip.MipOneEndOffset = (uint)importCompressDatum.FirstMipEndOffset;
             firstMip.MipTwoEndOffset = (uint)importCompressDatum.SecondMipEndOffset;
             if (firstMip.NumSizes > 1) {

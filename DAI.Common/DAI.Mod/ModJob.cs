@@ -181,10 +181,11 @@ namespace DAI.Mod {
 
         public string MakeXml() {
             using (StringWriter sw = new StringWriter()) {
-                XmlWriterSettings settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.Encoding = Encoding.UTF8;
-                settings.OmitXmlDeclaration = true;
+                XmlWriterSettings settings = new XmlWriterSettings {
+                    Indent = true,
+                    Encoding = Encoding.UTF8,
+                    OmitXmlDeclaration = true,
+                };
                 using (XmlWriter writer = XmlWriter.Create(sw, settings)) {
                     writer.WriteStartElement("daimod");
                     writer.WriteAttributeString("version", Meta.FormatVersion.ToString());

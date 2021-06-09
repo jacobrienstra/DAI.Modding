@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using DAI.Mod;
+using DAI.Utilities;
 using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
@@ -27,7 +27,7 @@ namespace DAI.Mod.Maker {
         }
 
         private static ModJob OpenDaimod(string patchPath, bool isImport, List<string> errors) {
-            Dictionary<int, string> sha1s = new Dictionary<int, string>();
+            Dictionary<int, Sha1> sha1s = new Dictionary<int, Sha1>();
             Dictionary<int, Guid> ids = new Dictionary<int, Guid>();
             ModJob modJob = ModJob.CreateFromFile(patchPath);
             if (!isImport) {
@@ -101,7 +101,7 @@ namespace DAI.Mod.Maker {
                     }
                 case "res": {
                         ResRef res = null;
-                        res = (((!(modResourceEntry.Action == "add") || modResourceEntry.ResourceID != -1) && !(modResourceEntry.Action == "modify")) ? Library.GetResByName(modResourceEntry.Name) : Library.GetResByResRid(((ResModResourceEntry)modResourceEntry).ResRid));
+                        res = ((!(modResourceEntry.Action == "add") || modResourceEntry.ResourceID != -1) && !(modResourceEntry.Action == "modify")) ? Library.GetResByName(modResourceEntry.Name) : Library.GetResByResRid(((ResModResourceEntry)modResourceEntry).ResRid);
                         if (res != null) {
                             LibraryManager.AddToBundle(res, sb);
                         } else {
@@ -130,13 +130,13 @@ namespace DAI.Mod.Maker {
             }
         }
 
-        private static void LoadEntries(Dictionary<int, string> sha1s, Dictionary<int, Guid> ids, ModJob modJob, int i, List<string> errors) {
+        private static void LoadEntries(Dictionary<int, Sha1> sha1s, Dictionary<int, Guid> ids, ModJob modJob, int i, List<string> errors) {
             ModResourceEntry item = modJob.Meta.Resources[i];
             switch (item.Type) {
                 case "ebx":
                     switch (item.Action) {
                         case "add": {
-                                string sha1 = modJob.Data[item.ResourceID].ToSha1();
+                                Sha1 sha1 = modJob.Data[item.ResourceID].EncodeAsSha1();
                                 sha1s.Add(i, sha1);
                                 break;
                             }
@@ -163,7 +163,7 @@ namespace DAI.Mod.Maker {
                 case "res":
                     switch (item.Action) {
                         case "add": {
-                                string sha2 = modJob.Data[item.ResourceID].ToSha1();
+                                Sha1 sha2 = modJob.Data[item.ResourceID].EncodeAsSha1();
                                 sha1s.Add(i, sha2);
                                 break;
                             }
@@ -207,7 +207,7 @@ namespace DAI.Mod.Maker {
                             }
                             break;
                         }
-                        string sha3 = modJob.Data[item.ResourceID].ToSha1();
+                        Sha1 sha3 = modJob.Data[item.ResourceID].EncodeAsSha1();
                         ChunkModResourceEntry chunkItem = (ChunkModResourceEntry)item;
                         byte[] numArray = new byte[chunkItem.Meta.Length / 2];
                         string meta = chunkItem.Meta;
@@ -248,9 +248,9 @@ namespace DAI.Mod.Maker {
                 job.Meta = new ModMetaData(1, 0, Guid.NewGuid().ToString().ToUpper(), (byte)Library.PatchVersion, new ModDetail(dAIMft.GetValue("ModTitle"), dAIMft.GetValue("ModVersion"), dAIMft.GetValue("ModAuthor"), dAIMft.GetValue("ModDescription")));
             }
             string directoryName = Path.GetDirectoryName(patchPath);
-            Dictionary<string, CatalogEntry> catEntries = new Dictionary<string, CatalogEntry>();
+            Dictionary<Sha1, CatalogEntry> catEntries = new Dictionary<Sha1, CatalogEntry>();
             CatalogParser.Parse("", catEntries, directoryName + "\\Data\\cas.cat");
-            foreach (string key in catEntries.Keys) {
+            foreach (Sha1 key in catEntries.Keys) {
                 LibraryManager.AddCatalogEntry(catEntries[key]);
             }
             string[] files = Directory.GetFiles(directoryName + "\\Data\\Win32", "*.toc", SearchOption.AllDirectories);
@@ -271,7 +271,7 @@ namespace DAI.Mod.Maker {
                         func2 = (func = (EbxRef x) => catEntries.ContainsKey(x.Sha1));
                     }
                     foreach (EbxRef ebx in source.Where(func2)) {
-                        EbxRef oldEbx = Library.GetEbxByNameHash(ebx.Name.ToSha1());
+                        EbxRef oldEbx = Library.GetEbxByNameHash(ebx.Name.EncodeAsSha1().HexStringValue);
                         if (oldEbx != null) {
                             LibraryManager.AddToBundle(oldEbx, sb);
                             byte[] data3 = PayloadProvider.GetPayloadFromCas(ebx.Sha1);
@@ -347,9 +347,9 @@ namespace DAI.Mod.Maker {
                             LogicalSize = chunkAsset.LogicalSize,
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             ChunkH32 = (chunkAsset.H32.HasValue ? chunkAsset.H32.Value : 0),
-                            Meta = DAI.Utilities.Meta.MetaToString(chunkAsset.Meta),
+                            Meta = Meta.MetaToString(chunkAsset.Meta),
                             PatchType = (byte)((chunkAsset.CasPatchType == 0) ? 1 : ((byte)chunkAsset.CasPatchType)),
-                            OriginalSha1 = mod.Data[mod.Data.Count - 1].ToSha1()
+                            OriginalSha1 = new Sha1(mod.Data[mod.Data.Count - 1])
                         };
                         foreach (SubBundleRef sb in chunkAsset.AddedSbs) {
                             AddBundleToModJob(mod, nums, sb);
@@ -385,7 +385,7 @@ namespace DAI.Mod.Maker {
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.Utilities.Meta.MetaToString(resAsset1.ResMeta),
+                            Meta = Meta.MetaToString(resAsset1.ResMeta),
                             PatchType = (byte)((resAsset1.CasPatchType == 0) ? 1 : ((byte)resAsset1.CasPatchType))
                         };
                         if (resAsset1.IsDelta) {
@@ -401,12 +401,12 @@ namespace DAI.Mod.Maker {
                         modEntry = new ResModResourceEntry(resAsset1, "modify") {
                             ResourceID = mod.Data.Count - 1,
                             OriginalSha1 = resAsset1.Sha1,
-                            NewSha1 = mod.Data[mod.Data.Count - 1].ToSha1(),
+                            NewSha1 = mod.Data[mod.Data.Count - 1].EncodeAsSha1(),
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             OriginalSize = resAsset1.DataOriginalSize,
                             ResType = resAsset1.ResType,
                             ResRid = resAsset1.ResRid,
-                            Meta = DAI.Utilities.Meta.MetaToString(resAsset1.ResMeta),
+                            Meta = Meta.MetaToString(resAsset1.ResMeta),
                             PatchType = 1
                         };
                         foreach (SubBundleRef sb2 in resAsset1.ParentSbs) {
@@ -441,7 +441,7 @@ namespace DAI.Mod.Maker {
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             OriginalSize = ebxAsset.DataOriginalSize,
                             PatchType = (byte)((ebxAsset.CasPatchType == 0) ? 1 : ((byte)ebxAsset.CasPatchType)),
-                            OriginalSha1 = mod.Data[mod.Data.Count - 1].ToSha1()
+                            OriginalSha1 = mod.Data[mod.Data.Count - 1].EncodeAsSha1()
                         };
                         foreach (SubBundleRef sb in ebxAsset.ParentSbs) {
                             AddBundleToModJob(mod, nums, sb);
@@ -452,7 +452,7 @@ namespace DAI.Mod.Maker {
                         modEntry = new EbxModResourceEntry(ebxAsset, "modify") {
                             ResourceID = mod.Data.Count - 1,
                             OriginalSha1 = ebxAsset.Sha1,
-                            NewSha1 = mod.Data[mod.Data.Count - 1].ToSha1(),
+                            NewSha1 = mod.Data[mod.Data.Count - 1].EncodeAsSha1(),
                             Size = mod.Data[mod.Data.Count - 1].Length,
                             OriginalSize = ebxAsset.DataOriginalSize,
                             PatchType = 1

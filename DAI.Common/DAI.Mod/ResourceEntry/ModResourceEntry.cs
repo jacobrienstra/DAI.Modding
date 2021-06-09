@@ -1,9 +1,7 @@
 using System;
-using System.Globalization;
 using System.Xml;
 
-using DAI.AssetLibrary.Utilities.Extensions;
-using DAI.Utilities;
+using DAI.AssetLibrary.Utilities;
 
 //TODO: reconcile w OG manager
 namespace DAI.Mod {
@@ -37,7 +35,7 @@ namespace DAI.Mod {
 
         public ModResourceEntry(string InName, string InType, string InAction) {
             Name = InName;
-            NameHash = Name.ToSha1();
+            NameHash = Name.EncodeAsSha1().HexStringValue;
             Type = InType;
             Action = InAction;
             IsEnabled = true;
@@ -58,7 +56,7 @@ namespace DAI.Mod {
                 switch (attributeName.ToLower()) {
                     case "name":
                         Name = attribute.Value;
-                        NameHash = attribute.Value.ToSha1();
+                        NameHash = attribute.Value.EncodeAsSha1().HexStringValue;
                         break;
                     case "type":
                         Type = attribute.Value;
@@ -92,16 +90,17 @@ namespace DAI.Mod {
                         DeltaSha1 = new Sha1(attribute.Value);
                         break;
                     case "basesha1": {
-                            // TODO check
-                            byte[] numArray3 = new byte[20];
-                            string value3 = attribute.Value;
-                            for (int i = 0; i < 40; i += 2) {
-                                string str6 = value3.Substring(0, 2);
-                                value3 = value3.Remove(0, 2);
-                                byte num5 = byte.Parse(str6, NumberStyles.HexNumber);
-                                numArray3[i / 2] = num5;
-                            }
-                            BaseSha1 = new Sha1(numArray3);
+                            BaseSha1 = new Sha1(attribute.Value);
+                            //// TODO check
+                            //byte[] numArray3 = new byte[20];
+                            //string value3 = attribute.Value;
+                            //for (int i = 0; i < 40; i += 2) {
+                            //    string str6 = value3.Substring(0, 2);
+                            //    value3 = value3.Remove(0, 2);
+                            //    byte num5 = byte.Parse(str6, NumberStyles.HexNumber);
+                            //    numArray3[i / 2] = num5;
+                            //}
+                            //BaseSha1 = new Sha1(numArray3);
                             break;
                         }
                 }

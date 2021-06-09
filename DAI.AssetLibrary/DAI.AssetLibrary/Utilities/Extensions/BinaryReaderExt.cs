@@ -74,14 +74,6 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
             return sb.ToString();
         }
 
-        public static byte[] ReadSha1ToBytes(this BinaryReader reader) {
-            return reader.ReadBytes(20);
-        }
-        
-        public static string ReadSha1ToHexStr(this BinaryReader reader) {
-            return reader.ReadBytes(20).ToHex();
-        }
-
         public static string ToHex(this byte[] bytes) {
             char[] c = new char[bytes.Length * 2];
             int bx = 0;

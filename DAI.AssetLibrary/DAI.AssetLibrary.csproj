@@ -132,6 +132,7 @@
     <Compile Include="DAI.AssetLibrary\Utilities\LibrarySerializer.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\PayloadProvider.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\ResType.cs" />
+    <Compile Include="DAI.AssetLibrary\Utilities\Sha1.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\Utils.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\XMLStructuredWriter.cs" />
     <Compile Include="DAI.AssetLibrary\Utilities\YAMLStructuredWriter.cs" />

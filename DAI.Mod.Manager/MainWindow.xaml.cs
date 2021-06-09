@@ -7,22 +7,19 @@ using System.Windows.Markup;
 using System.Reflection;
 
 using DAI.Mod.Manager.Frostbite;
+using System.Windows.Controls;
 
 // TODO: inotify for 2 way bindings ugh
 
 namespace DAI.Mod.Manager {
     public partial class MainWindow : Window, IComponentConnector {
-        public BackgroundWorker BGWorker;
-
-        private const string PatchBasePath = "Update\\Patch\\";
-
         private readonly ManagerViewModel _viewModel;
 
+        private const string PatchBasePath = "Update\\Patch\\";
         public MainWindow() {
             InitializeComponent();
-            BGWorker = new BackgroundWorker();
             ConstructWindowTitle();
-            _viewModel = new ManagerViewModel(BGWorker);
+            _viewModel = new ManagerViewModel();
             DataContext = _viewModel;
         }
 
@@ -52,14 +49,9 @@ namespace DAI.Mod.Manager {
             _viewModel.SetBasePath();
         }
 
-        //private void ModListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-        //    if (ModListBox.SelectedIndex == 0) {
-        //        MoveModUpButton.IsEnabled = false;
-        //    }
-        //    if (ModListBox.SelectedIndex == ModListBox.Items.Count - 1) {
-        //        MoveModDownButton.IsEnabled = false;
-        //    }
-        //}
+        private void ModListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            UpdateUpDownButtons();
+        }
 
         private void ModListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
             _viewModel.SwitchSelectedModStatus();
@@ -71,10 +63,17 @@ namespace DAI.Mod.Manager {
 
         private void MoveModUpButton_Click(object sender, RoutedEventArgs e) {
             _viewModel.MoveSelectedModUp();
+            UpdateUpDownButtons();
+        }
+
+        private void UpdateUpDownButtons() {
+            MoveModUpButton.GetBindingExpression(IsEnabledProperty).UpdateTarget();
+            MoveModDownButton.GetBindingExpression(IsEnabledProperty).UpdateTarget();
         }
 
         private void MoveModDownButton_Click(object sender, RoutedEventArgs e) {
             _viewModel.MoveSelectedModDown();
+            UpdateUpDownButtons();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
@@ -89,6 +88,7 @@ namespace DAI.Mod.Manager {
                 }
             } else {
                 Settings.Load();
+                _viewModel.OnPropertyChanged(null);
             }
             if (File.Exists(_viewModel.DAIPath + "Update\\Patch\\package.mft")) {
                 int num = int.Parse(DAIMft.SerializeFromFile(Settings.BasePath + "Update\\Patch\\package.mft").GetValue("Version"));

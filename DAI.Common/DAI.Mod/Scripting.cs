@@ -17,7 +17,9 @@ namespace DAI.Mod {
         //public static ProgressWindow ProgressWindow;
 
         public static Assembly CompileCode(string InCode) {
-            string ModCode = InCode.Replace("namespace DAIMod", "namespace DAI.Mod");
+            string ModCode = InCode.Insert(0, "using ModScript = DAI.Mod.IModScript;\r\n");
+            ModCode = ModCode.Insert(0, "using DAI.Mod;\r\n");
+            ModCode = ModCode.Insert(0, "using DAIMod = DAI.Mod;\r\n");
             CSharpCodeProvider cSharpCodeProvider = new CSharpCodeProvider();
             CompilerParameters compilerParameter = new CompilerParameters {
                 GenerateExecutable = false,
@@ -27,7 +29,7 @@ namespace DAI.Mod {
             compilerParameter.ReferencedAssemblies.Add("System.dll");
             compilerParameter.ReferencedAssemblies.Add("System.Core.dll");
             compilerParameter.ReferencedAssemblies.Add("System.Data.Linq.dll");
-            CompilerResults compilerResults = null;
+            CompilerResults compilerResults;
             try {
                 compilerResults = cSharpCodeProvider.CompileAssemblyFromSource(compilerParameter, ModCode);
             } catch (Exception ex) {
@@ -58,8 +60,7 @@ namespace DAI.Mod {
                                   select t) {
                 ConstructorInfo constructor = item.GetConstructor(Type.EmptyTypes);
                 if (constructor != null && constructor.IsPublic) {
-                    IModScript modScript = constructor.Invoke(null) as IModScript;
-                    if (modScript != null) {
+                    if (constructor.Invoke(null) is IModScript modScript) {
                         return modScript;
                     }
                 }

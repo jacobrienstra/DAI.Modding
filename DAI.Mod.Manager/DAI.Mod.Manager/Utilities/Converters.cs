@@ -27,7 +27,8 @@ namespace DAI.Mod.Manager.Utilities {
     public class ManagerViewModelToUpButtonIsEnabledConverter : IValueConverter {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            ManagerViewModel viewModel = value as ManagerViewModel;
+            ManagerViewModel? viewModel = value as ManagerViewModel;
+            if (viewModel == null || viewModel.SelectedMod == null) return false;
             return !viewModel.SelectedMod.IsOfficialPatch && viewModel.SelectedMod.Index != 0; // should be redundant, technically
         }
 
@@ -40,6 +41,7 @@ namespace DAI.Mod.Manager.Utilities {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             ManagerViewModel viewModel = value as ManagerViewModel;
+            if (viewModel == null || viewModel.SelectedMod == null) return false;
             return !viewModel.SelectedMod.IsOfficialPatch && viewModel.SelectedMod.Index != viewModel.UserModList.Count - 1;
         }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -50,7 +52,9 @@ namespace DAI.Mod.Manager.Utilities {
     public class SelectedModToConfigureButtonIsEnabledConverter : IValueConverter {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            return (value as ModContainer).IsDAIMod() && (value as ModContainer).Mod.ScriptObject != null;
+            ModContainer? modContainer = value as ModContainer;
+            if (modContainer == null) return false;
+            return modContainer.IsDAIMod() && modContainer.Mod.ScriptObject != null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -62,6 +66,7 @@ namespace DAI.Mod.Manager.Utilities {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             ModContainer selectedMod = value as ModContainer;
+            if (selectedMod == null) return false;
             return !selectedMod.IsOfficialPatch && (selectedMod.MinPatchVersion == -1 || Settings.PatchVersion >= selectedMod.MinPatchVersion);
         }
 

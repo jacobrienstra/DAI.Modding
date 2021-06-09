@@ -17,6 +17,7 @@ using System.Windows.Forms;
 namespace DAI.Mod.Manager {
     public class ManagerViewModel : NotificationObject {
         private readonly BackgroundWorker _bgWorker;
+
         private bool _cancelled;
         public bool Cancelled {
             get => _cancelled;
@@ -27,20 +28,14 @@ namespace DAI.Mod.Manager {
 
         public ProgressWindow ProgressWin { get; private set; }
 
-        private List<ModContainer> _userModList;
-        public List<ModContainer> UserModList {
+        private BindingList<ModContainer> _userModList;
+        public BindingList<ModContainer> UserModList {
             get => _userModList;
             set {
-                OnPropertyChanged(nameof(AllModsList));
-                SetProperty(ref _userModList, value);
+                _userModList = value;
+                //SetProperty(ref _userModList, value);
             }
-        }
-
-        private void ManagerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e) {
-            if (e.PropertyName == nameof(UserModList)) {
-                OnPropertyChanged(nameof(AllModsList));
-            }
-        }
+        } 
 
         private ModContainer _patchMod;
         public ModContainer PatchMod {
@@ -49,37 +44,43 @@ namespace DAI.Mod.Manager {
                 SetProperty(ref _patchMod, value);
             }
         }
+
         public List<ModContainer> AllModsList {
             get {
-                List<ModContainer> list = UserModList;
+                List<ModContainer> list = UserModList.ToList();
                 list.Insert(0, PatchMod);
                 return list;
             }
             internal set { }
         }
-
+        private void ManagerViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e) {
+            if (e.PropertyName == nameof(UserModList) || e.PropertyName == nameof(PatchMod)) {
+                OnPropertyChanged(nameof(AllModsList));
+            }
+        }
         private void AddUserMod(ModContainer userMod) {
             UserModList.Add(userMod);
             userMod.Index = UserModList.IndexOf(userMod);
             OnPropertyChanged(nameof(UserModList));
         }
-
         private void UpdateUserModIndicesAfter(int index) {
             for (int i = index; i < UserModList.Count; i++) {
                 UserModList[i].Index = i;
             }
             OnPropertyChanged(nameof(UserModList));
         }
-
         private void RemoveUserMod(ModContainer userMod) {
             int modIndex = UserModList.IndexOf(userMod);
             UserModList.RemoveAt(modIndex);
             UpdateUserModIndicesAfter(modIndex);
         }
-
         private void InsertUserMod(int index, ModContainer userMod) {
             UserModList.Insert(index, userMod);
             UpdateUserModIndicesAfter(index);
+        }
+        private void ClearUserMods() {
+            UserModList.Clear();
+            OnPropertyChanged(nameof(UserModList));
         }
 
         private ModContainer _selectedMod;
@@ -106,23 +107,20 @@ namespace DAI.Mod.Manager {
             }
         }
 
-        private string _modPath;
         public string ModPath {
-            get => _modPath;
+            get => Settings.ModPath;
             set {
                 Settings.ModPath = value;
                 Settings.Save();
-                SetProperty(ref _modPath, value);
+                OnPropertyChanged(nameof(ModPath));
             }
         }
-
-        private string _daiPath;
         public string DAIPath {
-            get => _daiPath;
+            get => Settings.BasePath;
             set {
                 Settings.BasePath = value;
                 Settings.Save();
-                SetProperty(ref _daiPath, value);
+                OnPropertyChanged(nameof(DAIPath));
             }
         }
 
@@ -134,41 +132,35 @@ namespace DAI.Mod.Manager {
             }
         }
 
-        private bool _verboseScan;
         public bool VerboseScan {
-            get => _verboseScan;
+            get => Settings.VerboseScan;
             set {
                 Settings.VerboseScan = value;
                 Settings.Save();
-                SetProperty(ref _verboseScan, value);
+                OnPropertyChanged(nameof(VerboseScan));
             }
         }
-
-        private bool _forceRescan;
         public bool ForceRescan {
-            get => _forceRescan;
+            get => Settings.RescanPatch;
             set {
                 Settings.RescanPatch = value;
                 Settings.Save();
-                SetProperty(ref _forceRescan, value);
+                OnPropertyChanged(nameof(ForceRescan));
             }
         }
 
-        public ManagerViewModel(BackgroundWorker bgWorker) {
+        public ManagerViewModel() {
             Cancelled = true;
             ModManagerGridEnabled = false;
             MergeReady = false;
-            UserModList = new List<ModContainer>();
+            UserModList = new BindingList<ModContainer>();
             PatchMod = null;
-            ModPath = Settings.ModPath;
-            DAIPath = Settings.BasePath;
             MergeDestination = false;
-            VerboseScan = Settings.VerboseScan;
-            ForceRescan = Settings.RescanPatch;
-            this.PropertyChanged += ManagerViewModel_PropertyChanged;
-            _bgWorker = bgWorker;
-            _bgWorker.WorkerReportsProgress = true;
-            _bgWorker.WorkerSupportsCancellation = true;
+            PropertyChanged += ManagerViewModel_PropertyChanged;
+            _bgWorker = new BackgroundWorker {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
             _bgWorker.DoWork += BGWorker_DoWork;
             _bgWorker.RunWorkerCompleted += BGWorker_RunWorkerCompleted;
             _bgWorker.ProgressChanged += BGWorker_ProgressChanged;
@@ -179,7 +171,7 @@ namespace DAI.Mod.Manager {
             if (selectedMod != null) {
                 if (!selectedMod.IsOfficialPatch && Settings.PatchVersion >= selectedMod.MinPatchVersion) {
                     selectedMod.IsEnabled = !selectedMod.IsEnabled;
-                    OnPropertyChanged();// TODO check if works for this nested field
+                    //OnPropertyChanged(nameof(SelectedMod));// TODO check if works for this nested field
                 }
             }
         }
@@ -189,8 +181,6 @@ namespace DAI.Mod.Manager {
             if (Cancelled) {
                 return;
             }
-            Settings.VerboseScan = VerboseScan;
-            Settings.RescanPatch |= ForceRescan;
             List <ModContainer> modList = (from ModContainer modContainer in UserModList
                                           where modContainer.IsEnabled
                                           select modContainer).ToList();
@@ -205,11 +195,11 @@ namespace DAI.Mod.Manager {
                 }
                 newPath = saveFileDialog.FileName.Remove(saveFileDialog.FileName.LastIndexOf('\\') + 1).ToLower();
             } else {
-                newPath = Settings.BasePath + "Update\\Patch_ModManagerMerge\\";
+                newPath = DAIPath + "Update\\Patch_ModManagerMerge\\";
             }
-            if (newPath == Settings.BasePath.ToLower() ||
-                newPath == Settings.BasePath.ToLower() + "update\\" || 
-                newPath == Settings.BasePath.ToLower() + "Update\\Patch\\") {
+            if (newPath == DAIPath.ToLower() ||
+                newPath == DAIPath.ToLower() + "update\\" || 
+                newPath == DAIPath.ToLower() + "Update\\Patch\\") {
                 System.Windows.MessageBox.Show("You tried to save the merged patch to an invalid location. Please read usage instructions carefully and try again.", "Error");
                 return;
             }
@@ -223,10 +213,13 @@ namespace DAI.Mod.Manager {
                 ModList = modList
             }));
         }
+
         public void LoadMods() {
-            UserModList.Clear();
+            UserModList.Clear(); 
+            ModManagerGridEnabled = false;
+            MergeReady = false;
             // Initialize Check
-            if (!File.Exists(Settings.BasePath + "DragonAgeInquisition.exe")) {
+            if (!File.Exists(DAIPath + "DragonAgeInquisition.exe")) {
                 MessageBox.Show("Dragon Age path has not been setup correctly. Please click on Browse and locate.", "Warning");
                 return;
             }
@@ -238,19 +231,19 @@ namespace DAI.Mod.Manager {
                 MessageBox.Show("The official patch folder contains a merged mod manager patch. Please restore the official patch to the correct location, or use 'Repair Game' in Origin to correct it.");
                 return;
             }
-            ModManagerGridEnabled = false;
-            if (Settings.ModPath == "") {
+            ModManagerGridEnabled = true;
+            if (ModPath == "") {
                 return;
             }
 
             // Add official Patch
-            PatchMod = new ModContainer(Settings.BasePath + "Update\\Patch\\", "Official Patch", "Bioware", "", "") {
+            PatchMod = new ModContainer(DAIPath + "Update\\Patch\\", "Official Patch", "Bioware", "", "") {
                 IsOfficialPatch = true,
                 Version = Settings.PatchVersion.ToString()
             };
 
             // Add mft user mods
-            foreach (string item in Directory.EnumerateDirectories(Settings.ModPath)) {
+            foreach (string item in Directory.EnumerateDirectories(ModPath)) {
                 if (File.Exists(item + "\\package.mft")) {
                     DAIMft dAIMft = DAIMft.SerializeFromFile(item + "\\package.mft");
                     if (dAIMft.HasKey("ModTitle")) {
@@ -260,7 +253,7 @@ namespace DAI.Mod.Manager {
             }
 
             // Add daimod user mods
-            string[] files = Directory.GetFiles(Settings.ModPath, "*.daimod", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(ModPath, "*.daimod", SearchOption.AllDirectories);
             foreach (string file in files) {
                 ModJob modJob = ModJob.CreateFromFile(file);
                 AddUserMod(new ModContainer(file, modJob.Meta.Details.Name, modJob.Meta.Details.Author, modJob.Meta.Details.Version, modJob.Meta.Details.Description, modJob.Meta.MinPatchVersion) {
@@ -388,7 +381,7 @@ namespace DAI.Mod.Manager {
                     }
                 }
             }
-            string basePatchDataPath = Settings.BasePath + "Update\\Patch\\Data\\";
+            string basePatchDataPath = DAIPath + "Update\\Patch\\Data\\";
             PrepareDirectory(patchPayloadDirectory, basePatchModJob, modifiedResOGSha1ToData, basePatchDataPath, out var layoutToc);
             _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Creating merged patch."));
 
@@ -420,7 +413,7 @@ namespace DAI.Mod.Manager {
             // toc files contain many bundles, bundles can be referenced by multiple tocs as well i think
             List<string> NewTocFileNames = new List<string>();
             basePatchModJob.Meta.Bundles.ForEach(delegate (ModBundle A) {
-                if (!NewTocFileNames.Contains(A.TocFilename) && (A.Action == "add") && !File.Exists(Settings.BasePath + "\\Data\\Win32\\" + A.TocFilename)) {
+                if (!NewTocFileNames.Contains(A.TocFilename) && (A.Action == "add") && !File.Exists(DAIPath + "\\Data\\Win32\\" + A.TocFilename)) {
                     NewTocFileNames.Add(A.TocFilename);
                 }
             });
@@ -513,7 +506,7 @@ namespace DAI.Mod.Manager {
 
             // get all the existing toc files in main game data
             List<string> tocFiles = new List<string>();
-            string win32Path = Settings.BasePath + "Data\\Win32";
+            string win32Path = DAIPath + "Data\\Win32";
             tocFiles.AddRange(Directory.GetFiles(win32Path, "*.toc", SearchOption.AllDirectories));
 
             int tocFileCount = 0;
@@ -549,7 +542,7 @@ namespace DAI.Mod.Manager {
                     }
                 }
 
-                string shortFilename = tocFilename.Replace(Settings.BasePath + "Data\\Win32\\", "");
+                string shortFilename = tocFilename.Replace(DAIPath + "Data\\Win32\\", "");
                 // set up added bundles
                 foreach (ModBundle addedBundle in basePatchModJob.Meta.Bundles.FindAll((ModBundle A) => A.Action == "add" && A.TocFilename.ToLower() == shortFilename.ToLower())) {
                     if (Settings.VerboseScan) {
@@ -659,7 +652,7 @@ namespace DAI.Mod.Manager {
                         }
                         keyBundle.SetStringValue("id", keyBundle.GetStringValue("id").ToLower());
                     }
-                    string tocPatchFilename = tocFilename.Replace(Settings.BasePath, patchPayloadDirectory + "\\");
+                    string tocPatchFilename = tocFilename.Replace(DAIPath, patchPayloadDirectory + "\\");
                     string filename = tocPatchFilename.Replace(".toc", ".sb");
                     DAIEntry allBundleContents = new DAIEntry();
                     allBundleContents.AddListValue("bundles", new List<DAIEntry>());
@@ -696,7 +689,7 @@ namespace DAI.Mod.Manager {
                     baseBundlesToc.WriteToFile(tocPatchFilename, bWriteTocHeader: true);
                 }
                 tocFileCount++;
-                Sha1 LayoutNameHash = new Sha1(tocFilename.Replace(Settings.BasePath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
+                Sha1 LayoutNameHash = new Sha1(tocFilename.Replace(DAIPath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
                     .ToLower().ToSha1Bytes());
                 DAIEntry superBundle = layoutToc.GetRootEntry().GetListValue("superBundles").Find((DAIEntry A) => A.GetStringHashValue("name") == LayoutNameHash);
                 if (superBundle?.HasField("same") ?? false) {
@@ -732,25 +725,25 @@ namespace DAI.Mod.Manager {
             IndexedMultiMap<Sha1, ModResourceEntry> indexedMultiMap = new IndexedMultiMap<Sha1, ModResourceEntry>();
             List<ModBundle> modBundleList = new List<ModBundle>();
             List<string> copyFiles = new List<string>();
-            if (File.Exists(Settings.BasePath + "Update\\Patch\\package.mft")) {
+            if (File.Exists(DAIPath + "Update\\Patch\\package.mft")) {
 
                 _bgWorker.ReportProgress(0, new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: true, "", "Processing official patch."));
 
-                string patchWin32Path = Settings.BasePath + "Update\\Patch\\Data\\Win32";
+                string patchWin32Path = DAIPath + "Update\\Patch\\Data\\Win32";
                 string[] patchTocFiles = Directory.GetFiles(patchWin32Path, "*.toc", SearchOption.AllDirectories);
 
                 int tocFileCount = 0;
                 string[] patchTocFilesArray = patchTocFiles;
                 foreach (string patchTocFileName in patchTocFilesArray) {
 
-                    _bgWorker.ReportProgress((int)((double)tocFileCount / (double)patchTocFiles.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(Settings.BasePath, ""), ""));
+                    _bgWorker.ReportProgress((int)((double)tocFileCount / (double)patchTocFiles.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, patchTocFileName.Replace(DAIPath, ""), ""));
                     if (Settings.VerboseScan) {
                         WriteLogEntry_Threaded("[0] Processing " + patchTocFileName);
                     }
 
                     DAIToc newToc = DAIToc.ReadFromFile(patchTocFileName, 0L);
                     if (newToc.HasBundles()) {
-                        string baseTocFileName = patchTocFileName.Replace(patchWin32Path, Settings.BasePath + "Data\\Win32");
+                        string baseTocFileName = patchTocFileName.Replace(patchWin32Path, DAIPath + "Data\\Win32");
                         DAIToc existingToc = File.Exists(baseTocFileName) ? DAIToc.ReadFromFile(baseTocFileName, 0L) : null;
                         if (existingToc != null) {
                             // find all resources in existing toc that are NOT in newToc
@@ -996,7 +989,7 @@ namespace DAI.Mod.Manager {
                 _bgWorker.ReportProgress((int)(modTocFileCount / (double)modTocFiles.Length * 100.0), new LoadingProgressState(InUpdateStatus: true, InUpdateProgress: true, InUpdateLog: false, modTocFilename.Replace(modContainer.Path + "\\Data\\Win32\\", ""), ""));
                 
                 DAIToc modToc = DAIToc.ReadFromFile(modTocFilename, 0L);
-                string baseTocFile = modTocFilename.Replace(modContainer.Path + "\\", Settings.BasePath);
+                string baseTocFile = modTocFilename.Replace(modContainer.Path + "\\", DAIPath);
                 if (modToc.HasBundles()) {
                     using (LazyDisposable<BinaryReader> modSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(modTocFilename.Replace(".toc", ".sb"))))) {
                         using (LazyDisposable<BinaryReader> baseSbReader = new LazyDisposable<BinaryReader>(() => new BinaryReader(FileHelpers.UnXorFile(baseTocFile.Replace(".toc", ".sb"))))) {
@@ -1214,10 +1207,10 @@ namespace DAI.Mod.Manager {
         }
 
         public bool CheckBasePatch() {
-            if (DAIMft.SerializeFromFile(Settings.BasePath + "Update\\Patch\\package.mft").HasKey("ModManager")) {
+            if (DAIMft.SerializeFromFile(DAIPath + "Update\\Patch\\package.mft").HasKey("ModManager")) {
                 return false;
             }
-            DAIToc dAIToc = DAIToc.ReadFromFile(Settings.BasePath + "Update\\Patch\\Data\\Win32\\globals.toc", 0L);
+            DAIToc dAIToc = DAIToc.ReadFromFile(DAIPath + "Update\\Patch\\Data\\Win32\\globals.toc", 0L);
             IEnumerable<string> enumerable = from b in dAIToc.GetBundles()
                                              where b.HasField("base")
                                              select b.GetStringValue("id");
@@ -1259,7 +1252,6 @@ namespace DAI.Mod.Manager {
         public void MoveSelectedModUp() {
             ModContainer mod1Before = UserModList[SelectedMod.Index - 1];
             SwitchSelectedModWith(mod1Before);
-
         }
 
         public void MoveSelectedModDown() {
@@ -1269,11 +1261,13 @@ namespace DAI.Mod.Manager {
 
         private void SwitchSelectedModWith(ModContainer modToSwitch) {
             int selectedIndex = UserModList.IndexOf(SelectedMod);
+            ModContainer selectedMod = UserModList[selectedIndex];
             int switchIndex = modToSwitch.Index;
-            UserModList.Remove(SelectedMod);
-            UserModList.Insert(switchIndex, SelectedMod);
-            UserModList.Remove(modToSwitch);
-            UserModList.Insert(selectedIndex, modToSwitch);
+            RemoveUserMod(modToSwitch);
+            InsertUserMod(selectedIndex, modToSwitch);
+            RemoveUserMod(selectedMod);
+            InsertUserMod(switchIndex, selectedMod);
+            SelectedMod = UserModList[switchIndex];
         }
     }
 }

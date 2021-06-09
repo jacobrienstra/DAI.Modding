@@ -1,8 +1,7 @@
-using DAI.Mod;
-using DAI.Mod.Manager.Utilities;
+using DAI.Utilities;
 
 namespace DAI.Mod.Manager {
-    public class ModContainer {
+    public class ModContainer : NotificationObject {
         public string Path { get; set; }
 
         public string Name { get; set; }
@@ -17,7 +16,11 @@ namespace DAI.Mod.Manager {
 
         public bool IsOfficialPatch { get; set; }
 
-        public bool IsEnabled { get; set; }
+        private bool _isEnabled;
+        public bool IsEnabled {
+            get => _isEnabled;
+            set => SetProperty(ref _isEnabled, value);
+        }
 
         public int MinPatchVersion { get; set; }
 

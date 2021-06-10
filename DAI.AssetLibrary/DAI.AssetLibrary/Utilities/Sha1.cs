@@ -56,7 +56,7 @@ namespace DAI.AssetLibrary.Utilities {
         }
 
         public Sha1(byte[] Values) => BytesValue = Values;
-        public Sha1(string HexString) => BytesValue = Encoding.UTF8.GetBytes(HexString);
+        public Sha1(string HexString) => BytesValue = Get20Sha1From40Sha1(HexString);
 
         public override int GetHashCode() {
             int sum = 0;
@@ -105,18 +105,18 @@ namespace DAI.AssetLibrary.Utilities {
         }
 
        
-        public string Get20Sha1From40Sha1(string value) {
+        public byte[] Get20Sha1From40Sha1(string value) {
             if (string.IsNullOrEmpty(value)) {
                 return null;
             }
-            char[] bytes = new char[20];
+            byte[] bytes = new byte[20];
             for (int i = 0; i < 40; i += 2) {
                 string s = value.Substring(0, 2);
                 value = value.Remove(0, 2);
-                char num4 = (char)byte.Parse(s, NumberStyles.HexNumber);
+                byte num4 = byte.Parse(s, NumberStyles.HexNumber);
                 bytes[i / 2] = num4;
             }
-            return new string(bytes);
+            return bytes;
         }
     }
 }

@@ -90,7 +90,7 @@ namespace DAI.Mod.Manager {
                 SetProperty(ref _selectedMod, value);
             }
         }
-
+        
         private bool _modManagerGridEnabled;
         public bool ModManagerGridEnabled {
             get => _modManagerGridEnabled;
@@ -333,7 +333,17 @@ namespace DAI.Mod.Manager {
                     int bundleKey = Utils.Hasher(bundle.Name.ToLower());
                     // get all bundle entries
                     List<ModResourceEntry> bundleEntries = bundle.Entries.Select((ModBundleEntry modBundleEntry) => basePatchModJob.Meta.Resources[modBundleEntry.ResourceId]).ToList();
-                    bundleEntries.Sort((ModResourceEntry A, ModResourceEntry B) => (B as ChunkModResourceEntry).ChunkH32.CompareTo((A as ChunkModResourceEntry).ChunkH32));
+                    bundleEntries.Sort(
+                        (ModResourceEntry A, ModResourceEntry B) => { 
+                            if (A is ChunkModResourceEntry a && B is ChunkModResourceEntry b) {
+                                return a.ChunkH32.CompareTo(b.ChunkH32);
+                            } else if (A is ChunkModResourceEntry) {
+                                return 1;
+                            } else if (B is ChunkModResourceEntry) {
+                                return -1;
+                            }
+                            return 0;
+                        });
                     modifiedBundleEntriesDict.Add(bundleKey, bundleEntries);
                 } else if (bundle.Action == "remove") {
                     bundlesToRemove.Add(Utils.Hasher(bundle.Name.ToLower()));
@@ -690,8 +700,8 @@ namespace DAI.Mod.Manager {
                     baseBundlesToc.WriteToFile(tocPatchFilename, bWriteTocHeader: true);
                 }
                 tocFileCount++;
-                Sha1 LayoutNameHash = new Sha1(tocFilename.Replace(DAIPath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
-                    .ToLower().ToSha1Bytes());
+                Sha1 LayoutNameHash = tocFilename.Replace(DAIPath + "Data\\", "").Replace(".toc", "").Replace("\\", "/")
+                    .ToLower().EncodeAsSha1();
                 DAIEntry superBundle = layoutToc.GetRootEntry().GetListValue("superBundles").Find((DAIEntry A) => A.GetStringHashValue("name") == LayoutNameHash);
                 if (superBundle?.HasField("same") ?? false) {
                     superBundle.RemoveField("same");
@@ -973,6 +983,7 @@ namespace DAI.Mod.Manager {
                 }
             };
             modJob.Save(Directory.GetCurrentDirectory() + "\\patch.daimod");
+            WriteLogEntry_Threaded("Saved patch to file patch.daimod");
             Settings.RescanPatch = false;
             return modJob;
         }
@@ -1055,7 +1066,7 @@ namespace DAI.Mod.Manager {
                                                     DAICatEntry modCatEntry = catDict[modResEntry.GetSha1Value("sha1")];
                                                     modJob.Data.Add(DAICat.Get().GetCompressedPayloadFromFile(modCatEntry.Path, modCatEntry.Offset, modCatEntry.Size).ToArray());
                                                     resMre.ResourceID = modJob.Data.Count - 1;
-                                                    resMre.NewSha1 = new Sha1(modJob.Data[resMre.ResourceID]);
+                                                    resMre.NewSha1 = modJob.Data[resMre.ResourceID].EncodeAsSha1();
                                                 }
                                                 modRootEntryModBundle.Entries.Add(new ModBundleEntry(modifiedIndex));
                                             }
@@ -1184,7 +1195,7 @@ namespace DAI.Mod.Manager {
                     num = num2;
                     binaryWriter = new BinaryWriter(new FileStream(directoryName + "\\Data\\cas_" + num.ToString("D2") + ".cas", FileMode.Create));
                 }
-                Sha1 sha1 = new Sha1(modResource.Value);
+                Sha1 sha1 = modResource.Value.EncodeAsSha1();
                 binaryWriter.Write(new byte[4] { 250, 206, 15, 240 });
                 binaryWriter.Write(sha1);
                 binaryWriter.Write((long)modResource.Value.Length);

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using DAI.Utilities;
 using DAI.Mod.Manager.Utilities;
+using DAI.AssetLibrary.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
     public class DAIEntry {

@@ -6,7 +6,6 @@ using System.Windows.Controls;
 
 using DAI.AssetLibrary.Utilities;
 using Microsoft.CSharp;
-using DAI.Utilities;
 using System.Linq;
 using System.Windows.Threading;
 
@@ -69,17 +68,19 @@ namespace DAI.Mod {
         }
 
         public static void LogLn(string InStr) {
-            if (CurrentMod != null) {
-                ScriptingTextBox.Text += "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + InStr + "\n";
-                ScriptingTextBox.ScrollToEnd();
-            }
+            ScriptingTextBox.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action)delegate {
+                if (CurrentMod != null) {
+                    ScriptingTextBox.Text += "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + InStr + "\n";
+                    ScriptingTextBox.ScrollToEnd();
+                }
+            });
         } 
         
-        public static void LogLn_Threaded(string InStr) {
-            ScriptingTextBox.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action)delegate {
-                LogLn(InStr);
-            });
-        }
+        //public static void LogLn_Threaded(string InStr) {
+        //    ScriptingTextBox.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action)delegate {
+        //        LogLn(InStr);
+        //    });
+        //}
 
         public static object GetConfigParam(string InParamName) {
             if (CurrentMod == null || !CurrentMod.ConfigValues.ContainsKey(InParamName)) {
@@ -95,7 +96,7 @@ namespace DAI.Mod {
             if (InIndex < CurrentMod.Data.Count) {
                 return Utils.DecompressData(CurrentMod.Data[InIndex]);
             }
-            LogLn_Threaded("Data index is out of range");
+            LogLn("Data index is out of range");
             return null;
         }
 
@@ -104,16 +105,12 @@ namespace DAI.Mod {
                 return false;
             }
             if (InResourceIndex >= CurrentMod.Meta.Resources.Count) {
-                LogLn_Threaded("Resource index is out of range");
+                LogLn("Resource index is out of range");
                 return false;
             }
             CurrentMod.Meta.Resources[InResourceIndex].ResourceID = InNewResourceId;
             ModResourceEntry modResourceEntry = CurrentMod.Meta.Resources[InResourceIndex];
-            //if (!(modResourceEntry is ChunkModResourceEntry)) {
-            //    LogLn("Cannot change resource ID on non chunk mod resource");
-            //    return false;
-            //}
-            Sha1 sha = new Sha1(CurrentMod.Data[modResourceEntry.ResourceID]);
+            Sha1 sha = CurrentMod.Data[modResourceEntry.ResourceID].EncodeAsSha1();
             byte[] array = Utils.DecompressData(CurrentMod.Data[modResourceEntry.ResourceID]);
             if (modResourceEntry.Action == "modify") {
                 modResourceEntry.NewSha1 = sha;
@@ -122,13 +119,15 @@ namespace DAI.Mod {
             }
             modResourceEntry.Size = CurrentMod.Data[modResourceEntry.ResourceID].Length;
             modResourceEntry.OriginalSize = array.Length;
-            modResourceEntry.LogicalOffset = array.Length & 0xFF000000;
-            modResourceEntry.LogicalSize = array.Length & 0xFFFFFF;
-            if (modResourceEntry.RangeStart != 0 || modResourceEntry.RangeEnd != 0) {
-                modResourceEntry.RangeStart = 0;
-                modResourceEntry.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
+            if (modResourceEntry is ChunkModResourceEntry chunkRes) {
+                chunkRes.LogicalOffset = (int)(array.Length & 0xFF000000);
+                chunkRes.LogicalSize = array.Length & 0xFFFFFF;
+                if (chunkRes.RangeStart != 0 || chunkRes.RangeEnd != 0) {
+                    chunkRes.RangeStart = 0;
+                    chunkRes.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
+                }
             }
-            LogLn_Threaded("ChangeResourceId called (InResourceIndex=\"" + InResourceIndex + "\", InNewResourceId=" + InNewResourceId + ")");
+            LogLn("ChangeResourceId called (InResourceIndex=\"" + InResourceIndex + "\", InNewResourceId=" + InNewResourceId + ")");
             return true;
         }
 
@@ -142,24 +141,22 @@ namespace DAI.Mod {
                 return false;
             }
             modResourceEntry.ResourceID = InNewResourceId;
-            Sha1 sha = new Sha1(CurrentMod.Data[modResourceEntry.ResourceID]);
+            Sha1 sha = CurrentMod.Data[modResourceEntry.ResourceID].EncodeAsSha1();
             byte[] array = Utils.DecompressData(CurrentMod.Data[modResourceEntry.ResourceID]);
             if (modResourceEntry.Action == "modify") {
                 modResourceEntry.NewSha1 = sha;
             } else if (modResourceEntry.Action == "add") {
                 modResourceEntry.OriginalSha1 = sha;
             }
-            //if (!(modResourceEntry is ChunkModResourceEntry)) {
-            //    LogLn_Threaded("Cannot change resource ID on non chunk mod resource");
-            //    return false;
-            //}
             modResourceEntry.Size = CurrentMod.Data[modResourceEntry.ResourceID].Length;
             modResourceEntry.OriginalSize = array.Length;
-            modResourceEntry.LogicalOffset = array.Length & 0xFF000000;
-            modResourceEntry.LogicalSize = array.Length & 0xFFFFFF;
-            if (modResourceEntry.RangeStart != 0 || modResourceEntry.RangeEnd != 0) {
-                modResourceEntry.RangeStart = 0;
-                modResourceEntry.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
+            if (modResourceEntry is ChunkModResourceEntry chunkRes) {
+                chunkRes.LogicalOffset = (int)(array.Length & 0xFF000000);
+                chunkRes.LogicalSize = array.Length & 0xFFFFFF;
+                if (chunkRes.RangeStart != 0 || chunkRes.RangeEnd != 0) {
+                    chunkRes.RangeStart = 0;
+                    chunkRes.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
+                }
             }
             LogLn("ChangeResourceId called (InResourceName=\"" + InResourceName + "\", InNewResourceId=" + InNewResourceId + ")");
             return true;
@@ -180,11 +177,11 @@ namespace DAI.Mod {
             if (CurrentMod != null) {
                 ModResourceEntry modResourceEntry = CurrentMod.Meta.Resources.Find((ModResourceEntry A) => InResourceName.ToLower() == A.Name.ToLower());
                 if (modResourceEntry == null) {
-                    LogLn_Threaded("Unable to find resource with name " + InResourceName);
+                    LogLn("Unable to find resource with name " + InResourceName);
                     return;
                 }
                 modResourceEntry.IsEnabled = InNewEnable;
-                LogLn_Threaded("SetResourceEnabled called (InResourceName=\"" + InResourceName + "\", InNewEnable=" + InNewEnable + ")");
+                LogLn("SetResourceEnabled called (InResourceName=\"" + InResourceName + "\", InNewEnable=" + InNewEnable + ")");
             }
         }
 
@@ -193,12 +190,12 @@ namespace DAI.Mod {
                 return;
             }
             if (InIndex >= CurrentMod.Data.Count) {
-                LogLn_Threaded("Data index is out of range");
+                LogLn("Data index is out of range");
                 return;
             }
             byte[] array = Utils.CompressData(InData);
             CurrentMod.Data[InIndex] = array;
-            Sha1 sha = new Sha1(array);
+            Sha1 sha = array.EncodeAsSha1();
             foreach (ModResourceEntry resource in CurrentMod.Meta.Resources) {
                 if (resource.ResourceID == InIndex) {
                     if (resource.Action == "modify") {
@@ -206,21 +203,19 @@ namespace DAI.Mod {
                     } else if (resource.Action == "add") {
                         resource.OriginalSha1 = sha;
                     }
-                    //if (!(resource is ChunkModResourceEntry)) {
-                    //    LogLn_Threaded("Cannot change resource ID on non chunk mod resource");
-                    //    return;
-                    //}
                     resource.Size = array.Length;
                     resource.OriginalSize = InData.Length;
-                    resource.LogicalOffset = InData.Length & 0xFF000000;
-                    resource.LogicalSize = InData.Length & 0xFFFFFF;
-                    if (resource.RangeStart != 0 || resource.RangeEnd != 0) {
-                        resource.RangeStart = 0;
-                        resource.RangeEnd = array.Length;
+                    if (resource is ChunkModResourceEntry chunkRes) {
+                        chunkRes.LogicalOffset = (int)(InData.Length & 0xFF000000);
+                        chunkRes.LogicalSize = InData.Length & 0xFFFFFF;
+                        if (chunkRes.RangeStart != 0 || chunkRes.RangeEnd != 0) {
+                            chunkRes.RangeStart = 0;
+                            chunkRes.RangeEnd = array.Length;
+                        }
                     }
                 }
             }
-            LogLn_Threaded("SetResourceData called (InIndex = " + InIndex + ", InData = " + InData.Length + " bytes)");
+            LogLn("SetResourceData called (InIndex = " + InIndex + ", InData = " + InData.Length + " bytes)");
         }
     }
 }

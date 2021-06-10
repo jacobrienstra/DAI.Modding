@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
+using DAI.Mod.Maker.Utilities;
 
 namespace DAI.Mod.Maker {
     public partial class SearchWindow : Window, IComponentConnector {

@@ -268,7 +268,7 @@ namespace DAI.Mod.Maker {
                     LibraryManager.AddNewSubBundle(sb);
                     Func<EbxRef, bool> func2 = func;
                     if (func2 == null) {
-                        func2 = (func = (EbxRef x) => catEntries.ContainsKey(x.Sha1));
+                        func2 = func = (EbxRef x) => catEntries.ContainsKey(x.Sha1);
                     }
                     foreach (EbxRef ebx in source.Where(func2)) {
                         EbxRef oldEbx = Library.GetEbxByNameHash(ebx.Name.EncodeAsSha1().HexStringValue);
@@ -349,7 +349,7 @@ namespace DAI.Mod.Maker {
                             ChunkH32 = (chunkAsset.H32.HasValue ? chunkAsset.H32.Value : 0),
                             Meta = Meta.MetaToString(chunkAsset.Meta),
                             PatchType = (byte)((chunkAsset.CasPatchType == 0) ? 1 : ((byte)chunkAsset.CasPatchType)),
-                            OriginalSha1 = new Sha1(mod.Data[mod.Data.Count - 1])
+                            OriginalSha1 = mod.Data[mod.Data.Count - 1].EncodeAsSha1()
                         };
                         foreach (SubBundleRef sb in chunkAsset.AddedSbs) {
                             AddBundleToModJob(mod, nums, sb);

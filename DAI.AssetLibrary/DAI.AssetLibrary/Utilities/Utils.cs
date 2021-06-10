@@ -210,8 +210,8 @@ namespace DAI.AssetLibrary.Utilities {
         }
 
         public static byte[] DecompressData(BinaryReader Reader, long Size = -1L) {
-            long num = ((Size != -1) ? Size : Reader.BaseStream.Length);
-            long num2 = ((Size == -1) ? 0 : Reader.BaseStream.Position);
+            long num = (Size != -1) ? Size : Reader.BaseStream.Length;
+            long num2 = (Size == -1) ? 0 : Reader.BaseStream.Position;
             List<byte> nums = new List<byte>();
             while (Reader.BaseStream.Position - num2 < num) {
                 uint num3 = Reader.ReadUInt32BE();

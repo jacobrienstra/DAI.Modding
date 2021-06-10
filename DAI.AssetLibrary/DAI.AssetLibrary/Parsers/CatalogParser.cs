@@ -17,7 +17,7 @@ namespace DAI.AssetLibrary.Parsers {
         }
 
         public static void Parse(string basePath, Dictionary<Sha1, CatalogEntry> catEntries, string catPath) {
-            string directory = (string.IsNullOrWhiteSpace(basePath) ? Path.GetDirectoryName(catPath) : Path.GetDirectoryName(catPath).Replace(basePath + "\\", ""));
+            string directory = string.IsNullOrWhiteSpace(basePath) ? Path.GetDirectoryName(catPath) : Path.GetDirectoryName(catPath).Replace(basePath + "\\", "");
             using (MemoryStream ms = new MemoryStream(Utilities.Utils.DecodeFile(catPath))) {
                 using (BinaryReader reader = new BinaryReader(ms)) {
                     reader.BaseStream.Seek(16L, SeekOrigin.Begin);

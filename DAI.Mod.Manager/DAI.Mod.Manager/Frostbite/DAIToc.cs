@@ -6,6 +6,7 @@ using System.Threading;
 
 using DAI.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
+using DAI.AssetLibrary.Utilities;
 using DAI.Mod.Manager.Utilities;
 
 namespace DAI.Mod.Manager.Frostbite {
@@ -209,7 +210,7 @@ namespace DAI.Mod.Manager.Frostbite {
                 ((BoolField)dAIField).BoolValue = Reader.ReadByte() == 1;
             } else if (b == 16) {
                 dAIField = new Sha1Field();
-                ((Sha1Field)dAIField).Sha1Value = new Sha1(Reader.ReadSha1ToBytes());
+                ((Sha1Field)dAIField).Sha1Value = Reader.ReadSha1();
             } else if (b == 2 || b == 19) {
                 dAIField = new ByteArrayField();
                 int num6 = Read128(Reader);

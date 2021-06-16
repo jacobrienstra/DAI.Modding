@@ -4,9 +4,8 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-using DAI.AssetLibrary.Utilities.Extensions;
-
-namespace DAI.AssetLibrary.Utilities {
+namespace DAI.AssetLibrary.Utilities
+{
     public static class BinaryWriterExt {
         public static void Write(this BinaryWriter Writer, Sha1 Value) {
             Writer.Write(Value.BytesValue);
@@ -14,8 +13,17 @@ namespace DAI.AssetLibrary.Utilities {
     }
 
     public static class BinaryReaderExt {
-        public static Sha1 ReadSha1(this BinaryReader reader) {
-            return new Sha1(reader.ReadBytes(20));
+        public static Sha1 ReadSha1(this BinaryReader reader)
+        {
+            Sha1 sha = new Sha1();
+            int num = 0;
+            while (num < 20)
+            {
+                sha.BytesValue[num] = reader.ReadByte();
+                int num2 = num + 1;
+                num = num2;
+            }
+            return sha;
         }
     }
 

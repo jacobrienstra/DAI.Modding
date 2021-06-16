@@ -16,7 +16,7 @@ namespace DAI.Mod.Manager.Frostbite {
 
         public override void Write(BinaryWriter Writer) {
             base.Write(Writer);
-            Writer.Write(Sha1Value.BytesValue);
+            Writer.Write(Sha1Value);
         }
 
         public override string ToString() {

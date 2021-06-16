@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
         <TextBox Name="StatusTextBox" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" Grid.Row="0" Margin="10"/>
         <ProgressBar Name="StatusProgressBar" Height="23" Grid.Row="1" Margin="8,0"/>
-        <TextBlock Name="StatusTextBlock" TextWrapping="NoWrap" TextAlignment="Center" Grid.Row="1" Margin="12,0"/>
+        <TextBlock Name="StatusTextBlock" TextWrapping="NoWrap" TextAlignment="Center" Grid.Row="1" Margin="12,0" Padding="0,2,0,0"/>
         <Button Name="CloseWindowButton" Content="Close" IsEnabled="False" Click="CloseWindowButton_Click" Grid.Row="2" Style="{StaticResource DefaultButtonStyle}" Margin="10"/>
     </Grid>
 </Window>

@@ -68,7 +68,7 @@ namespace DAI.Mod {
                         OriginalSha1 = new Sha1(attribute.Value);
                         break;
                     case "sha1":
-                        if (Action == "delete") {
+                        if (Action == "delete" || Action == "modify") {
                             NewSha1 = new Sha1(attribute.Value);
                         } else {
                             OriginalSha1 = new Sha1(attribute.Value);

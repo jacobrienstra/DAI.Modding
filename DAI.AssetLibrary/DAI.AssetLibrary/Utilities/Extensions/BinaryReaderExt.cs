@@ -64,14 +64,13 @@ namespace DAI.AssetLibrary.Utilities.Extensions {
 
         public static string ReadNullTerminatedString(this BinaryReader Reader) {
             StringBuilder sb = new StringBuilder();
-            while (Reader.BaseStream.Position < Reader.BaseStream.Length) {
-                char chr = (char)Reader.ReadByte();
-                if (chr == '\0') {
-                    break;
-                }
-                sb.Append(chr);
+            StringBuilder stringBuilder = new StringBuilder();
+            char value;
+            while ((value = (char)Reader.ReadByte()) != 0)
+            {
+                stringBuilder.Append(value);
             }
-            return sb.ToString();
+            return stringBuilder.ToString();
         }
 
         public static string ToHex(this byte[] bytes) {

@@ -341,12 +341,12 @@ namespace DAI.Mod.Maker {
                         mod.Data.Add(chunkAsset.ModifiedData);
                         modEntry = new ChunkModResourceEntry(chunkAsset, "add") {
                             ResourceID = mod.Data.Count - 1,
-                            RangeStart = (chunkAsset.RangeStart.HasValue ? chunkAsset.RangeStart.Value : 0),
-                            RangeEnd = (chunkAsset.RangeEnd.HasValue ? chunkAsset.RangeEnd.Value : 0),
+                            RangeStart = chunkAsset.RangeStart ?? 0,
+                            RangeEnd = chunkAsset.RangeEnd ?? 0,
                             LogicalOffset = chunkAsset.LogicalOffset,
                             LogicalSize = chunkAsset.LogicalSize,
                             Size = mod.Data[mod.Data.Count - 1].Length,
-                            ChunkH32 = (chunkAsset.H32.HasValue ? chunkAsset.H32.Value : 0),
+                            ChunkH32 = chunkAsset.H32 ?? 0,
                             Meta = Meta.MetaToString(chunkAsset.Meta),
                             PatchType = (byte)((chunkAsset.CasPatchType == 0) ? 1 : ((byte)chunkAsset.CasPatchType)),
                             OriginalSha1 = mod.Data[mod.Data.Count - 1].EncodeAsSha1()

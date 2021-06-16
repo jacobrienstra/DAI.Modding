@@ -5,7 +5,7 @@ using DAI.Utilities;
 
 namespace DAI.Mod.Manager.Utilities {
     public static class ModResourceEntryExt {
-        public static void CopyPatchSha1(ModResourceEntry mre, DAIEntry copyFromEntry) {
+        public static ModResourceEntry CopyPatchSha1(ModResourceEntry mre, DAIEntry copyFromEntry) {
             int num = copyFromEntry.HasField("casPatchType") ? copyFromEntry.GetDWordValue("casPatchType") : 0;
             mre.PatchType = (byte)num;
             mre.OriginalSha1 = copyFromEntry.GetSha1Value("sha1");
@@ -13,9 +13,10 @@ namespace DAI.Mod.Manager.Utilities {
                 mre.DeltaSha1 = copyFromEntry.GetSha1Value("deltaSha1");
                 mre.BaseSha1 = copyFromEntry.GetSha1Value("baseSha1");
             }
+            return mre;
         }
 
-        public static void CopyChunkFields(ChunkModResourceEntry chunkEntry, DAIEntry Entry, DAIEntry ChunkMetaEntry) {
+        public static ModResourceEntry CopyChunkFields(ChunkModResourceEntry chunkEntry, DAIEntry Entry, DAIEntry ChunkMetaEntry) {
             chunkEntry.LogicalOffset = Entry.GetDWordValue("logicalOffset");
             chunkEntry.LogicalSize = Entry.GetDWordValue("logicalSize");
             if (Entry.HasField("rangeStart")) {
@@ -24,7 +25,8 @@ namespace DAI.Mod.Manager.Utilities {
             }
             chunkEntry.ChunkH32 = ChunkMetaEntry.GetDWordValue("h32");
             chunkEntry.Meta = Meta.MetaToString(ChunkMetaEntry.GetByteArrayValue("meta"));
-            CopyPatchSha1(chunkEntry, Entry);
+            return CopyPatchSha1(chunkEntry, Entry);
+            
         }
 
         public static void ModifyResourceEntry(ModResourceEntry newEntry, DAIEntry entryToModify) {

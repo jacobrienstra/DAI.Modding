@@ -127,7 +127,7 @@ namespace DAI.Mod {
                     chunkRes.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
                 }
             }
-            LogLn("ChangeResourceId called (InResourceIndex=\"" + InResourceIndex + "\", InNewResourceId=" + InNewResourceId + ")");
+            //LogLn("ChangeResourceId called (InResourceIndex=\"" + InResourceIndex + "\", InNewResourceId=" + InNewResourceId + ")");
             return true;
         }
 
@@ -158,7 +158,7 @@ namespace DAI.Mod {
                     chunkRes.RangeEnd = CurrentMod.Data[modResourceEntry.ResourceID].Length;
                 }
             }
-            LogLn("ChangeResourceId called (InResourceName=\"" + InResourceName + "\", InNewResourceId=" + InNewResourceId + ")");
+            //LogLn("ChangeResourceId called (InResourceName=\"" + InResourceName + "\", InNewResourceId=" + InNewResourceId + ")");
             return true;
         }
 
@@ -169,7 +169,7 @@ namespace DAI.Mod {
                     return;
                 }
                 CurrentMod.Meta.Resources[InResourceIndex].IsEnabled = InNewEnable;
-                LogLn("SetResourceEnabled called (InResourceIndex=\"" + InResourceIndex + "\", InNewEnable=" + InNewEnable + ")");
+                //LogLn("SetResourceEnabled called (InResourceIndex=\"" + InResourceIndex + "\", InNewEnable=" + InNewEnable + ")");
             }
         }
 
@@ -181,7 +181,7 @@ namespace DAI.Mod {
                     return;
                 }
                 modResourceEntry.IsEnabled = InNewEnable;
-                LogLn("SetResourceEnabled called (InResourceName=\"" + InResourceName + "\", InNewEnable=" + InNewEnable + ")");
+                //LogLn("SetResourceEnabled called (InResourceName=\"" + InResourceName + "\", InNewEnable=" + InNewEnable + ")");
             }
         }
 
@@ -215,7 +215,7 @@ namespace DAI.Mod {
                     }
                 }
             }
-            LogLn("SetResourceData called (InIndex = " + InIndex + ", InData = " + InData.Length + " bytes)");
+            //LogLn("SetResourceData called (InIndex = " + InIndex + ", InData = " + InData.Length + " bytes)");
         }
     }
 }

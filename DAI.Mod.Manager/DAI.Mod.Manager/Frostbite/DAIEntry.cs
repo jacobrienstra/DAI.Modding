@@ -97,9 +97,11 @@ namespace DAI.Mod.Manager.Frostbite {
         }
 
         public void AddSha1Value(string FieldName, Sha1 Value) {
-            Sha1Field sha1Field = new Sha1Field();
-            sha1Field.FieldName = FieldName;
-            sha1Field.Sha1Value = Value;
+            Sha1Field sha1Field = new Sha1Field
+            {
+                FieldName = FieldName,
+                Sha1Value = Value
+            };
             AddField(FieldName, sha1Field);
         }
 

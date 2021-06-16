@@ -7,8 +7,10 @@ using System.Xml;
 
 using DAI.AssetLibrary.Utilities.Extensions;
 
-namespace DAI.Mod {
-    public class ModJob {
+namespace DAI.Mod
+{
+    public class ModJob
+    {
         public string Name { get; set; }
         public string Xml { get; set; }
         public string Script { get; set; }
@@ -19,23 +21,29 @@ namespace DAI.Mod {
 
         public Dictionary<string, object> ConfigValues;
         public string FileName { get; set; }
-        public ModJob(string InName, string InXml, string InScript) {
+        public ModJob(string InName, string InXml, string InScript)
+        {
             Name = InName;
             Xml = InXml;
             Script = InScript;
             Data = new List<byte[]>();
         }
 
-        public ModJob() {
+        public ModJob()
+        {
             Data = new List<byte[]>();
             Meta = new ModMetaData();
         }
 
-        public static ModJob CreateFromFile(string InPath) {
+        public static ModJob CreateFromFile(string InPath)
+        {
             ModJob modJob = new ModJob();
-            using (FileStream fs = new FileStream(InPath, FileMode.Open, FileAccess.Read)) {
-                using (BinaryReader binaryReader = new BinaryReader(fs)) {
-                    if (binaryReader.ReadInt32() != 1296646468 || binaryReader.ReadInt32() != 844514383) {
+            using (FileStream fs = new FileStream(InPath, FileMode.Open, FileAccess.Read))
+            {
+                using (BinaryReader binaryReader = new BinaryReader(fs))
+                {
+                    if (binaryReader.ReadInt32() != 1296646468 || binaryReader.ReadInt32() != 844514383)
+                    {
                         return null;
                     }
                     binaryReader.ReadInt32();
@@ -44,7 +52,8 @@ namespace DAI.Mod {
                     modJob.Script = binaryReader.ReadNullTerminatedString();
                     modJob.ScriptObject = Scripting.GetModScriptObject(modJob.Script);
                     int num = binaryReader.ReadInt32();
-                    for (int i = 0; i < num; i++) {
+                    for (int i = 0; i < num; i++)
+                    {
                         int num1 = binaryReader.ReadInt32();
                         byte[] numArray = new byte[num1];
                         binaryReader.BaseStream.Read(numArray, 0, num1);
@@ -56,14 +65,19 @@ namespace DAI.Mod {
             return modJob;
         }
 
-        public void MakeMeta() {
+        public void MakeMeta()
+        {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(Xml);
-            foreach (XmlNode childNode in xmlDocument.ChildNodes[0].ChildNodes) {
-                switch (childNode.Name) {
+            foreach (XmlNode childNode in xmlDocument.ChildNodes[0].ChildNodes)
+            {
+                switch (childNode.Name)
+                {
                     case "details":
-                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
-                            switch (xmlNodes.Name) {
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes)
+                        {
+                            switch (xmlNodes.Name)
+                            {
                                 case "name":
                                     Meta.Details.Name = HttpUtility.HtmlDecode(xmlNodes.InnerText);
                                     break;
@@ -80,10 +94,13 @@ namespace DAI.Mod {
                         }
                         break;
                     case "resources":
-                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
-                            if (!(xmlNodes.Name != "resource")) {
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes)
+                        {
+                            if ((xmlNodes.Name == "resource"))
+                            {
                                 ModResourceEntry modResourceEntry = null;
-                                switch (xmlNodes.Attributes["type"].Value) {
+                                switch (xmlNodes.Attributes["type"].Value)
+                                {
                                     case "chunk":
                                         modResourceEntry = new ChunkModResourceEntry(xmlNodes.Attributes);
                                         break;
@@ -99,61 +116,73 @@ namespace DAI.Mod {
                         }
                         break;
                     case "bundles":
-                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
-                            if (xmlNodes.Name != "bundle") {
-                                continue;
-                            }
-                            ModBundle modBundle = new ModBundle();
-                            foreach (XmlAttribute xmlAttribute in xmlNodes.Attributes) {
-                                string attributeName = xmlAttribute.Name;
-                                if (attributeName != null) {
-                                    switch (attributeName.ToLower()) {
-                                        case "name":
-                                            modBundle.Name = xmlAttribute.Value;
-                                            break;
-                                        case "filename":
-                                            modBundle.TocFilename = xmlAttribute.Value;
-                                            break;
-                                        case "magicsalt":
-                                            modBundle.MagicSalt = Convert.ToInt32(xmlAttribute.Value);
-                                            break;
-                                        case "alignmembers":
-                                            modBundle.AlignMembers = Convert.ToByte(xmlAttribute.Value);
-                                            break;
-                                        case "ridsupport":
-                                            modBundle.RidSupport = Convert.ToByte(xmlAttribute.Value);
-                                            break;
-                                        case "storecompressedsizes":
-                                            modBundle.StoreCompressedSizes = Convert.ToByte(xmlAttribute.Value);
-                                            break;
-                                        case "action":
-                                            modBundle.Action = xmlAttribute.Value;
-                                            break;
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes)
+                        {
+                            if (xmlNodes.Name == "bundle")
+                            {
+
+                                ModBundle modBundle = new ModBundle();
+                                foreach (XmlAttribute xmlAttribute in xmlNodes.Attributes)
+                                {
+                                    string attributeName = xmlAttribute.Name;
+                                    if (attributeName != null)
+                                    {
+                                        switch (attributeName.ToLower())
+                                        {
+                                            case "name":
+                                                modBundle.Name = xmlAttribute.Value;
+                                                break;
+                                            case "filename":
+                                                modBundle.TocFilename = xmlAttribute.Value;
+                                                break;
+                                            case "magicsalt":
+                                                modBundle.MagicSalt = Convert.ToInt32(xmlAttribute.Value);
+                                                break;
+                                            case "alignmembers":
+                                                modBundle.AlignMembers = Convert.ToByte(xmlAttribute.Value);
+                                                break;
+                                            case "ridsupport":
+                                                modBundle.RidSupport = Convert.ToByte(xmlAttribute.Value);
+                                                break;
+                                            case "storecompressedsizes":
+                                                modBundle.StoreCompressedSizes = Convert.ToByte(xmlAttribute.Value);
+                                                break;
+                                            case "action":
+                                                modBundle.Action = xmlAttribute.Value;
+                                                break;
+                                        }
                                     }
                                 }
-                            }
-                            foreach (XmlNode item in xmlNodes.ChildNodes[0]) {
-                                ModBundleEntry modBundleEntry = new ModBundleEntry();
-                                foreach (XmlAttribute attribute1 in item.Attributes) {
-                                    string name4 = attribute1.Name;
-                                    if (name4 != null && name4 == "id") {
-                                        modBundleEntry.ResourceId = Convert.ToInt32(attribute1.Value);
+                                foreach (XmlNode item in xmlNodes.ChildNodes[0])
+                                {
+                                    ModBundleEntry modBundleEntry = new ModBundleEntry();
+                                    foreach (XmlAttribute attribute1 in item.Attributes)
+                                    {
+                                        string name4 = attribute1.Name;
+                                        if (name4 != null && name4 == "id")
+                                        {
+                                            modBundleEntry.ResourceId = Convert.ToInt32(attribute1.Value);
+                                        }
                                     }
+                                    modBundle.Entries.Add(modBundleEntry);
                                 }
-                                modBundle.Entries.Add(modBundleEntry);
+                                Meta.Bundles.Add(modBundle);
                             }
-                            Meta.Bundles.Add(modBundle);
                         }
                         break;
                     case "copyfiles":
-                        foreach (XmlNode xmlNodes in childNode.ChildNodes) {
+                        foreach (XmlNode xmlNodes in childNode.ChildNodes)
+                        {
                             string name = xmlNodes.Name;
-                            if (name != "file") {
+                            if (name != "file")
+                            {
                                 continue;
                             }
-                            foreach (XmlAttribute attribute in xmlNodes.Attributes) {
+                            foreach (XmlAttribute attribute in xmlNodes.Attributes)
+                            {
                                 string name2 = attribute.Name;
-                                if (name2 == "name") {
+                                if (name2 == "name")
+                                {
                                     Meta.CopyFiles.Add(attribute.Value);
                                 }
                             }
@@ -161,8 +190,10 @@ namespace DAI.Mod {
                         break;
                 }
             }
-            foreach (XmlAttribute xmlAttribute in xmlDocument.ChildNodes[0].Attributes) {
-                switch (xmlAttribute.Name) {
+            foreach (XmlAttribute xmlAttribute in xmlDocument.ChildNodes[0].Attributes)
+            {
+                switch (xmlAttribute.Name)
+                {
                     case "version":
                         Meta.FormatVersion = Convert.ToByte(xmlAttribute.Value);
                         break;
@@ -179,14 +210,18 @@ namespace DAI.Mod {
             }
         }
 
-        public string MakeXml() {
-            using (StringWriter sw = new StringWriter()) {
-                XmlWriterSettings settings = new XmlWriterSettings {
+        public string MakeXml()
+        {
+            using (StringWriter sw = new StringWriter())
+            {
+                XmlWriterSettings settings = new XmlWriterSettings
+                {
                     Indent = true,
                     Encoding = Encoding.UTF8,
                     OmitXmlDeclaration = true,
                 };
-                using (XmlWriter writer = XmlWriter.Create(sw, settings)) {
+                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                {
                     writer.WriteStartElement("daimod");
                     writer.WriteAttributeString("version", Meta.FormatVersion.ToString());
                     writer.WriteAttributeString("id", Meta.ID);
@@ -209,14 +244,18 @@ namespace DAI.Mod {
                     writer.WriteStartElement("requirements");
                     writer.WriteEndElement();
                     writer.WriteStartElement("resources");
-                    foreach (ModResourceEntry resource in Meta.Resources) {
+                    foreach (ModResourceEntry resource in Meta.Resources)
+                    {
                         writer.WriteStartElement("resource");
                         writer.WriteAttributeString("name", resource.Name);
                         writer.WriteAttributeString("type", resource.Type);
                         writer.WriteAttributeString("action", resource.Action);
-                        if (resource.Action == "add" || resource.Action == "modify") {
-                            switch (resource.Type) {
-                                case "chunk": {
+                        if (resource.Action == "add" || resource.Action == "modify")
+                        {
+                            switch (resource.Type)
+                            {
+                                case "chunk":
+                                    {
                                         ChunkModResourceEntry chunkEntry = (ChunkModResourceEntry)resource;
                                         writer.WriteAttributeString("chunkH32", chunkEntry.ChunkH32.ToString());
                                         writer.WriteAttributeString("meta", chunkEntry.Meta);
@@ -226,7 +265,8 @@ namespace DAI.Mod {
                                         writer.WriteAttributeString("logicalSize", chunkEntry.LogicalSize.ToString());
                                         break;
                                     }
-                                case "res": {
+                                case "res":
+                                    {
                                         ResModResourceEntry resEntry = (ResModResourceEntry)resource;
                                         writer.WriteAttributeString("resType", resEntry.ResType.ToString());
                                         writer.WriteAttributeString("resRid", resEntry.ResRid.ToString());
@@ -240,29 +280,37 @@ namespace DAI.Mod {
                             }
                             writer.WriteAttributeString("size", resource.Size.ToString());
                             writer.WriteAttributeString("patch", resource.PatchType.ToString());
-                            if (resource.Action != "modify") {
+                            if (resource.Action != "modify")
+                            {
                                 writer.WriteAttributeString("sha1", resource.OriginalSha1.ToString());
-                            } else {
+                            }
+                            else
+                            {
                                 writer.WriteAttributeString("originalSha1", resource.OriginalSha1.ToString());
                                 writer.WriteAttributeString("sha1", resource.NewSha1.ToString());
                             }
-                            if (resource.PatchType == 2) {
+                            if (resource.PatchType == 2)
+                            {
                                 writer.WriteAttributeString("deltaSha1", resource.DeltaSha1.ToString());
                                 writer.WriteAttributeString("baseSha1", resource.BaseSha1.ToString());
                             }
                             writer.WriteAttributeString("resourceId", resource.ResourceID.ToString());
-                        } else {
+                        }
+                        else
+                        {
                             writer.WriteAttributeString("originalSha1", resource.OriginalSha1.ToString());
                         }
                         writer.WriteEndElement();
                     }
                     writer.WriteEndElement();
                     writer.WriteStartElement("bundles");
-                    foreach (ModBundle bundle in Meta.Bundles) {
+                    foreach (ModBundle bundle in Meta.Bundles)
+                    {
                         writer.WriteStartElement("bundle");
                         writer.WriteAttributeString("name", bundle.Name);
                         writer.WriteAttributeString("action", bundle.Action);
-                        if (bundle.Action == "add") {
+                        if (bundle.Action == "add")
+                        {
                             writer.WriteAttributeString("filename", bundle.TocFilename);
                             writer.WriteAttributeString("magicSalt", bundle.MagicSalt.ToString());
                             writer.WriteAttributeString("alignMembers", bundle.AlignMembers.ToString());
@@ -270,7 +318,8 @@ namespace DAI.Mod {
                             writer.WriteAttributeString("storeCompressedSizes", bundle.StoreCompressedSizes.ToString());
                         }
                         writer.WriteStartElement("entries");
-                        foreach (ModBundleEntry entry in bundle.Entries) {
+                        foreach (ModBundleEntry entry in bundle.Entries)
+                        {
                             writer.WriteStartElement("entry");
                             writer.WriteAttributeString("id", entry.ResourceId.ToString());
                             writer.WriteEndElement();
@@ -286,7 +335,8 @@ namespace DAI.Mod {
             }
         }
 
-        public void Save(string OutPath) {
+        public void Save(string OutPath)
+        {
             Xml = MakeXml();
             BinaryWriter binaryWriter = new BinaryWriter(new FileStream(OutPath, FileMode.Create));
             binaryWriter.Write(1296646468);
@@ -296,8 +346,10 @@ namespace DAI.Mod {
             binaryWriter.WriteNullTerminatedString(Xml);
             binaryWriter.WriteNullTerminatedString(Script);
             binaryWriter.Write(Data.Count);
-            foreach (byte[] datum in Data) {
-                if (datum == null) {
+            foreach (byte[] datum in Data)
+            {
+                if (datum == null)
+                {
                     binaryWriter.Write(0);
                     continue;
                 }
@@ -307,7 +359,8 @@ namespace DAI.Mod {
             binaryWriter.Close();
         }
 
-        public void ResetData() {
+        public void ResetData()
+        {
             Data.Clear();
         }
     }

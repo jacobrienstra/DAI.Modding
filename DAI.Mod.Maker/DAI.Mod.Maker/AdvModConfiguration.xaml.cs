@@ -172,7 +172,7 @@ namespace DAI.Mod.Maker {
                 Scripting.LogLn("Executing ModScript::ConstructUI");
                 ModConfigElementsList modConfigElementsList = new ModConfigElementsList();
                 CompiledModScript.ConstructUI(modConfigElementsList);
-                TestModConfigWindow testModConfigWindow = new TestModConfigWindow(modConfigElementsList, Scripting.ConfigValues);
+                TestModConfigWindow testModConfigWindow = new TestModConfigWindow(modConfigElementsList, CurrentMod.ConfigValues);
                 testModConfigWindow.ShowDialog();
                 Scripting.CurrentMod.ConfigValues = testModConfigWindow.ConfigValues;
                 Scripting.LogLn("Executing ModScript::RunScript");

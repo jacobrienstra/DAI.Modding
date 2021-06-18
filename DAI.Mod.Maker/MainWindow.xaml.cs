@@ -264,7 +264,7 @@ namespace DAI.Mod.Maker {
         }
 
         private void AssetFilterTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-            if (e.Key == Key.Return) {
+            if (e.Key == System.Windows.Input.Key.Return) {
                 FilterAssets();
             }
         }

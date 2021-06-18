@@ -26,7 +26,7 @@ namespace DAI.Mod.Maker.Utilities {
 
         public YamlFlowDocumentWriter(FlowDocument output) {
             _document = output;
-            _attributeBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+            _attributeBrush = new SolidColorBrush(System.Windows.Media.Color.FromRgb(100, 100, 100));
         }
 
         public void Close() {

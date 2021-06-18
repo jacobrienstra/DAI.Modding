@@ -10,8 +10,6 @@ using DAI.AssetLibrary.Utilities;
 
 using Microsoft.Win32;
 
-using AssetLibUtilUtil = DAI.AssetLibrary.Utilities.Utilities;
-
 namespace DAI.Mod.Maker {
     public partial class ChunkListPreview : Window, IComponentConnector {
         private ResRef ParentAsset;
@@ -66,14 +64,14 @@ namespace DAI.Mod.Maker {
                 Guid dQWord = Guid.Empty;
                 ChunkRef selectedItem = (ChunkRef)ChunksListBox.SelectedItem;
                 ChunkRef chunkAsset = new ChunkRef {
-                    Sha1 = "00000000000000000000",
+                    Sha1 = Sha1.Empty,
                     ChunkId = dQWord
                 };
                 LibraryManager.AddChunk(chunkAsset, numArray, true);
                 chunkAsset.H32 = selectedItem.H32;
                 chunkAsset.Meta = new byte[1];
                 ImportCompressData importCompressDatum = new ImportCompressData();
-                AssetLibUtilUtil.CompressData(numArray, ref importCompressDatum);
+                Utils.CompressData(numArray, ref importCompressDatum);
                 chunkAsset.RangeStart = 0;
                 chunkAsset.RangeEnd = importCompressDatum.RangeEnd;
                 chunkAsset.LogicalOffset = numArray.Length & -16777216;

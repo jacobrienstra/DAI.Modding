@@ -5,6 +5,8 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.FrostbiteAssets;
+using DAI.Mod.Maker.Utilities;
+
 
 namespace DAI.Mod.Maker.DAIModules.Preview {
     public class ScaleformPreview : DAIBasePreviewer {
@@ -30,7 +32,7 @@ namespace DAI.Mod.Maker.DAIModules.Preview {
             byte[] numArray = new byte[binaryReader.BaseStream.Length - 8];
             binaryReader.BaseStream.Read(numArray, 0, (int)(binaryReader.BaseStream.Length - 8));
             byte[] numArray2 = null;
-            DAI.AssetLibrary.Utilities.Utilities.DecompressZlib(numArray, out numArray2);
+            AssetLibrary.Utilities.Utils.DecompressZlib(numArray, out numArray2);
             binaryReader.Close();
             new ScaleformPreviewWindow(numArray2).Show();
         }

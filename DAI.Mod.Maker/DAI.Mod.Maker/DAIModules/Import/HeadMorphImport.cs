@@ -8,6 +8,7 @@ using DAI.AssetLibrary.Assets.References;
 using DAI.AssetLibrary.Utilities;
 using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
+using DAI.Mod.Maker.Utilities;
 using DAI.Mod.Maker.Properties;
 
 namespace DAI.Mod.Maker.DAIModules.Import {
@@ -28,7 +29,7 @@ namespace DAI.Mod.Maker.DAIModules.Import {
                 return false;
             }
             byte[] assetPayload = PayloadProvider.GetAssetPayload(res);
-            ResRef resAsset = Library.GetResByResRid(DAI.Mod.Maker.Utilities.Utilities.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(rootObject.RuntimeHeadBase.Id.FileGuid)).MeshSetResource);
+            ResRef resAsset = Library.GetResByResRid(Utilities.Utils.GetNativeObject<SkinnedMeshAsset>(Library.GetEbxByGuid(rootObject.RuntimeHeadBase.Id.FileGuid)).MeshSetResource);
             try {
                 Mesh dAIMesh = Mesh.FromRes(resAsset);
                 if (dAIMesh == null) {

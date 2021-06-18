@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 
 using DAI.AssetLibrary.Assets.References;
-using DAI.Mod.Maker.Utilities;
+using DAI.AssetLibrary.Utilities.Extensions;
 
 namespace DAI.Mod.Maker.Controls {
     public partial class AssetPicker : UserControl, IComponentConnector {

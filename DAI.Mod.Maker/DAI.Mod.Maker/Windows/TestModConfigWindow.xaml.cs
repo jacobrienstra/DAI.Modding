@@ -6,7 +6,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 using DAI.Mod;
-using DAI.Mod.Maker.Controls;
+using DAI.Controls;
 
 namespace DAI.Mod.Maker {
     public partial class TestModConfigWindow : Window, IComponentConnector {

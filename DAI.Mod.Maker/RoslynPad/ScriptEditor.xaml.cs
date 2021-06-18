@@ -109,7 +109,7 @@ namespace RoslynPad {
             };
             textBox.Loaded += (o, e) => textBox.Focus();
             textBox.KeyDown += (o, e) => {
-                if (e.Key == Key.Enter) {
+                if (e.Key == System.Windows.Input.Key.Enter) {
                     TaskDialog.CancelCommand.Execute(null, dialog);
                 }
             };
@@ -156,13 +156,13 @@ namespace RoslynPad {
         }
 
         private void OnTreeViewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.C && e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control)) {
+            if (e.Key == System.Windows.Input.Key.C && e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control)) {
                 if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift)) {
                     CopyAllResultsToClipboard(withChildren: true);
                 } else {
                     CopyToClipboard(e.OriginalSource);
                 }
-            } else if (e.Key == Key.Enter) {
+            } else if (e.Key == System.Windows.Input.Key.Enter) {
                 TryJumpToLine(e.OriginalSource);
             }
         }

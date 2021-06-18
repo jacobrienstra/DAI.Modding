@@ -125,7 +125,7 @@ namespace DAI.Mod.Maker.Utilities {
                         }
                         length += 7;
                         Run run6 = new Run(stringBuilder1.ToString()) {
-                            Foreground = new SolidColorBrush(Color.FromArgb(byte.MaxValue, byte.Parse(str2.Substring(1, 2), NumberStyles.HexNumber), byte.Parse(str2.Substring(3, 2), NumberStyles.HexNumber), byte.Parse(str2.Substring(5, 2), NumberStyles.HexNumber)))
+                            Foreground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(byte.MaxValue, byte.Parse(str2.Substring(1, 2), NumberStyles.HexNumber), byte.Parse(str2.Substring(3, 2), NumberStyles.HexNumber), byte.Parse(str2.Substring(5, 2), NumberStyles.HexNumber)))
                         };
                         inlines.Add(run6);
                         stringBuilder1.Clear();

@@ -8,6 +8,7 @@ using System.Windows.Threading;
 
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
+using DAI.AssetLibrary.Utilities.Extensions;
 
 namespace DAI.Mod.Maker {
     public partial class ReferenceSearchWindow : Window, IComponentConnector {

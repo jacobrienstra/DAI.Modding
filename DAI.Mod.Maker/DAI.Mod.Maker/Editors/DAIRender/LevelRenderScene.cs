@@ -9,6 +9,7 @@ using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Assets.References;
 using DAI.FrostbiteAssets;
 using DAI.Mod.Maker.Utilities;
+using DAI.Utilities;
 
 using SlimDX;
 using SlimDX.Direct3D11;
@@ -398,24 +399,24 @@ namespace DAI.Mod.Maker.DAIRender {
 
         public override void Update(double DeltaTime) {
             if (HasFocus) {
-                float single3 = (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.LShiftKey) ? 100f : 10f);
-                if (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.W)) {
+                float single3 = (Key.IsKeyDown(Keys.LShiftKey) ? 100f : 10f);
+                if (Key.IsKeyDown(Keys.W)) {
                     Camera.Walk(single3 * (float)DeltaTime);
                     base.UpdateRender = true;
                 }
-                if (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.S)) {
+                if (Key.IsKeyDown(Keys.S)) {
                     Camera.Walk((0f - single3) * (float)DeltaTime);
                     base.UpdateRender = true;
                 }
-                if (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.A)) {
+                if (Key.IsKeyDown(Keys.A)) {
                     Camera.Strafe((0f - single3) * (float)DeltaTime);
                     base.UpdateRender = true;
                 }
-                if (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.D)) {
+                if (Key.IsKeyDown(Keys.D)) {
                     Camera.Strafe(single3 * (float)DeltaTime);
                     base.UpdateRender = true;
                 }
-                if (DAI.Mod.Maker.Utilities.Utilities.IsKeyDown(Keys.RButton)) {
+                if (Key.IsKeyDown(Keys.RButton)) {
                     float radians = (0.25f * ((float)Cursor.Position.X - LastMousePosition.X)).ToRadians();
                     float radians2 = (0.25f * ((float)Cursor.Position.Y - LastMousePosition.Y)).ToRadians();
                     float single = ((!(radians > 0.001f)) ? ((radians < -0.001f) ? (-1f) : 0f) : 1f);

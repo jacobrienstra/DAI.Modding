@@ -14,6 +14,7 @@ using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.Bases;
 using DAI.AssetLibrary.Utilities;
 using DAI.Mod.Maker.Properties;
+using DAI.Mod.Maker.Utilities;
 
 using Microsoft.Win32;
 
@@ -156,7 +157,7 @@ namespace DAI.Mod.Maker {
 
         private void PreviewDeviceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             TextPreviewBlock.Inlines.Clear();
-            TextPreviewBlock.Inlines.AddRange(DAI.Mod.Maker.Utilities.Utilities.ConvertStringToInlines(TalkTableEntryText.Text, (string)PreviewDeviceComboBox.SelectedItem));
+            TextPreviewBlock.Inlines.AddRange(Utilities.Utils.ConvertStringToInlines(TalkTableEntryText.Text, (string)PreviewDeviceComboBox.SelectedItem));
         }
 
         private void SaveTextButton_Click(object sender, RoutedEventArgs e) {
@@ -178,7 +179,7 @@ namespace DAI.Mod.Maker {
 
         private void TalkTableEntryText_TextChanged(object sender, TextChangedEventArgs e) {
             TextPreviewBlock.Inlines.Clear();
-            TextPreviewBlock.Inlines.AddRange(DAI.Mod.Maker.Utilities.Utilities.ConvertStringToInlines(TalkTableEntryText.Text, (string)PreviewDeviceComboBox.SelectedItem));
+            TextPreviewBlock.Inlines.AddRange(Utilities.Utils.ConvertStringToInlines(TalkTableEntryText.Text, (string)PreviewDeviceComboBox.SelectedItem));
         }
 
         private void TalkTableListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -186,7 +187,7 @@ namespace DAI.Mod.Maker {
                 SelectedString = (Talktable.TalktableString)TalkTableListBox.SelectedItem;
                 TalkTableEntryText.Text = SelectedString.Value;
                 TextPreviewBlock.Inlines.Clear();
-                TextPreviewBlock.Inlines.AddRange(DAI.Mod.Maker.Utilities.Utilities.ConvertStringToInlines(SelectedString.Value, (string)PreviewDeviceComboBox.SelectedItem));
+                TextPreviewBlock.Inlines.AddRange(Utilities.Utils.ConvertStringToInlines(SelectedString.Value, (string)PreviewDeviceComboBox.SelectedItem));
             }
         }
 

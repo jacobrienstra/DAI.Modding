@@ -5,6 +5,7 @@ using System.Windows.Markup;
 
 using DAI.AssetLibrary;
 using DAI.AssetLibrary.Assets.References;
+using DAI.AssetLibrary.Utilities.Extensions;
 using DAI.FrostbiteAssets;
 using DAI.FrostbiteAssets.Enums;
 using DAI.Mod.Maker.Properties;
@@ -48,10 +49,10 @@ namespace DAI.Mod.Maker {
             }
             ConversationLine conversationLine = (ConversationLine)userData;
             ConversationLineTextBlock.Inlines.Clear();
-            ConversationLineTextBlock.Inlines.AddRange(Utilities.Utilities.ConvertStringToInlines(Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.TextReference.String.StringId)));
+            ConversationLineTextBlock.Inlines.AddRange(Utils.ConvertStringToInlines(Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.TextReference.String.StringId)));
             ParaphraseText.Text = Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.ParaphraseReference.StringId);
             HoverText.Text = Library.GetStringValue(Settings.Default.Language, (uint)conversationLine.HoverTextReference.StringId);
-            EbxRef ebx = ((conversationLine.TextReference.Speaker == null) ? null : Library.GetEbxByGuid(conversationLine.TextReference.Speaker.Id.FileGuid));
+            EbxRef ebx = (conversationLine.TextReference.Speaker == null) ? null : Library.GetEbxByGuid(conversationLine.TextReference.Speaker.Id.FileGuid);
             SpeakerText.Text = ((ebx != null) ? ebx.GetDisplayFullName() : "[noone]");
             foreach (PlotConditionReference plotCondition in conversationLine.PlotConditions) {
                 if (plotCondition.ConditionType != PlotConditionType.PlotConditionType_DefaultCheckBoolean) {

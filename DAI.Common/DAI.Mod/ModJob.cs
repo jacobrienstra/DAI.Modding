@@ -17,7 +17,7 @@ namespace DAI.Mod
         public List<byte[]> Data { get; set; }
         public ModMetaData Meta { get; set; }
 
-        public IModScript ScriptObject;
+        public ModScript ScriptObject;
 
         public Dictionary<string, object> ConfigValues;
         public string FileName { get; set; }

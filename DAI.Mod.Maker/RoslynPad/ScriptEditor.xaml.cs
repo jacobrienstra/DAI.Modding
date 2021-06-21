@@ -53,12 +53,6 @@ namespace RoslynPad {
             _syncContext = SynchronizationContext.Current;
 
             _viewModel.DocumentChanged += OnDocumentChanged;
-            _viewModel.ResultsAvailable += ResultsAvailable;
-            _viewModel.ReadInput += OnReadInput;
-            _viewModel.EditorFocus += (o, e) => Editor.Focus();
-            _viewModel.DocumentUpdated += (o, e) => Dispatcher.InvokeAsync(() => Editor.RefreshHighlighting());
-            _viewModel.EditorFontSizeChanged += OnEditorFontSizeChanged;
-            Editor.FontSize = _viewModel.EditorFontSize;
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e) {
@@ -83,11 +77,23 @@ namespace RoslynPad {
         }
 
         private async void OnDocumentChanged(object sender, EventArgs args) {
+            _viewModel.ResultsAvailable += ResultsAvailable;
+            _viewModel.ReadInput += OnReadInput;
+            _viewModel.EditorFocus += (o, e) => Editor.Focus();
+            _viewModel.DocumentUpdated += (o, e) => Dispatcher.InvokeAsync(() => Editor.RefreshHighlighting());
+            _viewModel.EditorFontSizeChanged += OnEditorFontSizeChanged;
+
+            Editor.Clear();
+            Editor.FontSize = _viewModel.EditorFontSize;
+
             string documentText = await _viewModel.LoadText().ConfigureAwait(true);
+
             DocumentId documentId = Editor.Initialize(_viewModel.RoslynHost, new ClassificationHighlightColors(),
                 _viewModel.WorkingDirectory, documentText);
+
             _viewModel.InitializeDocument(documentId, OnError,
                 () => new TextSpan(Editor.SelectionStart, Editor.SelectionLength));
+
             Editor.Document.TextChanged += (o, e) => _viewModel.OnTextChanged();
         }
 

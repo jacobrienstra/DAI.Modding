@@ -1,5 +1,5 @@
 namespace DAI.Mod {
-    public interface IModScript {
+    public interface ModScript {
         void ConstructUI(ModConfigElementsList ConfigElementsList);
 
         void RunScript();

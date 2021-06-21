@@ -42,7 +42,7 @@ namespace RoslynPad.Roslyn
         private readonly CompositionHost _compositionContext;
         private int _documentNumber;
 
-        public ParseOptions ParseOptions { get; }
+        public ParseOptions ParseOptions { get; set; }
 
         public HostServices HostServices { get; }
 
@@ -104,7 +104,7 @@ namespace RoslynPad.Roslyn
 
         protected virtual ParseOptions CreateDefaultParseOptions()
         {
-            return new CSharpParseOptions(kind: SourceCodeKind.Script,
+            return new CSharpParseOptions(kind: SourceCodeKind.Regular,
                 preprocessorSymbols: PreprocessorSymbols, languageVersion: LanguageVersion.Preview);
         }
 

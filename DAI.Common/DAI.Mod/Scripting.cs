@@ -44,7 +44,7 @@ namespace DAI.Mod {
             return compilerResults.CompiledAssembly;
         }
 
-        public static IModScript GetModScriptObject(string InCode) {
+        public static ModScript GetModScriptObject(string InCode) {
             if (InCode == "") {
                 return null;
             }
@@ -59,7 +59,7 @@ namespace DAI.Mod {
                                   select t) {
                 ConstructorInfo constructor = item.GetConstructor(Type.EmptyTypes);
                 if (constructor != null && constructor.IsPublic) {
-                    if (constructor.Invoke(null) is IModScript modScript) {
+                    if (constructor.Invoke(null) is ModScript modScript) {
                         return modScript;
                     }
                 }

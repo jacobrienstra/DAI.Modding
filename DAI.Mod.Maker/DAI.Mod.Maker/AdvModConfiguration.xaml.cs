@@ -13,7 +13,7 @@ namespace DAI.Mod.Maker {
 
         public bool Cancelled;
 
-        private IModScript CompiledModScript;
+        private ModScript CompiledModScript;
 
         public AdvModConfiguration(string ModPath) {
             InitializeComponent();

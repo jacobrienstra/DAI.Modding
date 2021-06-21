@@ -59,9 +59,9 @@ namespace RoslynPad.UI {
         private Action<ExceptionResultObject?>? _onError;
         private Func<TextSpan>? _getSelection;
 
-        private DocumentViewModel? _document;
+        private DocumentViewModel? _currentDocument;
         private DocumentViewModel _documentRootFolder;
-        private DocumentId? _documentId;
+        private DocumentId? __currentDocumentId;
         private DocumentWatcher _documentWatcher;
         private readonly DocumentFileWatcher _documentFileWatcher;
 
@@ -83,8 +83,8 @@ namespace RoslynPad.UI {
             }
         }
         public IApplicationSettings Settings { get; }
-        public string WorkingDirectory => Document != null
-           ? Path.GetDirectoryName(Document.Path)!
+        public string WorkingDirectory => CurrentDocument != null
+           ? Path.GetDirectoryName(CurrentDocument.Path)!
            : DocumentRootFolder.Path;
         public string WindowTitle {
             get {
@@ -92,7 +92,7 @@ namespace RoslynPad.UI {
                 return title;
             }
         }
-        public string Title => Document != null ? Document.Name : "New";
+        public string Title => CurrentDocument != null ? CurrentDocument.Name : "New";
         //public bool HasNoOpenDocument => IsInitialized && Document == null;
 
         #region Build
@@ -156,12 +156,12 @@ namespace RoslynPad.UI {
             get => _documentRootFolder;
             private set => SetProperty(ref _documentRootFolder, value);
         }
-        public DocumentViewModel? Document {
-            get => _document;
+        public DocumentViewModel? CurrentDocument {
+            get => _currentDocument;
             private set {
                 if (value == null) return;
-                if (_document != value) {
-                    SetProperty(ref _document, value);
+                if (_currentDocument != value) {
+                    SetProperty(ref _currentDocument, value);
 
                     if (_executionHost != null && value != null) {
                         _executionHost.Name = value.Name;
@@ -169,9 +169,9 @@ namespace RoslynPad.UI {
                 }
             }
         }
-        public DocumentId DocumentId {
-            get => _documentId ?? throw new ArgumentNullException(nameof(_documentId));
-            private set => _documentId = value;
+        public DocumentId CurrentDocumentId {
+            get => __currentDocumentId ?? throw new ArgumentNullException(nameof(__currentDocumentId));
+            private set => __currentDocumentId = value;
         }
         public bool IsDirty {
             get => _isDirty;
@@ -240,6 +240,9 @@ namespace RoslynPad.UI {
         }
 
         protected virtual ImmutableArray<Assembly> CompositionAssemblies => ImmutableArray.Create(typeof(MainViewModelBase).Assembly);
+
+        protected virtual ImmutableArray<Type> TypeReferences => ImmutableArray.Create<Type>();
+
         public async Task Initialize() {
             if (IsInitialized) return;
             try {
@@ -250,12 +253,18 @@ namespace RoslynPad.UI {
             }
         }
         private async Task InitializeInternal() {
-            RoslynHost = await Task.Run(() => new RoslynHost(CompositionAssemblies,
-                RoslynHostReferences.NamespaceDefault.With(typeNamespaceImports: new[] { typeof(Runtime.ObjectExtensions) }),
-                disabledDiagnostics: ImmutableArray.Create("CS1701", "CS1702")))
+            RoslynHost = await Task.Run(() => new RoslynHost(
+                CompositionAssemblies,
+                RoslynHostReferences.NamespaceDefault.With(
+                    typeNamespaceImports: TypeReferences.Add(
+                        typeof(ObjectExtensions)
+                    )
+                ),
+                disabledDiagnostics: ImmutableArray.Create("CS1701", "CS1702"))
+            )
                 .ConfigureAwait(true);
 
-            var runtimeAssemblyPath = typeof(Runtime.ObjectExtensions).Assembly.Location;
+            var runtimeAssemblyPath = typeof(ObjectExtensions).Assembly.Location;
             DefaultReferences = RoslynHost.DefaultReferences;
             DefaultReferencesCompat50 = DefaultReferences.Add(MetadataReference.CreateFromFile(
                 Path.Combine(Path.GetDirectoryName(runtimeAssemblyPath)!, "RoslynPad.Runtime.Compat50.dll")));
@@ -291,17 +300,22 @@ namespace RoslynPad.UI {
             _executionHost.ProgressChanged += p => ReportedProgress = p.Progress;
 
             InitializePlatforms();
-            Document = documentViewModel == null ? null : DocumentViewModel.FromPath(documentViewModel.Path);
+            if (__currentDocumentId != null)
+            {
+                RoslynHost.CloseDocument(__currentDocumentId);
+            }
+            CurrentDocument = documentViewModel == null ? null : DocumentViewModel.FromPath(documentViewModel.Path);
             IsDirty = documentViewModel?.IsAutoSave == true;
-            _executionHost.Name = Document?.Name ?? "Untitled";
+            _executionHost.Name = CurrentDocument?.Name ?? "Untitled";
             DocumentChanged.Invoke(this, EventArgs.Empty);
         }
+
         internal void InitializeDocument(DocumentId documentId,
             Action<ExceptionResultObject?> onError,
             Func<TextSpan> getSelection) {
             _onError = onError;
             _getSelection = getSelection;
-            DocumentId = documentId;
+            CurrentDocumentId = documentId;
             _isDocInitialized = true;
 
             Platform = AvailablePlatforms.FirstOrDefault(p => p.Name == Settings.DefaultPlatformName) ??
@@ -361,15 +375,15 @@ namespace RoslynPad.UI {
             SetupDocument(document);
         }
         public async Task<string> LoadText() {
-            if (Document == null) {
+            if (CurrentDocument == null) {
                 return string.Empty;
             }
-            using var fileStream = File.OpenText(Document.Path);
+            using StreamReader fileStream = File.OpenText(CurrentDocument.Path);
             return await fileStream.ReadToEndAsync().ConfigureAwait(false);
         }
         public async Task AutoSave() {
             if (!IsDirty) return;
-            var document = Document;
+            var document = CurrentDocument;
             if (document == null) {
                 var index = 1;
                 string path;
@@ -379,8 +393,8 @@ namespace RoslynPad.UI {
                 while (File.Exists(path));
                 document = DocumentViewModel.FromPath(path);
             }
-            Document = document;
-            await SaveDocument(Document.GetAutoSavePath()).ConfigureAwait(false);
+            CurrentDocument = document;
+            await SaveDocument(CurrentDocument.GetAutoSavePath()).ConfigureAwait(false);
         }
         public async Task<SaveResult> Save(bool promptSave) {
             if (_isSaving) return SaveResult.Cancel;
@@ -388,7 +402,7 @@ namespace RoslynPad.UI {
             _isSaving = true;
             try {
                 var result = SaveResult.Save;
-                if (Document == null) {
+                if (CurrentDocument == null) {
                     var dialog = _serviceProvider.GetService<ISaveDocumentDialog>();
                     dialog.ShowDontSave = promptSave;
                     dialog.AllowNameEdit = true;
@@ -396,24 +410,24 @@ namespace RoslynPad.UI {
                     await dialog.ShowAsync();
                     result = dialog.Result;
                     if (result == SaveResult.Save && dialog.DocumentName != null) {
-                        Document?.DeleteAutoSave();
-                        Document = AddDocument(dialog.DocumentName);
+                        CurrentDocument?.DeleteAutoSave();
+                        CurrentDocument = AddDocument(dialog.DocumentName);
                         OnPropertyChanged(nameof(Title));
                     }
                 } else if (promptSave) {
                     var dialog = _serviceProvider.GetService<ISaveDocumentDialog>();
                     dialog.ShowDontSave = true;
-                    dialog.DocumentName = Document.Name;
+                    dialog.DocumentName = CurrentDocument.Name;
                     await dialog.ShowAsync();
                     result = dialog.Result;
                 }
-                if (result == SaveResult.Save && Document != null) {
+                if (result == SaveResult.Save && CurrentDocument != null) {
                     // ReSharper disable once PossibleNullReferenceException
-                    await SaveDocument(Document.GetSavePath()).ConfigureAwait(true);
+                    await SaveDocument(CurrentDocument.GetSavePath()).ConfigureAwait(true);
                     IsDirty = false;
                 }
                 if (result != SaveResult.Cancel) {
-                    Document?.DeleteAutoSave();
+                    CurrentDocument?.DeleteAutoSave();
                 }
                 return result;
             } finally {
@@ -422,7 +436,7 @@ namespace RoslynPad.UI {
         }
         private async Task SaveDocument(string path) {
             if (!_isDocInitialized) return;
-            var document = RoslynHost.GetDocument(DocumentId);
+            var document = RoslynHost.GetDocument(CurrentDocumentId);
             if (document == null) {
                 return;
             }
@@ -445,6 +459,8 @@ namespace RoslynPad.UI {
         }
         public void OnTextChanged() {
             IsDirty = true;
+            CancellationToken cancellationToken = _runCts!.Token;
+            UpdatePackages();
         }
 
         #endregion
@@ -657,7 +673,7 @@ namespace RoslynPad.UI {
             }
         }
         private async Task<string> GetCode(CancellationToken cancellationToken) {
-            var document = RoslynHost.GetDocument(DocumentId);
+            Document document = RoslynHost.GetDocument(CurrentDocumentId);
             if (document == null) {
                 return string.Empty;
             }
@@ -680,7 +696,7 @@ namespace RoslynPad.UI {
             _restoreCts = new CancellationTokenSource();
             _ = UpdatePackagesAsync(_restoreCts.Token);
             async Task UpdatePackagesAsync(CancellationToken cancellationToken) {
-                var document = RoslynHost.GetDocument(DocumentId);
+                var document = RoslynHost.GetDocument(CurrentDocumentId);
                 if (document == null) {
                     return;
                 }
@@ -729,7 +745,7 @@ namespace RoslynPad.UI {
             ClearResults(t => t is RestoreResultObject);
             if (restoreResult.Success) {
                 var host = RoslynHost;
-                var document = host.GetDocument(DocumentId);
+                var document = host.GetDocument(CurrentDocumentId);
                 if (document == null) {
                     return;
                 }
@@ -737,7 +753,7 @@ namespace RoslynPad.UI {
                 project = project
                     .WithMetadataReferences(_executionHost.MetadataReferences)
                     .WithAnalyzerReferences(_executionHost.Analyzers);
-                document = project.GetDocument(DocumentId);
+                document = project.GetDocument(CurrentDocumentId);
                 host.UpdateDocument(document!);
                 OnDocumentUpdated();
             } else {
@@ -758,7 +774,7 @@ namespace RoslynPad.UI {
         public async Task CommentUncommentSelection(CommentAction action) {
             const string singleLineCommentString = "//";
 
-            var document = RoslynHost.GetDocument(DocumentId);
+            var document = RoslynHost.GetDocument(CurrentDocumentId);
             if (document == null) {
                 return;
             }
@@ -799,13 +815,13 @@ namespace RoslynPad.UI {
             }
         }
         public async Task FormatDocument() {
-            var document = RoslynHost.GetDocument(DocumentId);
+            var document = RoslynHost.GetDocument(CurrentDocumentId);
             var formattedDocument = await Formatter.FormatAsync(document!).ConfigureAwait(false);
             RoslynHost.UpdateDocument(formattedDocument);
         }
         public async Task RenameSymbol() {
             var host = RoslynHost;
-            var document = host.GetDocument(DocumentId);
+            var document = host.GetDocument(CurrentDocumentId);
             if (document == null || _getSelection == null) {
                 return;
             }
@@ -819,7 +835,7 @@ namespace RoslynPad.UI {
             if (dialog.ShouldRename) {
                 var newSolution = await Renamer.RenameSymbolAsync(document.Project.Solution, symbol, dialog.SymbolName ?? string.Empty,
                     document.Project.Solution.Options).ConfigureAwait(true);
-                var newDocument = newSolution.GetDocument(DocumentId);
+                var newDocument = newSolution.GetDocument(CurrentDocumentId);
                 // TODO: possibly update entire solution
                 host.UpdateDocument(newDocument!);
             }

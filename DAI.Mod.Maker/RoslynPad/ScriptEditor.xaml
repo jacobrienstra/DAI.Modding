@@ -79,7 +79,7 @@
         </ToolBar>
         <editor:RoslynCodeEditor x:Name="Editor"
                                 x:FieldModifier="private"
-                                ContextActionsIcon="{StaticResource IntellisenseLightbulbError}"
+                                ContextActionsIcon="{StaticResource IntellisenseLightbulb}"
                                 IsBraceCompletionEnabled="True"
                                 FontFamily="Consolas"
                                 Grid.Row="1"

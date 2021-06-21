@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Composition;
 using System.Reflection;
+using DAI.Mod;
 
 using RoslynPad.UI;
 
@@ -15,5 +16,11 @@ namespace RoslynPad {
         protected override ImmutableArray<Assembly> CompositionAssemblies => base.CompositionAssemblies
             .Add(Assembly.Load(new AssemblyName("RoslynPad.Roslyn.Windows")))
             .Add(Assembly.Load(new AssemblyName("RoslynPad.Editor.Windows")));
+
+        protected override ImmutableArray<Type> TypeReferences => base.TypeReferences
+            .Add(typeof(ModScript))
+            .Add(typeof(ModConfigElement))
+            .Add(typeof(ModConfigElementsList))
+            .Add(typeof(Scripting));
     }
 }

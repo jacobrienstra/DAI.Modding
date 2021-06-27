@@ -67,12 +67,12 @@
     <Compile Include="Dialogs\IRenameSymbolDialog.cs" />
     <Compile Include="Dialogs\ISaveDocumentDialog.cs" />
     <Compile Include="Dialogs\ISaveFileDialog.cs" />
-    <Compile Include="PlatformsFactory.cs" />
+    <Compile Include="PlatformFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DocumentFileWatcher.cs" />
     <Compile Include="Services\IAppDispatcher.cs" />
     <Compile Include="Services\IApplicationSettings.cs" />
-    <Compile Include="Services\IPlatformsFactory.cs" />
+    <Compile Include="Services\IPlatformFactory.cs" />
     <Compile Include="Services\ITelemetryProvider.cs" />
     <Compile Include="Services\SystemCompositionServiceProvider.cs" />
     <Compile Include="Services\TelemetryProviderBase.cs" />

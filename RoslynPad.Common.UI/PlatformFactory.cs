@@ -10,15 +10,15 @@ using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace RoslynPad {
-    [Export(typeof(IPlatformsFactory))]
-    internal class PlatformsFactory : IPlatformsFactory
+    [Export(typeof(IPlatformFactory))]
+    internal class PlatformFactory : IPlatformFactory
     {
         private string? _dotnetExe;
         private string? _sdkPath;
 
         public event Action Changed = delegate { };
 
-        public IEnumerable<ExecutionPlatform> GetExecutionPlatforms()
+        public ExecutionPlatform GetExecutionPlatform()
         {
             //if (GetCoreVersions() is var core)
             //{
@@ -31,12 +31,12 @@ namespace RoslynPad {
             //    }
             //}
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //{
                 var targetFrameworkName = GetNetFrameworkName();
-                yield return new ExecutionPlatform(".NET Framework x86", targetFrameworkName, null, Architecture.X86, isCore: false);
+                return new ExecutionPlatform(".NET Framework x86", targetFrameworkName, null, Architecture.X86, isCore: false);
                 //yield return new ExecutionPlatform(".NET Framework x64", targetFrameworkName, null, Architecture.X64, isCore: false);
-            }
+            //}
         }
 
         public string DotNetExecutable => FindNetCore().dotnetExe;
@@ -69,8 +69,8 @@ namespace RoslynPad {
             string[] dotnetPaths;
             string dotnetExe;
             //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                dotnetPaths = new[] { Path.Combine(Environment.GetEnvironmentVariable("ProgramW6432")!, "dotnet") };
-                dotnetExe = "dotnet.exe";
+            dotnetPaths = new[] { Path.Combine(Environment.GetEnvironmentVariable("ProgramW6432")!, "dotnet") };
+            dotnetExe = "dotnet.exe";
             //} else {
             //    dotnetPaths = new[] { "/usr/share/dotnet", "/usr/local/share/dotnet" };
             //    dotnetExe = "dotnet";

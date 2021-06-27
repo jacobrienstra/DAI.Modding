@@ -33,7 +33,7 @@ namespace RoslynPad.UI {
         private readonly IServiceProvider _serviceProvider;
         private readonly IAppDispatcher _dispatcher;
         private readonly ITelemetryProvider _telemetryProvider;
-        private readonly IPlatformsFactory _platformsFactory;
+        private readonly IPlatformFactory _platformFactory;
         private readonly ICommandProvider _commands;
         #endregion
 
@@ -42,7 +42,7 @@ namespace RoslynPad.UI {
         private ExecutionHostParameters _executionHostParameters;
         private CancellationTokenSource? _runCts;
         private CancellationTokenSource? _restoreCts;
-        private IReadOnlyList<ExecutionPlatform>? _availablePlatforms;
+        //private IReadOnlyList<ExecutionPlatform>? _availablePlatforms;
         private ExecutionPlatform _platform;
         private double? _reportedProgress; 
         private bool _isRunning;
@@ -103,11 +103,11 @@ namespace RoslynPad.UI {
         public string BuildPath { get; private set; }
         public NuGetViewModel NuGet { get; }
         public NuGetDocumentViewModel NuGetDoc { get; private set; }
-        public IReadOnlyList<ExecutionPlatform> AvailablePlatforms
-        {
-            get => _availablePlatforms ?? throw new ArgumentNullException(nameof(_availablePlatforms));
-            private set => SetProperty(ref _availablePlatforms, value);
-        }
+        //public IReadOnlyList<ExecutionPlatform> AvailablePlatforms
+        //{
+        //    get => _availablePlatforms ?? throw new ArgumentNullException(nameof(_availablePlatforms));
+        //    private set => SetProperty(ref _availablePlatforms, value);
+        //}
         public ExecutionPlatform? Platform
         {
             get => _platform;
@@ -217,7 +217,7 @@ namespace RoslynPad.UI {
         public MainViewModelBase(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, NuGetViewModel nugetViewModel, DocumentFileWatcher documentFileWatcher) {
             _serviceProvider = serviceProvider;
             _telemetryProvider = telemetryProvider;
-            _platformsFactory = serviceProvider.GetService<IPlatformsFactory>();
+            _platformFactory = serviceProvider.GetService<IPlatformFactory>();
             _commands = commands;
             _documentFileWatcher = documentFileWatcher;
             _dispatcher = appDispatcher;
@@ -289,7 +289,7 @@ namespace RoslynPad.UI {
             _restoreSuccessful = true; // initially set to true so we can immediately start running and wait for restore
 
             NuGetDoc = _serviceProvider.GetService<NuGetDocumentViewModel>();
-            _platformsFactory.Changed += InitializePlatforms;
+            _platformFactory.Changed += InitializePlatforms;
 
             _executionHostParameters = new ExecutionHostParameters(
                 BuildPath,
@@ -327,8 +327,7 @@ namespace RoslynPad.UI {
             CurrentDocumentId = documentId;
             _isDocInitialized = true;
 
-            Platform = AvailablePlatforms.FirstOrDefault(p => p.Name == Settings.DefaultPlatformName) ??
-                       AvailablePlatforms.FirstOrDefault();
+            Platform = _platformFactory.GetExecutionPlatform();
             UpdatePackages();
             RestartHostCommand?.Execute();
         }
@@ -721,8 +720,8 @@ namespace RoslynPad.UI {
 
         private void InitializePlatforms()
         {
-            AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
-            _executionHost.DotNetExecutable = _platformsFactory.DotNetExecutable;
+            //AvailablePlatforms = _platformsFactory.GetExecutionPlatforms().ToImmutableArray();
+            _executionHost.DotNetExecutable = _platformFactory.DotNetExecutable;
         }
         private void StartExec()
         {
@@ -788,7 +787,7 @@ namespace RoslynPad.UI {
         }
         private void OnRestoreCompleted(RestoreResult restoreResult)
         {
-            //IsRestoring = false;
+            IsRestoring = false;
             ClearResults(t => t is RestoreResultObject);
             if (restoreResult.Success)
             {
@@ -813,7 +812,7 @@ namespace RoslynPad.UI {
                     AddResult(new RestoreResultObject(error, "Error"));
                 }
             }
-            //RestoreSuccessful = restoreResult.Success;
+            RestoreSuccessful = restoreResult.Success;
         }
 
         #endregion

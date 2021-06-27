@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace RoslynPad.UI
 {
-    internal interface IPlatformsFactory
+    internal interface IPlatformFactory
     {
-        IEnumerable<ExecutionPlatform> GetExecutionPlatforms();
+        ExecutionPlatform GetExecutionPlatform();
 
         string DotNetExecutable { get; }
 

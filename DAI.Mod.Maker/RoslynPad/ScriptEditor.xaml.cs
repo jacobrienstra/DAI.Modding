@@ -120,7 +120,7 @@ namespace RoslynPad {
                 }
             };
             dialog.ShowInline(this);
-            _viewModel.SendInput(textBox.Text);
+            //_viewModel.SendInput(textBox.Text);
         }
 
         private void ResultsAvailable() {

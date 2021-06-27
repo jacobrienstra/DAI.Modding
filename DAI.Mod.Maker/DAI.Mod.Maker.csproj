@@ -140,6 +140,10 @@
     <Compile Include="RoslynPad\Formatting\DocumentCollectionViewConverter.cs" />
     <Compile Include="RoslynPad\GlobalSuppressions.cs" />
     <Compile Include="RoslynPad\MainViewModel.cs" />
+    <Compile Include="RoslynPad\SaveDocumentDialog.xaml.cs">
+      <DependentUpon>SaveDocumentDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RoslynPad\SaveFileDialogAdapter.cs" />
     <Compile Include="RoslynPad\ScriptEditor.xaml.cs">
       <DependentUpon>ScriptEditor.xaml</DependentUpon>
     </Compile>
@@ -148,10 +152,6 @@
       <DependentUpon>RenameSymbolDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="RoslynPad\RoslynDocumentTrackingServiceFactory.cs" />
-    <Compile Include="RoslynPad\SaveDocumentDialog.xaml.cs">
-      <DependentUpon>SaveDocumentDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RoslynPad\SaveFileDialogAdapter.cs" />
     <Compile Include="RoslynPad\TelemetryProvider.cs" />
     <Compile Include="RoslynPad\XamlTypes.cs" />
     <Compile Include="Themes\TreeViewItemHelper.cs" />
@@ -411,15 +411,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="RoslynPad\SaveDocumentDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="RoslynPad\ScriptEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RoslynPad\RenameSymbolDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RoslynPad\SaveDocumentDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -10,7 +10,7 @@ namespace RoslynPad {
     [Export(typeof(MainViewModelBase)), Shared]
     public class MainViewModel : MainViewModelBase {
         [ImportingConstructor]
-        public MainViewModel(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, NuGetViewModel nugetViewModel, DocumentFileWatcher documentFileWatcher) : base(serviceProvider, telemetryProvider, commands, appDispatcher, settings, nugetViewModel, documentFileWatcher) {
+        public MainViewModel(IServiceProvider serviceProvider, ITelemetryProvider telemetryProvider, ICommandProvider commands, IAppDispatcher appDispatcher, IApplicationSettings settings, NuGetViewModel nugetViewModel) : base(serviceProvider, telemetryProvider, commands, appDispatcher, settings, nugetViewModel) {
         }
 
         protected override ImmutableArray<Assembly> CompositionAssemblies => base.CompositionAssemblies

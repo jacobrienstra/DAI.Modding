@@ -228,10 +228,12 @@ namespace DAI.Mod.Manager
             string newPath;
             if (MergeDestination)
             {
-                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-                saveFileDialog.Title = "Save merged patch";
-                saveFileDialog.FileName = "package.mft";
-                saveFileDialog.Filter = "package.mft|*.mft";
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "Save merged patch",
+                    FileName = "package.mft",
+                    Filter = "package.mft|*.mft"
+                };
                 if (!saveFileDialog.ShowDialog().Value)
                 {
                     return;

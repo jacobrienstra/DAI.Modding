@@ -11,8 +11,8 @@ namespace RoslynPad.UI
     [DebuggerDisplay("{Name}:{IsFolder}")]
     public class DocumentViewModel : NotificationObject
     {
-        internal const string DefaultFileExtension = ".csx";
-        internal const string AutoSaveSuffix = ".autosave";
+        internal const string DefaultFileExtension = ".cs";
+        //internal const string AutoSaveSuffix = ".autosave";
 
         private bool _isExpanded;
         private bool _isSearchMatch;
@@ -27,11 +27,11 @@ namespace RoslynPad.UI
         {
             Path = rootPath;
             IsFolder = isFolder;
-            IsAutoSave = Name.EndsWith(AutoSaveSuffix, StringComparison.OrdinalIgnoreCase);
-            if (IsAutoSave)
-            {
-                Name = Name.Substring(0, Name.Length - AutoSaveSuffix.Length);
-            }
+            //IsAutoSave = Name.EndsWith(AutoSaveSuffix, StringComparison.OrdinalIgnoreCase);
+            //if (IsAutoSave)
+            //{
+            //    Name = Name.Substring(0, Name.Length - AutoSaveSuffix.Length);
+            //}
 
             IsSearchMatch = true;
         }
@@ -77,18 +77,18 @@ namespace RoslynPad.UI
                 : Path;
         }
 
-        public string GetAutoSavePath()
-        {
-            return IsAutoSave ?
-                Path
-                // ReSharper disable once AssignNullToNotNullAttribute
-                : System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path)!, GetAutoSaveName(Name));
-        }
+        //public string GetAutoSavePath()
+        //{
+        //    return IsAutoSave ?
+        //        Path
+        //        // ReSharper disable once AssignNullToNotNullAttribute
+        //        : System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path)!, GetAutoSaveName(Name));
+        //}
 
-        public static string GetAutoSaveName(string name)
-        {
-            return name + AutoSaveSuffix + DefaultFileExtension;
-        }
+        //public static string GetAutoSaveName(string name)
+        //{
+        //    return name + AutoSaveSuffix + DefaultFileExtension;
+        //}
 
         public static DocumentViewModel CreateRoot(string rootPath)
         {
@@ -120,21 +120,21 @@ namespace RoslynPad.UI
             return System.IO.Path.Combine(path, name);
         }
 
-        public void DeleteAutoSave()
-        {
-            if (IsAutoSave)
-            {
-                IOUtilities.PerformIO(() => File.Delete(Path));
-            }
-            else
-            {
-                var autoSavePath = GetAutoSavePath();
-                if (File.Exists(autoSavePath))
-                {
-                    IOUtilities.PerformIO(() => File.Delete(autoSavePath));
-                }
-            }
-        }
+        //public void DeleteAutoSave()
+        //{
+        //    if (IsAutoSave)
+        //    {
+        //        IOUtilities.PerformIO(() => File.Delete(Path));
+        //    }
+        //    else
+        //    {
+        //        var autoSavePath = GetAutoSavePath();
+        //        if (File.Exists(autoSavePath))
+        //        {
+        //            IOUtilities.PerformIO(() => File.Delete(autoSavePath));
+        //        }
+        //    }
+        //}
 
         public bool IsExpanded
         {

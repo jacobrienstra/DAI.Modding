@@ -19,10 +19,10 @@
     <FrameworkElement.InputBindings>
         <KeyBinding Gesture="Ctrl+N"
                     Command="{Binding NewDocumentCommand, Mode=OneTime}" />
-        <KeyBinding Gesture="Ctrl+O"
-                    Command="{Binding OpenFileCommand, Mode=OneTime}" />
-        <KeyBinding Gesture="Ctrl+S"
-                    Command="{Binding SaveCommand, Mode=OneTime}" />
+        <KeyBinding Gesture="Ctrl+I"
+                    Command="{Binding ImportScriptCommand, Mode=OneTime}" />
+        <KeyBinding Gesture="Ctrl+E"
+                    Command="{Binding ExportScriptCommand, Mode=OneTime}" />
         <!--<KeyBinding Gesture="Ctrl+Shift+S"
                     Command="{Binding SaveAsFileCommand, Mode=OneTime}" />-->
         <KeyBinding Gesture="Ctrl+W"
@@ -54,15 +54,15 @@
                      BorderBrush="DarkGray"
                      BorderThickness="0 0 0 1"
                      Grid.Row="0" >
-            <Button Command="{Binding SaveCommand, Mode=OneTime}"
+            <Button Command="{Binding NewDocumentCommand, Mode=OneTime}"
                         ToolTip="New Document (Ctrl+N)"
                         Content="{StaticResource New}" />
-            <Button Command="{Binding OpenFileCommand, Mode=OneTime}"
-                        ToolTip="Open Document (Ctrl+O)"
-                        Content="{StaticResource Open}" />
-            <Button Command="{Binding SaveCommand, Mode=OneTime}"
-                        ToolTip="Save (Ctrl+S)"
-                        Content="{StaticResource Save}" />
+            <Button Command="{Binding ImportScriptCommand, Mode=OneTime}"
+                        ToolTip="Import Script (Ctrl+I)"
+                        Content="{StaticResource ImportFile}" />
+            <Button Command="{Binding ExportScriptCommand, Mode=OneTime}"
+                        ToolTip="Export Script (Ctrl+E)"
+                        Content="{StaticResource ExportFile}" />
             <Separator/>
             <Button Content="{StaticResource FormatDocument}"
                         ToolTip="Format Document (Ctrl+D)"

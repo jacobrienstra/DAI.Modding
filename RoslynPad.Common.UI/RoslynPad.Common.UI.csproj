@@ -80,7 +80,6 @@
     <Compile Include="Utilities\DelegateCommand.cs" />
     <Compile Include="Utilities\Disposer.cs" />
     <Compile Include="Utilities\NotificationObject.cs" />
-    <Compile Include="ViewModels\DocumentCollection.cs" />
     <Compile Include="ViewModels\DocumentViewModel.cs" />
     <Compile Include="ViewModels\ICommandProvider.cs" />
     <Compile Include="ViewModels\MainViewModelBase.cs" />

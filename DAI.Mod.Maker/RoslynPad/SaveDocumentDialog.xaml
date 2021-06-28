@@ -27,7 +27,6 @@
             <Button Name="OverwriteButton"
                     Style="{StaticResource DialogButton}"
                     BorderBrush="Red"
-                    Visibility="Collapsed"
                     Content="_Overwrite"
                     Click="Overwrite_Click"/>
             <Button IsDefault="True"

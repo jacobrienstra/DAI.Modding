@@ -7,7 +7,6 @@ namespace RoslynPad.UI
         string? DocumentName { get; set; }
         SaveResult Result { get; }
         bool AllowNameEdit { get; set; }
-        bool ShowDontSave { get; set; }
         string FilePath { get; }
         Func<string, string> FilePathFactory { get; set; }
     }

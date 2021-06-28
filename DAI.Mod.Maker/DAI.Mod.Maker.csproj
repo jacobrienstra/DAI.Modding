@@ -137,12 +137,8 @@
     <Compile Include="RoslynPad\Formatting\BooleanToVisibilityConverter.cs" />
     <Compile Include="RoslynPad\Formatting\CodeActionsConverter.cs" />
     <Compile Include="RoslynPad\Formatting\CodeActionToGlyphConverter.cs" />
-    <Compile Include="RoslynPad\Formatting\DocumentCollectionViewConverter.cs" />
     <Compile Include="RoslynPad\GlobalSuppressions.cs" />
     <Compile Include="RoslynPad\MainViewModel.cs" />
-    <Compile Include="RoslynPad\SaveDocumentDialog.xaml.cs">
-      <DependentUpon>SaveDocumentDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RoslynPad\SaveFileDialogAdapter.cs" />
     <Compile Include="RoslynPad\ScriptEditor.xaml.cs">
       <DependentUpon>ScriptEditor.xaml</DependentUpon>
@@ -408,10 +404,6 @@
       <DependentUpon>SlimDXControl.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RoslynPad\SaveDocumentDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

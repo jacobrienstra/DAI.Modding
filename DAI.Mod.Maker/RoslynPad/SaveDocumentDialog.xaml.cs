@@ -22,7 +22,6 @@ namespace RoslynPad {
     [Export(typeof(ISaveDocumentDialog))]
     internal partial class SaveDocumentDialog : ISaveDocumentDialog, INotifyPropertyChanged {
         private string? _documentName;
-        private bool _showDontSave;
         private InlineModalDialog _dialog;
         private bool _allowNameEdit;
         private string _filePath;
@@ -35,25 +34,15 @@ namespace RoslynPad {
             DataContext = this;
             InitializeComponent();
             DocumentName = null;
-            Loaded += OnLoaded;
-        }
-
-        private void OnLoaded(object sender, RoutedEventArgs routedEventArgs) {
-            if (AllowNameEdit) {
-                DocumentTextBox.Focus();
-            } else {
-                SaveButton.Focus();
-            }
-            SetSaveButtonStatus();
         }
 
         private void DocumentName_TextChanged(object sender, TextChangedEventArgs e) {
-            var textBox = (TextBox)sender;
-            var invalidChars = Path.GetInvalidFileNameChars();
+            TextBox textBox = (TextBox)sender;
+            char[] invalidChars = Path.GetInvalidFileNameChars();
             foreach (var c in e.Changes) {
                 if (c.AddedLength == 0) continue;
                 textBox.Select(c.Offset, c.AddedLength);
-                var filteredText = invalidChars.Aggregate(textBox.SelectedText,
+                string filteredText = invalidChars.Aggregate(textBox.SelectedText,
                     (current, invalidChar) => current.Replace(invalidChar.ToString(), string.Empty));
                 if (textBox.SelectedText != filteredText) {
                     textBox.SelectedText = filteredText;
@@ -83,10 +72,6 @@ namespace RoslynPad {
             set => SetProperty(ref _allowNameEdit, value);
         }
 
-        public bool ShowDontSave {
-            get => _showDontSave;
-            set => SetProperty(ref _showDontSave, value);
-        }
 
         public string FilePath {
             get => _filePath;

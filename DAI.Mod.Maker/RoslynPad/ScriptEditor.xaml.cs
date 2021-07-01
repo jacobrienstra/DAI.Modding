@@ -17,10 +17,9 @@ using RoslynPad.Runtime;
 using RoslynPad.UI;
 using RoslynPad.Utilities;
 
-using DAI.Utilities;
-
 #nullable enable
-namespace RoslynPad {
+namespace RoslynPad
+{
 
     /// <summary>
     /// Interaction logic for ScriptEditor.xaml
@@ -141,15 +140,6 @@ namespace RoslynPad {
         private void OnEditorFontSizeChanged(double fontSize) {
             Editor.FontSize = fontSize;
         }
-
-        //private void NuGetOnPackageInstalled(PackageData package)
-        //{
-        //    Dispatcher.InvokeAsync(() =>
-        //    {
-        //        var text = $"#r \"nuget:{package.Id}/{package.Version}\"{Environment.NewLine}";
-        //        Editor.Document.Insert(0, text, AnchorMovementType.Default);
-        //    });
-        //}
 
         private void Editor_OnLoaded(object sender, RoutedEventArgs e) {
             Dispatcher.InvokeAsync(() => Editor.Focus(), System.Windows.Threading.DispatcherPriority.Background);

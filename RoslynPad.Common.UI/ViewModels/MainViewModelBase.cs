@@ -474,6 +474,9 @@ namespace RoslynPad.UI
                     {
                         CurrentDocument = DocumentViewModel.FromPath(filePath);
                         OnPropertyChanged(nameof(Title));
+                    } else
+                    {
+                        CurrentDocument.ChangePath(filePath);
                     }
                     // ReSharper disable once PossibleNullReferenceException
                     await SaveDocument(CurrentDocument.GetSavePath()).ConfigureAwait(true);

@@ -174,6 +174,7 @@ namespace RoslynPad.Build
                 _assemblyPath = Path.Combine(BuildPath, "bin", $"rp-{Name}.{AssemblyExtension}");
 
                 var diagnostics = await script.SaveAssembly(_assemblyPath, cancellationToken).ConfigureAwait(false);
+                
                 SendDiagnostics(diagnostics);
 
                 if (diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error))

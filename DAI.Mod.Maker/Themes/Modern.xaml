@@ -319,7 +319,7 @@
                                 Height="12" />
                 </Button>
                 <Image Name="Icon"
-                            Source="{StaticResource ExceptionMarker}"
+                            Source="{StaticResource Exception}"
                             VerticalAlignment="Top"
                             Width="12"
                             Height="12"
@@ -364,7 +364,7 @@
                                 Height="12" />
                 </Button>
                 <Image Name="Icon"
-                            Source="{StaticResource ExceptionMarker}"
+                            Source="{StaticResource Exception}"
                             VerticalAlignment="Top"
                             Width="12"
                             Height="12"

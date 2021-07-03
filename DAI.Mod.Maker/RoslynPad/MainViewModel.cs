@@ -18,9 +18,6 @@ namespace RoslynPad {
             .Add(Assembly.Load(new AssemblyName("RoslynPad.Editor.Windows")));
 
         protected override ImmutableArray<Type> TypeReferences => base.TypeReferences
-            .Add(typeof(ModScript))
-            .Add(typeof(ModConfigElement))
-            .Add(typeof(ModConfigElementsList))
             .Add(typeof(Scripting));
     }
 }

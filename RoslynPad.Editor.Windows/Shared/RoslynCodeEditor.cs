@@ -6,6 +6,8 @@ using RoslynPad.Roslyn.QuickInfo;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 #if AVALONIA
 using Avalonia;
 using Avalonia.Interactivity;
@@ -84,7 +86,7 @@ namespace RoslynPad.Editor
         }
 
         public DocumentId Initialize(IRoslynHost roslynHost, IClassificationHighlightColors highlightColors, string workingDirectory, string documentText)
-        {
+   {
             _roslynHost = roslynHost ?? throw new ArgumentNullException(nameof(roslynHost));
             _classificationHighlightColors = highlightColors ?? throw new ArgumentNullException(nameof(highlightColors));
 
@@ -101,7 +103,7 @@ namespace RoslynPad.Editor
             _documentId = creatingDocumentArgs.DocumentId ??
                 roslynHost.AddDocument(new DocumentCreationArgs(avalonEditTextContainer, workingDirectory,
                     args => ProcessDiagnostics(args), text => avalonEditTextContainer.UpdateText(text)));
-
+            
             AppendText(documentText);
             Document.UndoStack.ClearAll();
             AsyncToolTipRequest = OnAsyncToolTipRequest;

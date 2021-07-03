@@ -23,8 +23,8 @@
                     Command="{Binding ImportScriptCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+E"
                     Command="{Binding ExportScriptCommand, Mode=OneTime}" />
-        <!--<KeyBinding Gesture="Ctrl+Shift+S"
-                    Command="{Binding SaveAsFileCommand, Mode=OneTime}" />-->
+        <KeyBinding Gesture="Ctrl+R"
+                    Command="{Binding RunCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+W"
                     Command="{Binding CloseCurrentDocumentCommand, Mode=OneTime}" />
         <KeyBinding Gesture="Ctrl+D"
@@ -138,50 +138,50 @@
                 </Grid>
             </ScrollViewer>
             <controls:TreeListView x:Name="ResultTree"
-                                            ItemsSource="{Binding Results}"
-                                            KeyDown="OnTreeViewKeyDown"
-                                            MouseDoubleClick="OnTreeViewDoubleClick"
-                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            VirtualizingPanel.IsVirtualizing="True"
-                                            VirtualizingPanel.VirtualizationMode="Recycling"
-                                            BorderBrush="#cccccc"
-                                            ScrollViewer.ScrollChanged="ScrollViewer_OnScrollChanged"
-                                            ContextMenuOpening="ResultTree_OnContextMenuOpening">
+                                               ItemsSource="{Binding Results}"
+                                               KeyDown="OnTreeViewKeyDown"
+                                               MouseDoubleClick="OnTreeViewDoubleClick"
+                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                               VirtualizingPanel.IsVirtualizing="True"
+                                               VirtualizingPanel.VirtualizationMode="Recycling"
+                                               BorderBrush="#cccccc"
+                                               ScrollViewer.ScrollChanged="ScrollViewer_OnScrollChanged"
+                                               ContextMenuOpening="ResultTree_OnContextMenuOpening">
                 <FrameworkElement.CommandBindings>
                     <CommandBinding Command="Copy"
-                                            Executed="CopyCommand" />
+                                                Executed="CopyCommand" />
                 </FrameworkElement.CommandBindings>
                 <FrameworkElement.ContextMenu>
                     <ContextMenu>
                         <MenuItem Name="CopyValue"
-                                            Header="Copy Value"
-                                            InputGestureText="Ctrl+C"
-                                            Click="CopyClick">
+                                              Header="Copy Value"
+                                              InputGestureText="Ctrl+C"
+                                              Click="CopyClick">
                             <MenuItem.Icon>
                                 <Image Source="{StaticResource Copy}"
-                                                Height="12" />
+                                                   Height="12" />
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem Name="CopyValueWithChildren"
-                                            Header="Copy Value with Children"
-                                            Click="CopyClick" />
+                                              Header="Copy Value with Children"
+                                              Click="CopyClick" />
                         <MenuItem Name="CopyAllValues"
-                                            Header="Copy All Values"
-                                            Click="CopyAllClick" />
+                                              Header="Copy All Values"
+                                              Click="CopyAllClick" />
                         <MenuItem Name="CopyAllValuesWithChildren"
-                                            Header="Copy All Values with Children"
-                                            InputGestureText="Ctrl+Shift+C"
-                                            Click="CopyAllClick" />
+                                              Header="Copy All Values with Children"
+                                              InputGestureText="Ctrl+Shift+C"
+                                              Click="CopyAllClick" />
                     </ContextMenu>
                 </FrameworkElement.ContextMenu>
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="controls:TreeListViewItem"
-                                    BasedOn="{StaticResource {x:Type controls:TreeListViewItem}}">
+                                       BasedOn="{StaticResource {x:Type controls:TreeListViewItem}}">
                         <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                         <Setter Property="IsExpanded"
-                                        Value="{Binding IsExpanded, Mode=OneTime}" />
+                                            Value="{Binding IsExpanded, Mode=OneTime}" />
                         <EventSetter Event="KeyDown"
-                                                Handler="OnTreeViewKeyDown" />
+                                                 Handler="OnTreeViewKeyDown" />
                     </Style>
                 </ItemsControl.ItemContainerStyle>
             </controls:TreeListView>

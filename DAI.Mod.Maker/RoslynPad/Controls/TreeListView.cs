@@ -4,32 +4,41 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace RoslynPad.Controls {
-    internal class TreeListView : TreeView {
+namespace RoslynPad.Controls
+{
+    internal class TreeListView : TreeView
+    {
         public static readonly DependencyProperty ShowSeparatorProperty = DependencyProperty.Register(
             "ShowSeparator", typeof(bool), typeof(TreeListView), new FrameworkPropertyMetadata(true));
 
-        public bool ShowSeparator {
+        public bool ShowSeparator
+        {
             get => (bool)GetValue(ShowSeparatorProperty);
             set => SetValue(ShowSeparatorProperty, value);
         }
 
-        protected override DependencyObject GetContainerForItemOverride() {
+        protected override DependencyObject GetContainerForItemOverride()
+        {
             return new TreeListViewItem();
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item) {
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
             return item is TreeListViewItem;
         }
 
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
             base.PrepareContainerForItemOverride(element, item);
             element.SetValue(TreeListViewItem.ShowSeparatorPropertyKey, ShowSeparator);
         }
 
-        public GridViewColumnCollection Columns {
-            get {
-                if (_columns == null) {
+        public GridViewColumnCollection Columns
+        {
+            get
+            {
+                if (_columns == null)
+                {
                     _columns = new GridViewColumnCollection();
                 }
 
@@ -40,7 +49,8 @@ namespace RoslynPad.Controls {
         private GridViewColumnCollection? _columns;
     }
 
-    internal class TreeListViewItem : TreeViewItem {
+    internal class TreeListViewItem : TreeViewItem
+    {
         private static readonly DependencyPropertyKey LevelPropertyKey = DependencyProperty.RegisterReadOnly(
             "Level", typeof(int), typeof(TreeListViewItem), new FrameworkPropertyMetadata());
 
@@ -55,28 +65,34 @@ namespace RoslynPad.Controls {
 
         public bool ShowSeparator => (bool)GetValue(ShowSeparatorProperty);
 
-        protected override DependencyObject GetContainerForItemOverride() {
+        protected override DependencyObject GetContainerForItemOverride()
+        {
             return new TreeListViewItem();
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item) {
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
             return item is TreeListViewItem;
         }
 
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
+        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
+        {
             base.PrepareContainerForItemOverride(element, item);
             element.SetValue(LevelPropertyKey, Level + 1);
         }
     }
 
-    internal sealed class LevelToIndentConverter : IValueConverter {
+    internal sealed class LevelToIndentConverter : IValueConverter
+    {
         private const double IndentSize = 19.0;
 
-        public object Convert(object o, Type type, object parameter, CultureInfo culture) {
+        public object Convert(object o, Type type, object parameter, CultureInfo culture)
+        {
             return new Thickness((int)o * IndentSize, 0, 0, 0);
         }
 
-        public object ConvertBack(object o, Type type, object parameter, CultureInfo culture) {
+        public object ConvertBack(object o, Type type, object parameter, CultureInfo culture)
+        {
             throw new NotSupportedException();
         }
     }

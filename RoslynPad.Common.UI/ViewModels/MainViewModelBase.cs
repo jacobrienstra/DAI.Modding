@@ -49,7 +49,7 @@ namespace RoslynPad.UI
         private bool _isRunning;
         private bool _isRestoring;
         private bool _restoreSuccessful;
-        private ObservableCollection<IResultObject> _results;
+        private readonly ObservableCollection<IResultObject> _results;
         #endregion
 
         #region Document
@@ -217,6 +217,8 @@ namespace RoslynPad.UI
             _platformFactory = serviceProvider.GetService<IPlatformFactory>();
             _commands = commands;
             _dispatcher = appDispatcher;
+            _results = new ObservableCollection<IResultObject>();
+
 
             settings.LoadDefault();
             Settings = settings;
@@ -264,6 +266,7 @@ namespace RoslynPad.UI
             RoslynHost = await Task.Run(() => new RoslynHost(
                 CompositionAssemblies,
                 RoslynHostReferences.NamespaceDefault.With(
+                    //imports: ImmutableArray.Create("DAIMod = DAI.Mod"),
                     typeNamespaceImports: TypeReferences.Add(
                         typeof(ObjectExtensions)
                     )
@@ -285,7 +288,6 @@ namespace RoslynPad.UI
             BuildPath = Path.Combine(Path.GetTempPath(), "roslynpad", "build", Id);
             Directory.CreateDirectory(BuildPath);
 
-            _results = new ObservableCollection<IResultObject>();
             _restoreSuccessful = true; // initially set to true so we can immediately start running and wait for restore
 
             NuGetDoc = _serviceProvider.GetService<NuGetDocumentViewModel>();
@@ -315,7 +317,7 @@ namespace RoslynPad.UI
                 RoslynHost.CloseDocument(__currentDocumentId);
             }
             CurrentDocument = documentViewModel == null ? null : DocumentViewModel.FromPath(documentViewModel.Path);
-            IsDirty = false; 
+            IsDirty = false;
             _executionHost.Name = CurrentDocument?.Name ?? "Untitled";
             DocumentChanged.Invoke(this, EventArgs.Empty);
         }
@@ -371,7 +373,7 @@ namespace RoslynPad.UI
             using StreamReader fileStream = File.OpenText(CurrentDocument.Path);
             return await fileStream.ReadToEndAsync().ConfigureAwait(false);
         }
-        
+
         public async Task<SaveResult> ExportSave()
         {
             if (_isSaving)
@@ -402,7 +404,8 @@ namespace RoslynPad.UI
                     {
                         CurrentDocument = DocumentViewModel.FromPath(filePath);
                         OnPropertyChanged(nameof(Title));
-                    } else
+                    }
+                    else
                     {
                         CurrentDocument.ChangePath(filePath);
                     }
@@ -451,7 +454,6 @@ namespace RoslynPad.UI
         public void OnTextChanged()
         {
             IsDirty = true;
-            CancellationToken cancellationToken = _runCts!.Token;
             UpdatePackages();
         }
 
@@ -747,7 +749,9 @@ namespace RoslynPad.UI
                 }
                 SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
                 List<LibraryRef> libraries = ParseReferences(syntaxRoot!);
-                ImmutableArray<MetadataReference> defaultReferences = DefaultReferencesCompat50;
+                var defaultReferences = Platform?.FrameworkVersion?.Major < 5
+                                    ? DefaultReferencesCompat50
+                                    : DefaultReferences; 
                 if (defaultReferences.Length > 0)
                 {
                     libraries.AddRange(GetReferencePaths(defaultReferences).Select(p => LibraryRef.Reference(p)));
@@ -919,6 +923,6 @@ namespace RoslynPad.UI
             OnEditorFocus();
         }
         #endregion
-        
+
     }
 }

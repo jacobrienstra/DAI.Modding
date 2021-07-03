@@ -44,7 +44,7 @@ namespace RoslynPad
 
             InitializeComponent();
 
-            _errorMargin = new MarkerMargin { Visibility = Visibility.Collapsed, MarkerImage = TryFindResource("ExceptionMarker") as ImageSource, Width = 10 };
+            _errorMargin = new MarkerMargin { Visibility = Visibility.Collapsed, MarkerImage = TryFindResource("Exception") as ImageSource, Width = 10 };
             Editor.TextArea.LeftMargins.Insert(0, _errorMargin);
             Editor.PreviewMouseWheel += EditorOnPreviewMouseWheel;
             Editor.TextArea.Caret.PositionChanged += CaretOnPositionChanged;
@@ -86,6 +86,11 @@ namespace RoslynPad
             Editor.FontSize = _viewModel.EditorFontSize;
 
             string documentText = await _viewModel.LoadText().ConfigureAwait(true);
+
+            if (documentText.Contains("namespace DAIMod"))
+            {
+                documentText = documentText.Replace("namespace DAIMod", "namespace DAI.Mod");
+            }
 
             DocumentId documentId = Editor.Initialize(_viewModel.RoslynHost, new ClassificationHighlightColors(),
                 _viewModel.WorkingDirectory, documentText);
